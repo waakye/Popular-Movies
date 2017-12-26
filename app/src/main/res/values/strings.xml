@@ -8,4 +8,11 @@
     <string name="popular_movies_search">Popular Movies</string>
     <string name="highly_rated_movies_search">Highly Rated Movies</string>
 
+    <!-- Detail Activity -->
+    <string name="release_date">Release Date: </string>
+    <string name="poster_path">Poster URL: </string>
+    <string name="vote_average">Vote Average: </string>
+    <string name="movie_synopsis">Synopsis </string>
+    <string name="movie_id">Movie Id: </string>
+    
 </resources>

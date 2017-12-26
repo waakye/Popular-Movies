@@ -2,7 +2,10 @@ package com.waakye.android.popularmovies9.utilities;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
+import android.text.TextUtils;
 import android.util.Log;
+
+import com.waakye.android.popularmovies9.MovieListing;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -10,6 +13,8 @@ import org.json.JSONObject;
 
 import java.io.InputStream;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by lesterlie on 12/26/17.
@@ -159,6 +164,53 @@ public class MovieDbJsonUtils {
 
         return parseReviewData;
 
+    }
+
+    /**
+     * This method parses JSON from a web response and returns an array of Strings describing the
+     * movie possibilities.
+     *
+     * @param movieJsonStr  JSON response from the server
+     *
+     * @return Array of Strings describing the movie data
+     *
+     * @throws org.json.JSONException  If JSON data cannot be properly parsed.
+     */
+    public static List<MovieListing> extractItemFromJson(String movieJsonStr)
+            throws JSONException {
+        Log.i(LOG_TAG, "extractItemFromJson() method called...");
+
+        // If the JSON string is empty or null, then return early
+        if (TextUtils.isEmpty(movieJsonStr)){
+            return null;
+        }
+
+        // Create an empty ArrayList that we can start adding movieListings to
+        ArrayList<MovieListing> listOfMovieListings = new ArrayList<>();
+
+        JSONObject baseMovieJsonResponse = new JSONObject(movieJsonStr);
+
+        JSONArray moviesArray = baseMovieJsonResponse.getJSONArray("results");
+
+        for (int i = 0; i < moviesArray.length(); i++) {
+            // Get movie JSONObject at position i
+            JSONObject currentMovie = moviesArray.getJSONObject(i);
+
+            String movieTitle = currentMovie.getString("title");
+            String movieSynopsis = currentMovie.getString("overview");
+            String moviePosterPath = currentMovie.getString("poster_path");
+            double movieVoteAverage = currentMovie.getDouble("vote_average");
+            String movieVoteAverageString = String.valueOf(movieVoteAverage);
+            String movieReleaseDate = currentMovie.getString("release_date");
+            String movieId = currentMovie.getString("id");
+
+            MovieListing movieListing = new MovieListing(movieTitle, movieSynopsis,
+                    moviePosterPath, movieVoteAverageString, movieReleaseDate, movieId);
+
+            listOfMovieListings.add(movieListing);
+
+        }
+        return listOfMovieListings;
     }
 
     // Inflate an image from a String url

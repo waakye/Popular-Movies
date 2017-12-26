@@ -4,12 +4,9 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -22,10 +19,6 @@ import java.net.URL;
 public class MainActivity extends AppCompatActivity {
 
     private static final String LOG_TAG = MainActivity.class.getSimpleName();
-
-    private EditText mSearchBoxEditText;
-
-    private TextView mUrlDisplayTextView;
 
     private TextView mSearchResultsTextView;
 
@@ -45,29 +38,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mSearchBoxEditText = (EditText) findViewById(R.id.edit_text_movies);
-
-        mUrlDisplayTextView = (TextView) findViewById(R.id.text_view_display);
-
         mSearchResultsTextView = (TextView) findViewById(R.id.text_view_moviedb_search_results_json);
-
-        Button searchButton = (Button)findViewById(R.id.search_button);
-        searchButton.setOnClickListener(new View.OnClickListener(){
-
-            @Override
-            public void onClick(View view) {
-                EditText searchTerms = (EditText)findViewById(R.id.edit_text_movies);
-                edit_text_search_terms = searchTerms.getText().toString();
-                Log.i(LOG_TAG, "onCreate() method - edit_text_search_terms: " + edit_text_search_terms);
-
-                String editTextQueryString = urlQueryString(edit_text_search_terms);
-                Log.i(LOG_TAG, "onCreate() method - editTextQueryUrl " + editTextQueryString);
-
-                mUrlDisplayTextView.setText(editTextQueryString);
-                makeUrlMovieTitleQueryString(editTextQueryString);
-
-            }
-        });
 
         mErrorMessageDisplay = (TextView)findViewById(R.id.text_view_error_message_display);
 
@@ -92,14 +63,12 @@ public class MainActivity extends AppCompatActivity {
     private void makeMovieDbPopularityQuery(String popularityType){
 
         URL movieDbDiscoverUrl = NetworkUtils.buildByPopularityTypeUrl(popularityType);
-        mUrlDisplayTextView.setText(movieDbDiscoverUrl.toString());
         new MovieDbQueryTask().execute(movieDbDiscoverUrl);
     }
 
     private void makeUserReviewsQuery(int movieId){
 
         URL movieUserReviewsUrl = NetworkUtils.createUserReviewsUrl(movieId);
-        mUrlDisplayTextView.setText(movieUserReviewsUrl.toString());
         new UserReviewsQueryTask().execute(movieUserReviewsUrl);
 
     }
@@ -107,7 +76,6 @@ public class MainActivity extends AppCompatActivity {
     private void makeTrailerQuery(int movieId){
 
         URL movieTrailerUrl = NetworkUtils.createMovieTrailerUrl(movieId);
-        mUrlDisplayTextView.setText(movieTrailerUrl.toString());
         new TrailersQueryTask().execute(movieTrailerUrl);
 
     }
@@ -115,7 +83,6 @@ public class MainActivity extends AppCompatActivity {
     private void makeUrlMovieTitleQueryString(String string){
 
         URL movieTitleSearchQueryUrl = NetworkUtils.createTitleSearchUrl(string);
-        mUrlDisplayTextView.setText(movieTitleSearchQueryUrl.toString());
         new MovieTitleQueryTask().execute(movieTitleSearchQueryUrl);
     }
 

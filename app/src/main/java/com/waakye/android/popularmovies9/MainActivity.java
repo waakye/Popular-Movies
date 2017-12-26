@@ -46,6 +46,8 @@ public class MainActivity extends AppCompatActivity {
 
     private RecyclerView mMoviesList;
 
+    protected String[] simpleJsonMovieData;
+
     private int itemThatWasClicked;
 
     @Override
@@ -65,7 +67,8 @@ public class MainActivity extends AppCompatActivity {
 
         mMoviesList.setAdapter(mAdapter);
 
-        mAdapter = new MovieAdapter(NUM_LIST_ITEMS);
+        mAdapter = new MovieAdapter(simpleJsonMovieData);
+
 
         mLoadingIndicator = (ProgressBar) findViewById(R.id.progress_bar_loading_indicator);
     }
@@ -123,6 +126,7 @@ public class MainActivity extends AppCompatActivity {
         mErrorMessageDisplay.setVisibility(View.INVISIBLE);
         // Then, make sure the JSON is visible
 //        mSearchResultsTextView.setVisibility(View.VISIBLE);
+        mMoviesList.setVisibility(View.VISIBLE);
     }
 
     /**
@@ -135,6 +139,7 @@ public class MainActivity extends AppCompatActivity {
         Log.i(LOG_TAG, "showErrorMessage() method called...");
         // First, hide the currently visible data
 //        mSearchResultsTextView.setVisibility(View.INVISIBLE);
+        mMoviesList.setVisibility(View.INVISIBLE);
         // Then, show the error
         mErrorMessageDisplay.setVisibility(View.VISIBLE);
     }
@@ -157,14 +162,6 @@ public class MainActivity extends AppCompatActivity {
                 return null;
             }
 
-//            URL movieSearchUrl = NetworkUtils.buildByPopularityTypeUrl(moviePopularityType);
-//            if(moviePopularityType == "popularity"){
-//                movieSearchUrl = NetworkUtils.createMostPopularUrl();
-//                Log.i(LOG_TAG, "movieSearchUrl is " + movieSearchUrl);
-//            } else if(moviePopularityType == "top_rated"){
-//                movieSearchUrl = NetworkUtils.createHighlyRatedUrl();
-//                Log.i(LOG_TAG, "movieSearchUrl is " + movieSearchUrl);
-//            }
             int popType = itemThatWasClicked;
             Log.i(LOG_TAG, "popType: " + itemThatWasClicked);;
             URL movieSearchUrl = NetworkUtils.createPopularityTypeUrl(popType);
@@ -173,7 +170,7 @@ public class MainActivity extends AppCompatActivity {
             try {
                 Log.i(LOG_TAG, "try-catch block query for json movie response");
                 String jsonMovieResponse = NetworkUtils.getResponseFromHttpUrl(movieSearchUrl);
-                String[] simpleJsonMovieData = MovieDbJsonUtils
+                simpleJsonMovieData = MovieDbJsonUtils
                         .getSimpleMovieStringsFromJson(MainActivity.this, jsonMovieResponse);
                 return simpleJsonMovieData;
             } catch (IOException e){

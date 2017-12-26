@@ -32,6 +32,8 @@ public final class NetworkUtils {
     // https://api.themoviedb.org/3/search/movie?api_key=<>&language=en-US&page=1&include_adult=false
     private static final String MOVIE_DB_TITLE_SEARCH_BASE_URL = "https://api.themoviedb.org/3/search/movie?";
 
+    private static final String YOUTUBE_BASE_URL = "https://www.youtube.com/watch?v=";
+
     final static String API_KEY_PARAM = "api_key";
     final static String API_KEY = "b2433ced24ee89f33371c184240eca2a";
 
@@ -52,6 +54,8 @@ public final class NetworkUtils {
     final static String MINIMUM_VOTE_COUNT_1000 = "1000";
 
     final static String REVIEWS = "reviews?";
+    final static String VIDEOS = "videos?";
+
 
     // https://api.themoviedb.org/3/movie/popular?api_key=<<api_key>>&language=en-US&page=1
 
@@ -92,6 +96,94 @@ public final class NetworkUtils {
         return url;
     }
 
+    // Method to build URL for the user reviews of a particular movie using its movie ID
+    // http://api.themoviedb.org/3/movie/83542/reviews?api_key=<>
+
+    public static URL createUserReviewsUrl(int movieId){
+
+        Uri builtUri = null;
+
+        builtUri = Uri.parse(MOVIE_DB_BASE_URL).buildUpon()
+                .appendPath(String.valueOf(movieId))
+                .appendPath(REVIEWS)
+                .appendQueryParameter(API_KEY_PARAM, API_KEY)
+                .build();
+
+        URL url = null;
+        try {
+            url = new URL(builtUri.toString());
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+        Log.v(LOG_TAG, "Built URI " + url);
+
+        return url;
+
+    }
+
+    // Method to build trailer URL for a movie's trailers using its movie ID
+    // trailers: http://api.themoviedb.org/3/movie/157336/videos?api_key=<>
+    public static URL createMovieTrailerUrl(int movieId){
+
+        Uri builtUri = null;
+
+        builtUri = Uri.parse(MOVIE_DB_BASE_URL).buildUpon()
+                .appendPath(String.valueOf(movieId))
+                .appendPath(VIDEOS)
+                .appendQueryParameter(API_KEY_PARAM, API_KEY)
+                .build();
+
+        URL url = null;
+        try {
+            url = new URL(builtUri.toString());
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+        Log.v(LOG_TAG, "Built URI " + url);
+
+        return url;
+    }
+
+    // Method to build title search URL of a movie using String information from EditText field
+    // https://api.themoviedb.org/3/search/movie?api_key={api_key}&query=Jack+Reacher
+    public static URL createTitleSearchUrl(String movieTitleQuery) {
+
+        Uri builtUri = null;
+
+        builtUri = Uri.parse(MOVIE_DB_TITLE_SEARCH_BASE_URL).buildUpon()
+                .appendQueryParameter(API_KEY_PARAM, API_KEY)
+                .appendPath("&query=")
+                .appendPath(movieTitleQuery)
+                .build();
+
+        URL url = null;
+        try {
+            url = new URL(builtUri.toString());
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+        Log.v(LOG_TAG, "Built URI " + url);
+
+        return url;
+    }
+
+    public static URL createYouTubeTrailerUrl(String youTubeCode){
+        Uri builtUri = null;
+
+        builtUri = Uri.parse(YOUTUBE_BASE_URL).buildUpon()
+                .appendPath(youTubeCode)
+                .build();
+
+        URL url = null;
+        try {
+            url = new URL(builtUri.toString());
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+        Log.v(LOG_TAG, "Built URI " + url);
+
+        return url;
+    }
 
     /**
      * This method returns the entire result from the HTTP response

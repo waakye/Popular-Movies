@@ -48,8 +48,6 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
      */
     public class MovieViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
 
-//        public TextView listItemPosterPathTextView;
-
         /**
          * Constructor for our ViewHolder.  Within this constructor, we get a reference to the
          * TextViews and set an onClickListener to listen for clicks.  Those will be handled by the
@@ -59,8 +57,6 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
          */
         public MovieViewHolder(View itemView){
             super(itemView);
-
-//           listItemPosterPathTextView = (TextView)itemView.findViewById(R.id.text_view_movie_url_again);
 
             listItemMovieImageView = (ImageView)itemView.findViewById(R.id.image_view_item_movie);
 

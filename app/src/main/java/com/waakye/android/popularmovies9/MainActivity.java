@@ -170,14 +170,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.List
     @Override
     public void onListItemClick(int clickedItemIndex) {
         Log.i(LOG_TAG, "onListItem() method called...");
-//        if (mToast != null) {
-//            mToast.cancel();
-//        }
-//
-//        String toastMessage = "Item #" + clickedItemIndex + " clicked.";
-//        mToast = Toast.makeText(this, toastMessage, Toast.LENGTH_LONG);
-//
-//        mToast.show();
+
         MovieListing individualMovie = jsonMovieDataList.get(clickedItemIndex);
         String individualTitle = individualMovie.getMovieTitle();
         String individualSynopsis = individualMovie.getMovieSynopsis();
@@ -186,18 +179,6 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.List
         String individualPosterPath = individualMovie.getMoviePosterPath();
         String individualMovieId = individualMovie.getMovieId();
 
-//        MovieListing m = new MovieListing(individualTitle, individualSynopsis,
-//                individualVoteAverage, individualReleaseDate, individualPosterPath);
-//        Intent i = new Intent(MainActivity.this, DetailActivity.class);
-//        i.putExtra("movie", Parcels.wrap(m));
-//        startActivity(i);
-
-//        MovieListing mlisting = new MovieListing(individualTitle, individualSynopsis,
-//                individualPosterPath, individualVoteAverage, individualReleaseDate );
-//
-//        Intent intent = new Intent(getBaseContext(), DetailActivity.class);
-//        intent.putExtra("movie", mlisting);
-//        startActivity(intent);
         MovieListing mlisting = new MovieListing(individualTitle, individualSynopsis,
                 individualPosterPath, individualVoteAverage, individualReleaseDate, individualMovieId );
 

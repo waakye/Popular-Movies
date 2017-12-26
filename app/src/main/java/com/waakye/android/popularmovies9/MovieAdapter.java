@@ -30,7 +30,20 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
 
     private Context context;
 
-    TextView listItemMovieTextView;
+    /**
+    * An on-click handler that we've defined to make it easy for an Activity to interface with
+    * our RecyclerView
+    */
+    final private ListItemClickListener mOnClickListener;
+
+
+    /**
+     * The interface that receives onClick messages.
+     */
+    public interface ListItemClickListener {
+        void onListItemClick(int clickedItemIndex);
+    }
+
 
     /**
      * Constructor for MovieAdapter that accepts a number of Movie items to display and the
@@ -38,9 +51,10 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
      *
      * @param dataSet    String[] containing the data to populate views to be used by RecyclerView
      */
-    public MovieAdapter(Context context, String[] dataSet){
+    public MovieAdapter(Context context, String[] dataSet, ListItemClickListener listener){
         mMovieData = dataSet;
         this.context = context;
+        mOnClickListener = listener;
     }
 
     /**
@@ -111,7 +125,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
     /**
      * Cache of the children views for a list item
      */
-    public class MovieViewHolder extends RecyclerView.ViewHolder {
+    public class MovieViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         // Will display the position in the list
         TextView listItemMovieTextView;
@@ -127,28 +141,21 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
         public MovieViewHolder(View itemView) {
             super(itemView);
 
-            // Define click listener for the ViewHolder's view
-            itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    Log.i(LOG_TAG, "Element " + getAdapterPosition() + " clicked.");
-
-                }
-            });
-
             listItemMovieImageView = (ImageView) itemView.findViewById(R.id.image_view_item_movie);
+
+            // Call setOnClickListener on the View passed into the constructor (use 'this' as the OnClickListener)
+            itemView.setOnClickListener(this);
 
         }
 
         /**
-         * Create a convenience method that takes an integer as input and use that integer to
-         * display the appropriate text within a list item.
-         *
-         * @param listIndex Position of the item in the list
+         * Called whenever a user clicks on an item in the list
+         * @param v The View that was clicked
          */
-        public void bind(int listIndex) {
-            Log.i(LOG_TAG, "bind() method called...");
-            listItemMovieTextView.setText(String.valueOf(listIndex));
+        @Override
+        public void onClick(View v){
+            int clickedPosition = getAdapterPosition();
+            mOnClickListener.onListItemClick(clickedPosition);
         }
     }
 

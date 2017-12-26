@@ -11,6 +11,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.waakye.android.popularmovies9.utilities.MovieDbJsonUtils;
 import com.waakye.android.popularmovies9.utilities.NetworkUtils;
@@ -20,7 +21,7 @@ import org.json.JSONException;
 import java.io.IOException;
 import java.net.URL;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements MovieAdapter.ListItemClickListener{
 
     private static final String LOG_TAG = MainActivity.class.getSimpleName();
 
@@ -38,6 +39,8 @@ public class MainActivity extends AppCompatActivity {
 
     // Option selected in onOptionsItemSelected method
     private int itemThatWasClicked;
+
+    private Toast mToast;
 
     private TextView mSearchResultsTextView;
 
@@ -72,7 +75,11 @@ public class MainActivity extends AppCompatActivity {
         mMoviesList.setAdapter(mAdapter);
 
         // Currently, the Adapter is loaded with String array data of the poster image urls
-        mAdapter = new MovieAdapter(this, simpleJsonMovieData);
+        // Pass in second "this" as the ListItemClickListener to the MovieAdapter constructor
+        /*
+         * The MovieAdapter is responsible for displaying each item in the list.
+         */
+        mAdapter = new MovieAdapter(this, simpleJsonMovieData, this);
 
         mErrorMessageDisplay = (TextView)findViewById(R.id.text_view_error_message_display);
 
@@ -146,6 +153,23 @@ public class MainActivity extends AppCompatActivity {
         mMoviesList.setVisibility(View.INVISIBLE);
         // Then, show the error
         mErrorMessageDisplay.setVisibility(View.VISIBLE);
+    }
+
+    /**
+     * This callback is invoked when you click on an item in the list.
+     *
+     * @param clickedItemIndex Index in the list of the item that was clicked.
+     */
+    @Override
+    public void onListItemClick(int clickedItemIndex) {
+        if (mToast != null) {
+            mToast.cancel();
+        }
+
+        String toastMessage = "Item #" + clickedItemIndex + " clicked.";
+        mToast = Toast.makeText(this, toastMessage, Toast.LENGTH_LONG);
+
+        mToast.show();
     }
 
     public class MovieDbQueryTask extends AsyncTask<Integer, Void, String[]> {

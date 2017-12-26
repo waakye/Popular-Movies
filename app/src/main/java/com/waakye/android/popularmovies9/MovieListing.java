@@ -89,7 +89,7 @@ public class MovieListing implements Parcelable {
         return moviePosterPath;
     }
 
-    public String getMovieVoteRating() {
+    public String getMovieVoteAverage() {
         return movieVoteRating;
     }
 

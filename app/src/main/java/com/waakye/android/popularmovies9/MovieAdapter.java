@@ -7,7 +7,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
@@ -44,16 +43,52 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
         void onListItemClick(int clickedItemIndex);
     }
 
+    /**
+     * Cache of the children views for a list item
+     */
+    public class MovieViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
+
+//        public TextView listItemPosterPathTextView;
+
+        /**
+         * Constructor for our ViewHolder.  Within this constructor, we get a reference to the
+         * TextViews and set an onClickListener to listen for clicks.  Those will be handled by the
+         * onClick method below
+         * @param itemView  The View that you inflated in
+         *                  {@link MovieAdapter#onCreateViewHolder(ViewGroup, int)}
+         */
+        public MovieViewHolder(View itemView){
+            super(itemView);
+
+//           listItemPosterPathTextView = (TextView)itemView.findViewById(R.id.text_view_movie_url_again);
+
+            listItemMovieImageView = (ImageView)itemView.findViewById(R.id.image_view_item_movie);
+
+            // Call setOnClickListener on the View passed into the constructor (use 'this' as the OnClickListener)
+            itemView.setOnClickListener(this);
+
+        }
+
+        /**
+         * Called whenever a user clicks on an item in the list.
+         * @param v The View that was clicked
+         */
+        @Override
+        public void onClick(View v) {
+            int clickedPosition = getAdapterPosition();
+            mOnClickListener.onListItemClick(clickedPosition);
+        }
+    }
 
     /**
      * Constructor for MovieAdapter that accepts a number of Movie items to display and the
      * specification for the ListItemClickListener
      *
-     * @param dataSet    String[] containing the data to populate views to be used by RecyclerView
+     * @param myDataSet    String[] containing the data to populate views to be used by RecyclerView
      */
-    public MovieAdapter(Context context, String[] dataSet, ListItemClickListener listener){
-        mMovieData = dataSet;
+    public MovieAdapter(Context context, String[] myDataSet, ListItemClickListener listener){
         this.context = context;
+        mMovieData = myDataSet;
         mOnClickListener = listener;
     }
 
@@ -69,7 +104,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
      * @return              A new MovieViewHolder that holds the View for each list item
      */
     @Override
-    public MovieViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
+    public MovieAdapter.MovieViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
 
         Log.i(LOG_TAG, "onCreateViewHolder() method called...");
 
@@ -103,11 +138,12 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
     public void onBindViewHolder(MovieViewHolder viewHolder, final int position) {
         Log.d(LOG_TAG, "onBindViewHolder() method called with #" + position);
 
-        String individualMoviePosterUrl = mMovieData[position];
+        String individualMoviePosterUrl = MOVIE_POSTER_PREFIX + mMovieData[position];
 
         Log.i(LOG_TAG, "moviePosterUrl: " + individualMoviePosterUrl);
 
-        // Take the image url from the TextView and convert it to a String
+        // Uses the Picasso library and the movie Poster url to inflate the listItemMovieImageView
+        Picasso.with(context).setLoggingEnabled(true);
         Picasso.with(context).load(individualMoviePosterUrl).into(listItemMovieImageView);
     }
 
@@ -120,43 +156,6 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
     @Override
     public int getItemCount() {
         return mMovieData.length;
-    }
-
-    /**
-     * Cache of the children views for a list item
-     */
-    public class MovieViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-
-        // Will display the position in the list
-        TextView listItemMovieTextView;
-
-        /**
-         * Constructor for our ViewHolder.  Within this constructor, we get a reference to the
-         * TextViews and set an onClickListener to listen for clicks.  Those will be handled by the
-         * onClick method below
-         *
-         * @param itemView The View that you inflated in
-         *                 {@link MovieAdapter#onCreateViewHolder(ViewGroup, int)}
-         */
-        public MovieViewHolder(View itemView) {
-            super(itemView);
-
-            listItemMovieImageView = (ImageView) itemView.findViewById(R.id.image_view_item_movie);
-
-            // Call setOnClickListener on the View passed into the constructor (use 'this' as the OnClickListener)
-            itemView.setOnClickListener(this);
-
-        }
-
-        /**
-         * Called whenever a user clicks on an item in the list
-         * @param v The View that was clicked
-         */
-        @Override
-        public void onClick(View v){
-            int clickedPosition = getAdapterPosition();
-            mOnClickListener.onListItemClick(clickedPosition);
-        }
     }
 
     public void setMovieData(String[] movieData) {

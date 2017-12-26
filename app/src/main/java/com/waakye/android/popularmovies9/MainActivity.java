@@ -20,22 +20,28 @@ import org.json.JSONException;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements MovieAdapter.ListItemClickListener{
 
     private static final String LOG_TAG = MainActivity.class.getSimpleName();
 
+    // TextView to display the error message
     private TextView mErrorMessageDisplay;
 
+    // Loading Indicator
     private ProgressBar mLoadingIndicator;
-
-    protected String[] simpleJsonMovieData;
 
     private RecyclerView mMoviesList;
 
     private MovieAdapter mAdapter;
 
     private RecyclerView.LayoutManager layoutManager;
+
+    private List<MovieListing> jsonMovieDataList = new ArrayList<>();
+
+    protected String[] simpleJsonMovieData;
 
     // Option selected in onOptionsItemSelected method
     private int itemThatWasClicked;
@@ -162,6 +168,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.List
      */
     @Override
     public void onListItemClick(int clickedItemIndex) {
+        Log.i(LOG_TAG, "onListItem() method called...");
         if (mToast != null) {
             mToast.cancel();
         }
@@ -172,7 +179,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.List
         mToast.show();
     }
 
-    public class MovieDbQueryTask extends AsyncTask<Integer, Void, String[]> {
+    public class MovieDbQueryTask extends AsyncTask<Integer, Void, List<MovieListing>> {
 
         // Override onPreExecute to set the loading indicator to visible
         @Override
@@ -182,7 +189,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.List
         }
 
         @Override
-        protected String[] doInBackground(Integer... params) {
+        protected List<MovieListing> doInBackground(Integer... params) {
             Log.i(LOG_TAG, "MovieDbQueryTask doInBackground() method called...");
 
             // If there's no search terms, then there's nothing to look up
@@ -206,10 +213,10 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.List
                 // Get the HTTP response to determine whether to create an internet connection
                 String jsonMovieResponse = NetworkUtils.getResponseFromHttpUrl(movieSearchUrl);
 
-                // Returns a String array that holds the movie data
-                simpleJsonMovieData = MovieDbJsonUtils
-                        .getSimpleMovieStringsFromJson(MainActivity.this, jsonMovieResponse);
-                return simpleJsonMovieData;
+                jsonMovieDataList = MovieDbJsonUtils.extractItemFromJson(jsonMovieResponse);
+
+                // Returns a List of MovieListing objects
+                return jsonMovieDataList;
             } catch (IOException e){
                 e.printStackTrace();
                 return null;
@@ -220,15 +227,19 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.List
         }
 
         @Override
-        protected void onPostExecute(String[] movieDbSearchResults){
+        protected void onPostExecute(List<MovieListing> movieDbSearchResults){
             Log.i(LOG_TAG, "MovieDbQueryTask onPostExecute() method called...");
             // As soon as the loading is complete, hide the loading indicator
             mLoadingIndicator.setVisibility(View.INVISIBLE);
             if(movieDbSearchResults != null && !movieDbSearchResults.equals("")){
                 // Call showJsonDataView if we have valid, non-null results
                 showJsonDataView();
-                // Sets the RecyclerView Adapter, MovieAdapter, to the data source
-                mAdapter.setMovieData(simpleJsonMovieData);
+                // A String array of movie Urls based on the List of MovieListing objects
+                String[] movieUrls = extractMovieUrlsInMain(movieDbSearchResults);
+
+                // Sets the RecyclerView Adapter, MovieAdapter, to the data source, a String array of
+                // movie urls
+                mAdapter.setMovieData(movieUrls);
 
                 // RecyclerView's adapter is set to the RecyclerView Adapter
                 mMoviesList.setAdapter(mAdapter);
@@ -238,6 +249,20 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.List
             }
         }
     }
+
+    public String[] extractMovieUrlsInMain (List<MovieListing> movieDbSearchResults){
+        Log.i(LOG_TAG, "extractMovieUrlsInMain() method callled...");
+
+        // Create a String[] array with a length equal to the size of the List of Movies
+        String[] moviePosterUrls = new String[movieDbSearchResults.size()];
+        int index = 0;
+        for(MovieListing movie : movieDbSearchResults){
+            moviePosterUrls[index] = (String) movie.getMoviePosterPath();
+            index++;
+        }
+        return moviePosterUrls;
+    }
+
 
     public class TrailersQueryTask extends AsyncTask<String, Void, String[]>{
 

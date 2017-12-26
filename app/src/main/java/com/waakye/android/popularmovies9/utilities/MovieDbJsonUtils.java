@@ -19,6 +19,8 @@ public class MovieDbJsonUtils {
 
     public static String LOG_TAG = MovieDbJsonUtils.class.getSimpleName();
 
+    private static final String YOUTUBE_BASE_URL = "https://www.youtube.com/watch?v=";
+
     public static String MOVIE_POSTER_PREFIX = "https://image.tmdb.org/t/p/w500";
 
     /**
@@ -31,6 +33,7 @@ public class MovieDbJsonUtils {
      *
      * @throws org.json.JSONException  If JSON data cannot be properly parsed.
      */
+    // Can be used for the popularity type search as well as the title search
     public static String[] getSimpleMovieStringsFromJson(Context context, String movieJsonStr)
             throws JSONException {
         Log.i(LOG_TAG, "getSimpleMovieStringsFromJson() method called...");
@@ -63,6 +66,69 @@ public class MovieDbJsonUtils {
         }
 
         return parsedMovieData;
+    }
+
+    // For this query: http://api.themoviedb.org/3/movie/157336/videos?api_key=b2433ced24ee89f33371c184240eca2a
+    public static String[] getTrailerStringsFromJson(Context context, String trailerJsonStr)
+            throws JSONException{
+
+        Log.i(LOG_TAG, "getTrailerStringsFromJson() method called...");
+
+        /* String array to hold each trailers's data */
+        String[] parseTrailerData = null;
+
+        JSONObject baseTrailerJsonResponse = new JSONObject(trailerJsonStr);
+
+        JSONArray trailersArray = baseTrailerJsonResponse.getJSONArray("results");
+
+        // Define parsedTrailerData as a String array with a length determined by the number of
+        // trailers in the trailersArray
+        parseTrailerData = new String[trailersArray.length()];
+
+        for(int i = 0; i < trailersArray.length(); i++){
+            // Get trailer JSONObject at position i
+            JSONObject currentTrailer = trailersArray.getJSONObject(i);
+
+            String trailerName = currentTrailer.getString("name");
+            String trailerType = currentTrailer.getString("type");
+            String trailerSite = currentTrailer.getString("site");
+            String trailerKey = currentTrailer.getString("key");
+
+            parseTrailerData[i] = YOUTUBE_BASE_URL + trailerKey;
+        }
+
+        return parseTrailerData;
+    }
+
+    // For this query: http://api.themoviedb.org/3/movie/83542/reviews?api_key=b2433ced24ee89f33371c184240eca2a
+    public static String[] getUserReviewStringsFromJson(Context context, String reviewsJsonStr)
+            throws JSONException{
+
+        Log.i(LOG_TAG, "getUserReviewStringsFromJson() method called...");
+
+        /* String array to hold each reviews's data */
+        String[] parseReviewData = null;
+
+        JSONObject baseReviewJsonResponse = new JSONObject(reviewsJsonStr);
+
+        JSONArray reviewsArray = baseReviewJsonResponse.getJSONArray("results");
+
+        // Define parsedReviewDat as a String array with a length determined by the number of
+        // reviews in the reviewsArray
+        parseReviewData = new String[reviewsArray.length()];
+
+        for(int i = 0; i < reviewsArray.length(); i++){
+            // Get a review JSONObject at position i
+            JSONObject currentReview = reviewsArray.getJSONObject(i);
+
+            String reviewAuthor = currentReview.getString("author");
+            String reviewContent = currentReview.getString("content");
+
+            parseReviewData[i] = reviewContent + "\n\n" + reviewAuthor;
+        }
+
+        return parseReviewData;
+
     }
 
     // Inflate an image from a String url

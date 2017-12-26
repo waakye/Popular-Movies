@@ -10,6 +10,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -35,10 +36,9 @@ public class MainActivity extends AppCompatActivity {
 
     private String edit_text_search_terms = "";
 
-    // URL for movie title search
-    // https://api.themoviedb.org/3/search/movie?api_key={api_key}&query=Jack+Reacher
-    private static final String MOVIE_DB_TITLE_SEARCH_BASE_URL = "https://api.themoviedb.org/3/search/movie";
-    private String concatenated_search_terms = "";
+    private TextView mErrorMessageDisplay;
+
+    private ProgressBar mLoadingIndicator;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,6 +68,10 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+
+        mErrorMessageDisplay = (TextView)findViewById(R.id.text_view_error_message_display);
+
+        mLoadingIndicator = (ProgressBar) findViewById(R.id.progress_bar_loading_indicator);
     }
 
     // https://api.themoviedb.org/3/search/movie?api_key={api_key}&query=Jack+Reacher
@@ -115,8 +119,40 @@ public class MainActivity extends AppCompatActivity {
         new MovieTitleQueryTask().execute(movieTitleSearchQueryUrl);
     }
 
+    /**
+     * This method will make the View for the JSON data visible and hide the error message
+     *
+     * Since it is okay to redundantly set the visibility of a View, we don't need to check whether
+     * each view is current visible or invisible
+     */
+    private void showJsonDataView(){
+        // First, make sure the error is invisible
+        mErrorMessageDisplay.setVisibility(View.INVISIBLE);
+        // Then, make sure the JSON is visible
+        mSearchResultsTextView.setVisibility(View.VISIBLE);
+    }
+
+    /**
+     * This method will make the error message visible and hide the JSON View.
+     *
+     * Since it is okay to redundantly set  the visiblity of a View, we don't need to check whether
+     * each view is currently visible or invisible
+     */
+    private void showErrorMessage(){
+        // First, hide the currently visible data
+        mSearchResultsTextView.setVisibility(View.INVISIBLE);
+        // Then, show the error
+        mErrorMessageDisplay.setVisibility(View.VISIBLE);
+    }
 
     public class MovieDbQueryTask extends AsyncTask<URL, Void, String> {
+
+        // Override onPreExecute to set the loading indicator to visible
+        @Override
+        protected void onPreExecute(){
+            super.onPreExecute();
+            mLoadingIndicator.setVisibility(View.VISIBLE);
+        }
 
         @Override
         protected String doInBackground(URL... params) {
@@ -132,13 +168,27 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(String movieDbSearchResults){
+            // As soon as the loading is complete, hide the loading indicator
+            mLoadingIndicator.setVisibility(View.INVISIBLE);
             if(movieDbSearchResults != null && !movieDbSearchResults.equals("")){
+                // Call showJsonDataView if we have valid, non-null results
+                showJsonDataView();
                 mSearchResultsTextView.setText(movieDbSearchResults);
+            } else {
+                // Call showErrorMessage if the result is null in onPostExecute
+                showErrorMessage();
             }
         }
     }
 
     public class TrailersQueryTask extends AsyncTask<URL, Void, String>{
+
+        // Override onPreExecute to set the loading indicator to visible
+        @Override
+        protected void onPreExecute(){
+            super.onPreExecute();
+            mLoadingIndicator.setVisibility(View.VISIBLE);
+        }
 
         @Override
         protected String doInBackground(URL... params) {
@@ -154,13 +204,27 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(String trailersSearchResults){
+            // As soon as the loading is complete, hide the loading indicator
+            mLoadingIndicator.setVisibility(View.INVISIBLE);
             if(trailersSearchResults != null && !trailersSearchResults.equals("")){
+                // Call showJsonDataView if we have valid, non-null results
+                showJsonDataView();
                 mSearchResultsTextView.setText(trailersSearchResults);
+            } else {
+                // Call showErrorMessage if the result is null in onPostExecute
+                showErrorMessage();
             }
         }
     }
 
     public class MovieTitleQueryTask extends AsyncTask<URL, Void, String>{
+
+        // Override onPreExecute to set the loading indicator to visible
+        @Override
+        protected void onPreExecute(){
+            super.onPreExecute();
+            mLoadingIndicator.setVisibility(View.VISIBLE);
+        }
 
         @Override
         protected String doInBackground(URL... params) {
@@ -176,13 +240,27 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(String movieTitleSearchResults){
+            // As soon as the loading is complete, hide the loading indicator
+            mLoadingIndicator.setVisibility(View.INVISIBLE);
             if(movieTitleSearchResults != null && !movieTitleSearchResults.equals("")){
+                // Call showJsonDataView if we have valid, non-null results
+                showJsonDataView();
                 mSearchResultsTextView.setText(movieTitleSearchResults);
+            }  else {
+                // Call showErrorMessage if the result is null in onPostExecute
+                showErrorMessage();
             }
         }
     }
 
     public class UserReviewsQueryTask extends AsyncTask<URL, Void, String>{
+
+        // Override onPreExecute to set the loading indicator to visible
+        @Override
+        protected void onPreExecute(){
+            super.onPreExecute();
+            mLoadingIndicator.setVisibility(View.VISIBLE);
+        }
 
         @Override
         protected String doInBackground(URL... params) {
@@ -198,8 +276,15 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(String userReviewsSearchResults){
+            // As soon as the loading is complete, hide the loading indicator
+            mLoadingIndicator.setVisibility(View.INVISIBLE);
             if(userReviewsSearchResults != null && !userReviewsSearchResults.equals("")){
+                // Call showJsonDataView if we have valid, non-null results
+                showJsonDataView();
                 mSearchResultsTextView.setText(userReviewsSearchResults);
+            } else {
+                // Call showErrorMessage if the result is null in onPostExecute
+                showErrorMessage();
             }
         }
     }

@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -35,6 +36,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Log.i(LOG_TAG, "onCreate() method called...");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -48,6 +50,7 @@ public class MainActivity extends AppCompatActivity {
     // https://api.themoviedb.org/3/search/movie?api_key={api_key}&query=Jack+Reacher
     public String urlQueryString(String search_terms) {
 
+        Log.i(LOG_TAG, "urlQueryString() method called...");
         search_terms = search_terms.trim().replace(" ", "+");
 
         StringBuilder sb = new StringBuilder(NetworkUtils.MOVIE_DB_TITLE_SEARCH_BASE_URL);
@@ -62,12 +65,14 @@ public class MainActivity extends AppCompatActivity {
 
     private void makeMovieDbPopularityQuery(String popularityType){
 
+        Log.i(LOG_TAG, "makeMovieDbPopularityQuery() method called...");
         URL movieDbDiscoverUrl = NetworkUtils.buildByPopularityTypeUrl(popularityType);
         new MovieDbQueryTask().execute(movieDbDiscoverUrl);
     }
 
     private void makeUserReviewsQuery(int movieId){
 
+        Log.i(LOG_TAG, "makeUserReviewsQuery() method called...");
         URL movieUserReviewsUrl = NetworkUtils.createUserReviewsUrl(movieId);
         new UserReviewsQueryTask().execute(movieUserReviewsUrl);
 
@@ -75,13 +80,14 @@ public class MainActivity extends AppCompatActivity {
 
     private void makeTrailerQuery(int movieId){
 
+        Log.i(LOG_TAG, "makeTrailerQuery() method called...");
         URL movieTrailerUrl = NetworkUtils.createMovieTrailerUrl(movieId);
         new TrailersQueryTask().execute(movieTrailerUrl);
 
     }
 
     private void makeUrlMovieTitleQueryString(String string){
-
+        Log.i(LOG_TAG, "makeUrlMovieTitleQueryString() method called...");
         URL movieTitleSearchQueryUrl = NetworkUtils.createTitleSearchUrl(string);
         new MovieTitleQueryTask().execute(movieTitleSearchQueryUrl);
     }
@@ -93,6 +99,7 @@ public class MainActivity extends AppCompatActivity {
      * each view is current visible or invisible
      */
     private void showJsonDataView(){
+        Log.i(LOG_TAG, "showJsonDataView() method called...");
         // First, make sure the error is invisible
         mErrorMessageDisplay.setVisibility(View.INVISIBLE);
         // Then, make sure the JSON is visible
@@ -106,6 +113,7 @@ public class MainActivity extends AppCompatActivity {
      * each view is currently visible or invisible
      */
     private void showErrorMessage(){
+        Log.i(LOG_TAG, "showErrorMessage() method called...");
         // First, hide the currently visible data
         mSearchResultsTextView.setVisibility(View.INVISIBLE);
         // Then, show the error
@@ -123,6 +131,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected String doInBackground(URL... params) {
+            Log.i(LOG_TAG, "MovieDbQueryTask doInBackground() method called...");
             URL searchUrl = params[0];
             String movieDbSearchResults = null;
             try {
@@ -135,6 +144,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(String movieDbSearchResults){
+            Log.i(LOG_TAG, "MovieDbQueryTask onPostExecute() method called...");
             // As soon as the loading is complete, hide the loading indicator
             mLoadingIndicator.setVisibility(View.INVISIBLE);
             if(movieDbSearchResults != null && !movieDbSearchResults.equals("")){
@@ -159,6 +169,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected String doInBackground(URL... params) {
+            Log.i(LOG_TAG, "TrailersQueryTask doInBackground() method called...");
             URL searchUrl = params[0];
             String trailersSearchResults = null;
             try {
@@ -171,6 +182,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(String trailersSearchResults){
+            Log.i(LOG_TAG, "TrailersQueryTask onPostExecute() method called...");
             // As soon as the loading is complete, hide the loading indicator
             mLoadingIndicator.setVisibility(View.INVISIBLE);
             if(trailersSearchResults != null && !trailersSearchResults.equals("")){
@@ -195,6 +207,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected String doInBackground(URL... params) {
+            Log.i(LOG_TAG, "MovieTitleQueryTask doInBackground() method called...");
             URL searchUrl = params[0];
             String movieTitleSearchResults = null;
             try {
@@ -207,6 +220,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(String movieTitleSearchResults){
+            Log.i(LOG_TAG, "MovieTitleQueryTask onPostExecute() method called...");
             // As soon as the loading is complete, hide the loading indicator
             mLoadingIndicator.setVisibility(View.INVISIBLE);
             if(movieTitleSearchResults != null && !movieTitleSearchResults.equals("")){
@@ -231,6 +245,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected String doInBackground(URL... params) {
+            Log.i(LOG_TAG, "UserReviewsQueryTask doInBackground() method called...");
             URL searchUrl = params[0];
             String userReviewsSearchResults = null;
             try {
@@ -243,6 +258,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(String userReviewsSearchResults){
+            Log.i(LOG_TAG, "UserReviewsQueryTask onPostExecute() method called...");
             // As soon as the loading is complete, hide the loading indicator
             mLoadingIndicator.setVisibility(View.INVISIBLE);
             if(userReviewsSearchResults != null && !userReviewsSearchResults.equals("")){
@@ -266,6 +282,7 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item){
         int itemThatWasClicked = item.getItemId();
         if(itemThatWasClicked == R.id.action_popular_movies) {
+            Log.i(LOG_TAG, "onOptionsItemSelected() method -- most popular movies called...");
             Context context = MainActivity.this;
             moviePopularityType = "popularity.desc"; // Most popular movies
             String textToShow = "Popular Movies clicked";
@@ -275,6 +292,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         if(itemThatWasClicked == R.id.action_highly_rated_movies){
+            Log.i(LOG_TAG, "onOptionsItemSelected() method -- highly rated movies called...");
             Context context = MainActivity.this;
             moviePopularityType = "vote_average.desc"; // Most highly rated movies
             String textToShow = "Highly Rated Movies clicked";

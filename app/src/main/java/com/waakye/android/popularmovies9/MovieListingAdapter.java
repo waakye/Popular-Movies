@@ -134,7 +134,9 @@ public class MovieListingAdapter extends RecyclerView.Adapter<MovieListingAdapte
     public void onBindViewHolder(MovieListingViewHolder viewHolder, final int position) {
         Log.i(LOG_TAG, "onBindViewHolder() method called with #" + position);
 
-        String individualMoviePosterUrl = MOVIE_POSTER_PREFIX + movieListingsList.indexOf(position);
+        String[] moviePosterArray = extractMovieUrlsInMain(movieListingsList);
+        String individualMoviePosterUrl = MOVIE_POSTER_PREFIX + moviePosterArray[position];
+
         Log.i(LOG_TAG, "moviePosterUrl: " + individualMoviePosterUrl);
 
         // Uses the Picasso library and the movie Poster url to inflate the listItemMovieImageView
@@ -158,5 +160,18 @@ public class MovieListingAdapter extends RecyclerView.Adapter<MovieListingAdapte
         Log.i(LOG_TAG, "setMovieData() method is called...");
         movieListingsList = movieData;
         notifyDataSetChanged();
+    }
+
+    public String[] extractMovieUrlsInMain (List<MovieListing> movieDbSearchResults){
+        Log.i(LOG_TAG, "extractMovieUrlsInMain() method callled...");
+
+        // Create a String[] array with a length equal to the size of the List of Movies
+        String[] moviePosterUrls = new String[movieDbSearchResults.size()];
+        int index = 0;
+        for(MovieListing movie : movieDbSearchResults){
+            moviePosterUrls[index] = (String) movie.getMoviePosterPath();
+            index++;
+        }
+        return moviePosterUrls;
     }
 }

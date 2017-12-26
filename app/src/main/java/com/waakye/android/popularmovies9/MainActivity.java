@@ -60,6 +60,8 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.List
 
     private String edit_text_search_terms = "";
 
+    private static final int MOVIE_POSTER_LOADER_ID = 0;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Log.i(LOG_TAG, "onCreate() method called...");

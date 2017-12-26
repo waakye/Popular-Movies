@@ -25,6 +25,10 @@ public class MainActivity extends AppCompatActivity {
 
     private String moviePopularityType;
 
+    // MovieId of "Jack Reacher" movie
+    private static int JACK_REACHER_MOVIE_ID = 343611;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,6 +47,22 @@ public class MainActivity extends AppCompatActivity {
         URL movieDbDiscoverUrl = NetworkUtils.buildByPopularityTypeUrl(popularityType);
         mUrlDisplayTextView.setText(movieDbDiscoverUrl.toString());
         new MovieDbQueryTask().execute(movieDbDiscoverUrl);
+    }
+
+    private void makeUserReviewsQuery(int movieId){
+
+        URL movieUserReviewsUrl = NetworkUtils.createUserReviewsUrl(movieId);
+        mUrlDisplayTextView.setText(movieUserReviewsUrl.toString());
+        new UserReviewsQueryTask().execute(movieUserReviewsUrl);
+
+    }
+
+    private void makeTrailerQuery(int movieId){
+
+        URL movieTrailerUrl = NetworkUtils.createMovieTrailerUrl(movieId);
+        mUrlDisplayTextView.setText(movieTrailerUrl.toString());
+        new TrailersQueryTask().execute(movieTrailerUrl);
+
     }
 
     public class MovieDbQueryTask extends AsyncTask<URL, Void, String> {
@@ -67,6 +87,50 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    public class TrailersQueryTask extends AsyncTask<URL, Void, String>{
+
+        @Override
+        protected String doInBackground(URL... params) {
+            URL searchUrl = params[0];
+            String trailersSearchResults = null;
+            try {
+                trailersSearchResults = NetworkUtils.getResponseFromHttpUrl(searchUrl);
+            } catch (IOException e){
+                e.printStackTrace();
+            }
+            return trailersSearchResults;
+        }
+
+        @Override
+        protected void onPostExecute(String trailersSearchResults){
+            if(trailersSearchResults != null && !trailersSearchResults.equals("")){
+                mSearchResultsTextView.setText(trailersSearchResults);
+            }
+        }
+    }
+
+
+    public class UserReviewsQueryTask extends AsyncTask<URL, Void, String>{
+
+        @Override
+        protected String doInBackground(URL... params) {
+            URL searchUrl = params[0];
+            String userReviewsSearchResults = null;
+            try {
+                userReviewsSearchResults = NetworkUtils.getResponseFromHttpUrl(searchUrl);
+            } catch (IOException e){
+                e.printStackTrace();
+            }
+            return userReviewsSearchResults;
+        }
+
+        @Override
+        protected void onPostExecute(String userReviewsSearchResults){
+            if(userReviewsSearchResults != null && !userReviewsSearchResults.equals("")){
+                mSearchResultsTextView.setText(userReviewsSearchResults);
+            }
+        }
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu){
@@ -83,6 +147,9 @@ public class MainActivity extends AppCompatActivity {
             String textToShow = "Popular Movies clicked";
             Toast.makeText(context, textToShow, Toast.LENGTH_SHORT).show();
             makeMovieDbPopularityQuery(moviePopularityType);
+//            makeTrailerQuery(JACK_REACHER_MOVIE_ID);
+//            makeUserReviewsQuery(JACK_REACHER_MOVIE_ID);
+
             return true;
         }
 
@@ -92,6 +159,9 @@ public class MainActivity extends AppCompatActivity {
             String textToShow = "Highly Rated Movies clicked";
             Toast.makeText(context, textToShow, Toast.LENGTH_SHORT).show();
             makeMovieDbPopularityQuery(moviePopularityType);
+//            makeTrailerQuery(JACK_REACHER_MOVIE_ID);
+//            makeUserReviewsQuery(JACK_REACHER_MOVIE_ID);
+
             return true;
         }
 

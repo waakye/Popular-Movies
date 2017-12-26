@@ -60,8 +60,8 @@ public final class NetworkUtils {
     final static String VOTE_COUNT_PARAM = "vote_count.gte";
     final static String MINIMUM_VOTE_COUNT_1000 = "1000";
 
-    final static String REVIEWS = "reviews?";
-    final static String VIDEOS = "videos?";
+    final static String REVIEWS = "reviews";
+    final static String VIDEOS = "videos";
 
     /**
      * Builds the URL used to query The MovieDb using a String as a parameter

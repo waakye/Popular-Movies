@@ -1,6 +1,7 @@
 package com.waakye.android.popularmovies9;
 
 import android.content.Context;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
@@ -41,14 +42,31 @@ public class MainActivity extends AppCompatActivity {
 
         URL movieDbDiscoverUrl = NetworkUtils.buildByPopularityTypeUrl(popularityType);
         mUrlDisplayTextView.setText(movieDbDiscoverUrl.toString());
-        String movieDbSearchResults = null;
-        try {
-            movieDbSearchResults = NetworkUtils.getResponseFromHttpUrl(movieDbDiscoverUrl);
-            mSearchResultsTextView.setText(movieDbSearchResults);
-        } catch (IOException e){
-            e.printStackTrace();
+        new MovieDbQueryTask().execute(movieDbDiscoverUrl);
+    }
+
+    public class MovieDbQueryTask extends AsyncTask<URL, Void, String> {
+
+        @Override
+        protected String doInBackground(URL... params) {
+            URL searchUrl = params[0];
+            String movieDbSearchResults = null;
+            try {
+                movieDbSearchResults = NetworkUtils.getResponseFromHttpUrl(searchUrl);
+            } catch (IOException e){
+                e.printStackTrace();
+            }
+            return movieDbSearchResults;
+        }
+
+        @Override
+        protected void onPostExecute(String movieDbSearchResults){
+            if(movieDbSearchResults != null && !movieDbSearchResults.equals("")){
+                mSearchResultsTextView.setText(movieDbSearchResults);
+            }
         }
     }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu){

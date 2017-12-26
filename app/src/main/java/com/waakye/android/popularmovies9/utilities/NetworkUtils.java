@@ -18,6 +18,8 @@ public final class NetworkUtils {
 
     private static final String LOG_TAG = NetworkUtils.class.getSimpleName();
 
+    private static final String MOVIE_DB_DISCOVER_BASE_URL = "https://api.themoviedb.org/3/discover/movie?";
+
     // Base URLs for highly-rated or popular movies list
     private static final String MOVIE_DB_POPULAR_MOVIE_BASE_URL = "https://api.themoviedb.org/3/movie/popular";
 
@@ -40,6 +42,11 @@ public final class NetworkUtils {
     final static String LANGUAGE_PARAM = "language";
     final static String LANGUAGE_ENGLISH = "en-US";
 
+    final static String PARAM_SORT = "sort_by";
+    final static String POPULARITY_DESC = "popularity.desc";
+    final static String HIGHLY_RATED_DESC = "vote_average.desc";
+
+
     final static String CERTIFICATION_COUNTRY_PARAM = "certification_country";
     final static String COUNTRY_US = "US";
 
@@ -56,6 +63,34 @@ public final class NetworkUtils {
     final static String REVIEWS = "reviews?";
     final static String VIDEOS = "videos?";
 
+    /**
+     * Builds the URL used to query The MovieDb using a String as a parameter
+     * @param typeOfPopularity  The type of popularity that will be used for search - can either be
+     *                          popularity.desc or vote_averae.desc
+     * @return  The URL to use the query the movie DB server.
+     */
+    public static URL buildByPopularityTypeUrl(String typeOfPopularity){
+        Uri builtUri = Uri.parse(MOVIE_DB_DISCOVER_BASE_URL).buildUpon()
+                .appendQueryParameter(API_KEY_PARAM, API_KEY)
+                .appendQueryParameter(LANGUAGE_PARAM, LANGUAGE_ENGLISH)
+                .appendQueryParameter(PARAM_SORT, typeOfPopularity)
+                .appendQueryParameter(CERTIFICATION_COUNTRY_PARAM, COUNTRY_US)
+                .appendQueryParameter(ADULT_PARAM, FALSE)
+                .appendQueryParameter(VIDEO_PARAM, FALSE)
+                .appendQueryParameter(PAGE_PARAM, PAGE_1)
+                .appendQueryParameter(VOTE_COUNT_PARAM, MINIMUM_VOTE_COUNT_1000)
+                .build();
+
+        URL url = null;
+        try {
+            url = new URL(builtUri.toString());
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+        Log.v(LOG_TAG, "Built URI " + url);
+
+        return url;
+    }
 
     // https://api.themoviedb.org/3/movie/popular?api_key=<<api_key>>&language=en-US&page=1
 

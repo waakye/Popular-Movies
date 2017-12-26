@@ -96,14 +96,15 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
          * Constructor for our ViewHolder.  Within this constructor, we get a reference to the
          * TextViews and set an onClickListener to listen for clicks.  Those will be handled by the
          * onClick method below
-         * @param itemView  The View that you inflated in
-         *                  {@link MovieAdapter#onCreateViewHolder(ViewGroup, int)}
+         *
+         * @param itemView The View that you inflated in
+         *                 {@link MovieAdapter#onCreateViewHolder(ViewGroup, int)}
          */
-        public MovieViewHolder(View itemView){
+        public MovieViewHolder(View itemView) {
             super(itemView);
 
             // Define click listener for the ViewHolder's view
-            itemView.setOnClickListener(new View.OnClickListener(){
+            itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     Log.i(LOG_TAG, "Element " + getAdapterPosition() + " clicked.");
@@ -114,7 +115,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
             listItemMovieTextView = (TextView) itemView.findViewById(R.id.text_view_item_movie);
         }
 
-        public TextView getTextView(){
+        public TextView getTextView() {
             return listItemMovieTextView;
         }
 
@@ -127,12 +128,11 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
         public void bind(int listIndex) {
             listItemMovieTextView.setText(String.valueOf(listIndex));
         }
+    }
 
-        public void setMovieData(String[] movieData){
-            Log.i(LOG_TAG, "setMovieData() method is called...");
-            mMovieData = movieData;
-            notifyDataSetChanged();
-        }
-
+    public void setMovieData(String[] movieData) {
+        Log.i(LOG_TAG, "setMovieData() method is called...");
+        mMovieData = movieData;
+        notifyDataSetChanged();
     }
 }

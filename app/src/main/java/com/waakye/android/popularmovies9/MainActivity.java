@@ -190,6 +190,7 @@ public class MainActivity extends AppCompatActivity {
             if(movieDbSearchResults != null && !movieDbSearchResults.equals("")){
                 // Call showJsonDataView if we have valid, non-null results
                 showJsonDataView();
+                mAdapter.setMovieData(simpleJsonMovieData);
                 mMoviesList.setAdapter(mAdapter);
             } else {
                 // Call showErrorMessage if the result is null in onPostExecute

@@ -3,6 +3,8 @@ package com.waakye.android.popularmovies9;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -38,13 +40,29 @@ public class MainActivity extends AppCompatActivity {
 
     private ProgressBar mLoadingIndicator;
 
+    private static final int NUM_LIST_ITEMS = 100;
+
+    private MovieAdapter mAdapter;
+
+    private RecyclerView mMoviesList;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Log.i(LOG_TAG, "onCreate() method called...");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mSearchResultsTextView = (TextView) findViewById(R.id.text_view_moviedb_search_results_json);
+        mMoviesList = (RecyclerView)findViewById(R.id.recycler_view_movies);
+
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+        mMoviesList.setLayoutManager(layoutManager);
+
+        mMoviesList.setHasFixedSize(true);
+
+        mAdapter = new MovieAdapter(NUM_LIST_ITEMS);
+
+        mMoviesList.setAdapter(mAdapter);
 
         mErrorMessageDisplay = (TextView)findViewById(R.id.text_view_error_message_display);
 
@@ -353,10 +371,10 @@ public class MainActivity extends AppCompatActivity {
             Log.i(LOG_TAG, "onOptionsItemSelected() method -- most popular movies called...");
             mSearchResultsTextView.setText("");
             moviePopularityType = "popularity"; // Most popular movies
-//            makeMovieDbPopularityQuery(moviePopularityType);
+            makeMovieDbPopularityQuery(moviePopularityType);
 //            makeTrailerQuery(movieId);
 //            makeUserReviewsQuery(movieId);
-            makeUrlMovieTitleQueryString(movieTitle);
+//            makeUrlMovieTitleQueryString(movieTitle);
             return true;
         }
 
@@ -364,10 +382,10 @@ public class MainActivity extends AppCompatActivity {
             Log.i(LOG_TAG, "onOptionsItemSelected() method -- highly rated movies called...");
             mSearchResultsTextView.setText("");
             moviePopularityType = "top_rated"; // Most highly rated movies
-//            makeMovieDbPopularityQuery(moviePopularityType);
+            makeMovieDbPopularityQuery(moviePopularityType);
 //            makeTrailerQuery(movieId);
 //            makeUserReviewsQuery(movieId);
-            makeUrlMovieTitleQueryString(movieTitle);
+//            makeUrlMovieTitleQueryString(movieTitle);
             return true;
         }
 

@@ -1,5 +1,6 @@
 package com.waakye.android.popularmovies9;
 
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -185,17 +186,6 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.List
         String individualPosterPath = individualMovie.getMoviePosterPath();
         String individualMovieId = individualMovie.getMovieId();
 
-        String toastMessage2 = "Item #" + clickedItemIndex + " clicked\n"
-                + "movie title: " + individualTitle + "\n"
-                + "synopsis: " + individualSynopsis + "\n"
-                + "vote average: " + individualVoteAverage + "\n"
-                + "release date: " + individualReleaseDate + "\n"
-                + "poster path: " + MovieAdapter.MOVIE_POSTER_PREFIX+individualPosterPath + "\n"
-                + "movieId: " + individualMovieId;
-        mToast = Toast.makeText(this, toastMessage2, Toast.LENGTH_LONG);
-
-        mToast.show();
-
 //        MovieListing m = new MovieListing(individualTitle, individualSynopsis,
 //                individualVoteAverage, individualReleaseDate, individualPosterPath);
 //        Intent i = new Intent(MainActivity.this, DetailActivity.class);
@@ -208,6 +198,13 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.List
 //        Intent intent = new Intent(getBaseContext(), DetailActivity.class);
 //        intent.putExtra("movie", mlisting);
 //        startActivity(intent);
+        MovieListing mlisting = new MovieListing(individualTitle, individualSynopsis,
+                individualPosterPath, individualVoteAverage, individualReleaseDate, individualMovieId );
+
+        Intent intent = new Intent(getBaseContext(), DetailActivity.class);
+        intent.putExtra("movie", mlisting);
+        startActivity(intent);
+
     }
 
     public class MovieDbQueryTask extends AsyncTask<Integer, Void, List<MovieListing>> {

@@ -2,4 +2,5 @@
 <resources>
     <dimen name="activity_margin">16dp</dimen>
     <dimen name="progress_bar_margin">42dp</dimen>
+    <dimen name="indent_margin">4dp</dimen>
 </resources>

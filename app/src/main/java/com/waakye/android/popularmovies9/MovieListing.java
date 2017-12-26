@@ -9,32 +9,32 @@ import android.os.Parcelable;
 
 public class MovieListing implements Parcelable {
 
-    public String movieTitle;
-    public String movieSynopsis;
-    public String moviePosterPath;
-    public String movieVoteRating;
-    public String movieReleaseDate;
-    public String movieId;
+    private String mMovieTitle;
+    private String mMovieSynopsis;
+    private String mMoviePosterPath;
+    private String mMovieVoteAverage;
+    private String mMovieReleaseDate;
+    private String mMovieId;
 
     /**
      * Constructor that initializes MovieListing object
      */
     public MovieListing(String sMovieTitle, String sMovieSynopsis, String sMoviePosterPath,
                         String sMovieVoteRating, String sMovieReleaseDate, String sMovieId){
-        this.movieTitle = sMovieTitle;
-        this.movieSynopsis = sMovieSynopsis;
-        this.moviePosterPath = sMoviePosterPath;
-        this.movieVoteRating = sMovieVoteRating;
-        this.movieReleaseDate = sMovieVoteRating;
-        this.movieReleaseDate = sMovieReleaseDate;
-        this.movieId = sMovieId;
+        this.mMovieTitle = sMovieTitle;
+        this.mMovieSynopsis = sMovieSynopsis;
+        this.mMoviePosterPath = sMoviePosterPath;
+        this.mMovieVoteAverage = sMovieVoteRating;
+        this.mMovieReleaseDate = sMovieReleaseDate;
+        this.mMovieId = sMovieId;
+
     }
 
     /**
      * Auto-generated method stub
      */
     @Override
-    public int describeContents() {
+    public int describeContents(){
         return 0;
     }
 
@@ -44,12 +44,12 @@ public class MovieListing implements Parcelable {
      * @param in
      */
     private MovieListing(Parcel in) {
-        movieTitle = in.readString();
-        movieSynopsis = in.readString();
-        moviePosterPath = in.readString();
-        movieVoteRating = in.readString();
-        movieReleaseDate = in.readString();
-        movieId = in.readString();
+        mMovieTitle = in.readString();
+        mMovieSynopsis = in.readString();
+        mMoviePosterPath = in.readString();
+        mMovieVoteAverage = in.readString();
+        mMovieReleaseDate = in.readString();
+        mMovieId = in.readString();
     }
 
     /**
@@ -57,18 +57,18 @@ public class MovieListing implements Parcelable {
      */
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(movieTitle);
-        dest.writeString(movieSynopsis);
-        dest.writeString(moviePosterPath);
-        dest.writeString(movieVoteRating);
-        dest.writeString(movieReleaseDate);
-        dest.writeString(movieId);
+        dest.writeString(mMovieTitle);
+        dest.writeString(mMovieSynopsis);
+        dest.writeString(mMoviePosterPath);
+        dest.writeString(mMovieVoteAverage);
+        dest.writeString(mMovieReleaseDate);
+        dest.writeString(mMovieId);
     }
 
     public static final Creator<MovieListing> CREATOR = new Creator<MovieListing>() {
         @Override
-        public MovieListing createFromParcel(Parcel source) {
-            return new MovieListing(source);
+        public MovieListing createFromParcel(Parcel in) {
+            return new MovieListing(in);
         }
 
         @Override
@@ -78,26 +78,26 @@ public class MovieListing implements Parcelable {
     };
 
     public String getMovieTitle() {
-        return movieTitle;
+        return mMovieTitle;
     }
 
     public String getMovieSynopsis() {
-        return movieSynopsis;
+        return mMovieSynopsis;
     }
 
     public String getMoviePosterPath() {
-        return moviePosterPath;
+        return mMoviePosterPath;
     }
 
     public String getMovieVoteAverage() {
-        return movieVoteRating;
+        return mMovieVoteAverage;
     }
 
     public String getMovieReleaseDate() {
-        return movieReleaseDate;
+        return mMovieReleaseDate;
     }
 
     public String getMovieId(){
-        return movieId;
+        return mMovieId;
     }
 }

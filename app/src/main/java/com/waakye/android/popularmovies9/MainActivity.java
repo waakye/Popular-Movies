@@ -4,8 +4,11 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -16,6 +19,8 @@ import java.io.IOException;
 import java.net.URL;
 
 public class MainActivity extends AppCompatActivity {
+
+    private static final String LOG_TAG = MainActivity.class.getSimpleName();
 
     private EditText mSearchBoxEditText;
 
@@ -28,6 +33,12 @@ public class MainActivity extends AppCompatActivity {
     // MovieId of "Jack Reacher" movie
     private static int JACK_REACHER_MOVIE_ID = 343611;
 
+    private String edit_text_search_terms = "";
+
+    // URL for movie title search
+    // https://api.themoviedb.org/3/search/movie?api_key={api_key}&query=Jack+Reacher
+    private static final String MOVIE_DB_TITLE_SEARCH_BASE_URL = "https://api.themoviedb.org/3/search/movie";
+    private String concatenated_search_terms = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,6 +50,38 @@ public class MainActivity extends AppCompatActivity {
         mUrlDisplayTextView = (TextView) findViewById(R.id.text_view_display);
 
         mSearchResultsTextView = (TextView) findViewById(R.id.text_view_moviedb_search_results_json);
+
+        Button searchButton = (Button)findViewById(R.id.search_button);
+        searchButton.setOnClickListener(new View.OnClickListener(){
+
+            @Override
+            public void onClick(View view) {
+                EditText searchTerms = (EditText)findViewById(R.id.edit_text_movies);
+                edit_text_search_terms = searchTerms.getText().toString();
+                Log.i(LOG_TAG, "onCreate() method - edit_text_search_terms: " + edit_text_search_terms);
+
+                String editTextQueryString = urlQueryString(edit_text_search_terms);
+                Log.i(LOG_TAG, "onCreate() method - editTextQueryUrl " + editTextQueryString);
+
+                mUrlDisplayTextView.setText(editTextQueryString);
+                makeUrlMovieTitleQueryString(editTextQueryString);
+
+            }
+        });
+    }
+
+    // https://api.themoviedb.org/3/search/movie?api_key={api_key}&query=Jack+Reacher
+    public String urlQueryString(String search_terms) {
+
+        search_terms = search_terms.trim().replace(" ", "+");
+
+        StringBuilder sb = new StringBuilder(NetworkUtils.MOVIE_DB_TITLE_SEARCH_BASE_URL);
+        sb.append("?api_key=");
+        sb.append(NetworkUtils.API_KEY);
+        sb.append("&query=");
+        sb.append(search_terms);
+        String builtString = sb.toString();
+        return builtString;
 
     }
 
@@ -64,6 +107,14 @@ public class MainActivity extends AppCompatActivity {
         new TrailersQueryTask().execute(movieTrailerUrl);
 
     }
+
+    private void makeUrlMovieTitleQueryString(String string){
+
+        URL movieTitleSearchQueryUrl = NetworkUtils.createTitleSearchUrl(string);
+        mUrlDisplayTextView.setText(movieTitleSearchQueryUrl.toString());
+        new MovieTitleQueryTask().execute(movieTitleSearchQueryUrl);
+    }
+
 
     public class MovieDbQueryTask extends AsyncTask<URL, Void, String> {
 
@@ -109,6 +160,27 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    public class MovieTitleQueryTask extends AsyncTask<URL, Void, String>{
+
+        @Override
+        protected String doInBackground(URL... params) {
+            URL searchUrl = params[0];
+            String movieTitleSearchResults = null;
+            try {
+                movieTitleSearchResults = NetworkUtils.getResponseFromHttpUrl(searchUrl);
+            } catch (IOException e){
+                e.printStackTrace();
+            }
+            return movieTitleSearchResults;
+        }
+
+        @Override
+        protected void onPostExecute(String movieTitleSearchResults){
+            if(movieTitleSearchResults != null && !movieTitleSearchResults.equals("")){
+                mSearchResultsTextView.setText(movieTitleSearchResults);
+            }
+        }
+    }
 
     public class UserReviewsQueryTask extends AsyncTask<URL, Void, String>{
 
@@ -147,9 +219,6 @@ public class MainActivity extends AppCompatActivity {
             String textToShow = "Popular Movies clicked";
             Toast.makeText(context, textToShow, Toast.LENGTH_SHORT).show();
             makeMovieDbPopularityQuery(moviePopularityType);
-//            makeTrailerQuery(JACK_REACHER_MOVIE_ID);
-//            makeUserReviewsQuery(JACK_REACHER_MOVIE_ID);
-
             return true;
         }
 
@@ -159,9 +228,6 @@ public class MainActivity extends AppCompatActivity {
             String textToShow = "Highly Rated Movies clicked";
             Toast.makeText(context, textToShow, Toast.LENGTH_SHORT).show();
             makeMovieDbPopularityQuery(moviePopularityType);
-//            makeTrailerQuery(JACK_REACHER_MOVIE_ID);
-//            makeUserReviewsQuery(JACK_REACHER_MOVIE_ID);
-
             return true;
         }
 

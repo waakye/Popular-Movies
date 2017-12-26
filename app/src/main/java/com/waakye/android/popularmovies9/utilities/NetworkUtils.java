@@ -32,12 +32,12 @@ public final class NetworkUtils {
 
     // URL for movie title search
     // https://api.themoviedb.org/3/search/movie?api_key=<>&language=en-US&page=1&include_adult=false
-    private static final String MOVIE_DB_TITLE_SEARCH_BASE_URL = "https://api.themoviedb.org/3/search/movie?";
+    public static final String MOVIE_DB_TITLE_SEARCH_BASE_URL = "https://api.themoviedb.org/3/search/movie";
 
     private static final String YOUTUBE_BASE_URL = "https://www.youtube.com/watch?v=";
 
     final static String API_KEY_PARAM = "api_key";
-    final static String API_KEY = "b2433ced24ee89f33371c184240eca2a";
+    public final static String API_KEY = "b2433ced24ee89f33371c184240eca2a";
 
     final static String LANGUAGE_PARAM = "language";
     final static String LANGUAGE_ENGLISH = "en-US";
@@ -181,15 +181,12 @@ public final class NetworkUtils {
 
     // Method to build title search URL of a movie using String information from EditText field
     // https://api.themoviedb.org/3/search/movie?api_key={api_key}&query=Jack+Reacher
+    // https://api.themoviedb.org/3/search/movie
     public static URL createTitleSearchUrl(String movieTitleQuery) {
 
         Uri builtUri = null;
 
-        builtUri = Uri.parse(MOVIE_DB_TITLE_SEARCH_BASE_URL).buildUpon()
-                .appendQueryParameter(API_KEY_PARAM, API_KEY)
-                .appendPath("&query=")
-                .appendPath(movieTitleQuery)
-                .build();
+        builtUri = Uri.parse(movieTitleQuery);
 
         URL url = null;
         try {

@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">PopularMovies9</string>
+    <string name="edit_text_hint_search">Enter a query, then click Search</string>
 </resources>

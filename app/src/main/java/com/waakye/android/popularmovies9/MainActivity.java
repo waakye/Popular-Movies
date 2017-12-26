@@ -28,8 +28,9 @@ public class MainActivity extends AppCompatActivity {
 
     private URL movieSearchUrl;
 
-    // MovieId of "Jack Reacher" movie
-    private static int JACK_REACHER_MOVIE_ID = 343611;
+    private String movieId = "343611";
+
+    private String movieTitle = "Jack Reacher";
 
     private String edit_text_search_terms = "";
 
@@ -72,26 +73,23 @@ public class MainActivity extends AppCompatActivity {
         new MovieDbQueryTask().execute(popularityType);
     }
 
-    private void makeUserReviewsQuery(int movieId){
+    private void makeUserReviewsQuery(String movieId){
 
         Log.i(LOG_TAG, "makeUserReviewsQuery() method called...");
-        URL movieUserReviewsUrl = NetworkUtils.createUserReviewsUrl(movieId);
-        new UserReviewsQueryTask().execute(movieUserReviewsUrl);
+        new UserReviewsQueryTask().execute(movieId);
 
     }
 
-    private void makeTrailerQuery(int movieId){
+    private void makeTrailerQuery(String movieId){
 
         Log.i(LOG_TAG, "makeTrailerQuery() method called...");
-        URL movieTrailerUrl = NetworkUtils.createMovieTrailerUrl(movieId);
-        new TrailersQueryTask().execute(movieTrailerUrl);
+        new TrailersQueryTask().execute(movieId);
 
     }
 
-    private void makeUrlMovieTitleQueryString(String string){
+    private void makeUrlMovieTitleQueryString(String movieTitle){
         Log.i(LOG_TAG, "makeUrlMovieTitleQueryString() method called...");
-        URL movieTitleSearchQueryUrl = NetworkUtils.createTitleSearchUrl(string);
-        new MovieTitleQueryTask().execute(movieTitleSearchQueryUrl);
+        new MovieTitleQueryTask().execute(movieTitle);
     }
 
     /**
@@ -182,7 +180,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public class TrailersQueryTask extends AsyncTask<URL, Void, String>{
+    public class TrailersQueryTask extends AsyncTask<String, Void, String[]>{
 
         // Override onPreExecute to set the loading indicator to visible
         @Override
@@ -192,35 +190,50 @@ public class MainActivity extends AppCompatActivity {
         }
 
         @Override
-        protected String doInBackground(URL... params) {
+        protected String[] doInBackground(String... params) {
             Log.i(LOG_TAG, "TrailersQueryTask doInBackground() method called...");
-            URL searchUrl = params[0];
-            String trailersSearchResults = null;
+
+
+            // If there's no search terms, then there's nothing to look up
+            if(params.length == 0){
+                return null;
+            }
+
+            URL trailerSearchUrl = NetworkUtils.createMovieTrailerUrl(movieId);
             try {
-                trailersSearchResults = NetworkUtils.getResponseFromHttpUrl(searchUrl);
+                String jsonTrailerResponse = NetworkUtils.getResponseFromHttpUrl(trailerSearchUrl);
+
+                String[] trailerJsonMovieData = MovieDbJsonUtils
+                        .getTrailerStringsFromJson(MainActivity.this, jsonTrailerResponse);
+                return trailerJsonMovieData;
             } catch (IOException e){
                 e.printStackTrace();
+                return null;
+            } catch (JSONException e){
+                e.printStackTrace();
+                return null;
             }
-            return trailersSearchResults;
         }
 
         @Override
-        protected void onPostExecute(String trailersSearchResults){
+        protected void onPostExecute(String[] trailersSearchResults){
             Log.i(LOG_TAG, "TrailersQueryTask onPostExecute() method called...");
             // As soon as the loading is complete, hide the loading indicator
             mLoadingIndicator.setVisibility(View.INVISIBLE);
             if(trailersSearchResults != null && !trailersSearchResults.equals("")){
                 // Call showJsonDataView if we have valid, non-null results
                 showJsonDataView();
-                mSearchResultsTextView.setText(trailersSearchResults);
-            } else {
+                for(String trailerString : trailersSearchResults) {
+                    mSearchResultsTextView.append((trailerString) + "\n\n");
+                    }
+                } else {
                 // Call showErrorMessage if the result is null in onPostExecute
                 showErrorMessage();
             }
         }
     }
 
-    public class MovieTitleQueryTask extends AsyncTask<URL, Void, String>{
+    public class MovieTitleQueryTask extends AsyncTask<String, Void, String[]>{
 
         // Override onPreExecute to set the loading indicator to visible
         @Override
@@ -230,27 +243,43 @@ public class MainActivity extends AppCompatActivity {
         }
 
         @Override
-        protected String doInBackground(URL... params) {
+        protected String[] doInBackground(String... params) {
             Log.i(LOG_TAG, "MovieTitleQueryTask doInBackground() method called...");
-            URL searchUrl = params[0];
-            String movieTitleSearchResults = null;
+
+            // If there's no search terms, then there's nothing to look up
+            if(params.length == 0){
+                return null;
+            }
+
+            String movieTitleUrl = urlQueryString(movieTitle);
+            URL movieTitlerSearchUrl = NetworkUtils.createTitleSearchUrl(movieTitleUrl);
+
             try {
-                movieTitleSearchResults = NetworkUtils.getResponseFromHttpUrl(searchUrl);
+                String jsonMovieTitleResponse = NetworkUtils.getResponseFromHttpUrl(movieTitlerSearchUrl);
+
+                String[] movieTitleJsonMovieData = MovieDbJsonUtils
+                        .getMovieTitleStringsFromJson(MainActivity.this,jsonMovieTitleResponse);
+                return movieTitleJsonMovieData;
             } catch (IOException e){
                 e.printStackTrace();
+                return null;
+            } catch (JSONException e){
+                e.printStackTrace();
+                return null;
             }
-            return movieTitleSearchResults;
         }
 
         @Override
-        protected void onPostExecute(String movieTitleSearchResults){
+        protected void onPostExecute(String[] movieTitleSearchResults){
             Log.i(LOG_TAG, "MovieTitleQueryTask onPostExecute() method called...");
             // As soon as the loading is complete, hide the loading indicator
             mLoadingIndicator.setVisibility(View.INVISIBLE);
             if(movieTitleSearchResults != null && !movieTitleSearchResults.equals("")){
                 // Call showJsonDataView if we have valid, non-null results
                 showJsonDataView();
-                mSearchResultsTextView.setText(movieTitleSearchResults);
+                for(String movieTitleString : movieTitleSearchResults){
+                    mSearchResultsTextView.append((movieTitleString) + "\n\n");
+                }
             }  else {
                 // Call showErrorMessage if the result is null in onPostExecute
                 showErrorMessage();
@@ -258,7 +287,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public class UserReviewsQueryTask extends AsyncTask<URL, Void, String>{
+    public class UserReviewsQueryTask extends AsyncTask<String, Void, String[]>{
 
         // Override onPreExecute to set the loading indicator to visible
         @Override
@@ -268,27 +297,42 @@ public class MainActivity extends AppCompatActivity {
         }
 
         @Override
-        protected String doInBackground(URL... params) {
+        protected String[] doInBackground(String... params) {
             Log.i(LOG_TAG, "UserReviewsQueryTask doInBackground() method called...");
-            URL searchUrl = params[0];
-            String userReviewsSearchResults = null;
+
+            // If there's no search terms, then there's nothing to look up
+            if(params.length == 0){
+                return null;
+            }
+
+            URL reviewsSearchUrl = NetworkUtils.createUserReviewsUrl(movieId);
+
             try {
-                userReviewsSearchResults = NetworkUtils.getResponseFromHttpUrl(searchUrl);
+                String jsonReviewsResponse = NetworkUtils.getResponseFromHttpUrl(reviewsSearchUrl);
+
+                String[] reviewsJsonMovieData = MovieDbJsonUtils
+                        .getUserReviewStringsFromJson(MainActivity.this,jsonReviewsResponse);
+                return reviewsJsonMovieData;
             } catch (IOException e){
                 e.printStackTrace();
+                return null;
+            } catch (JSONException e){
+                e.printStackTrace();
+                return null;
             }
-            return userReviewsSearchResults;
         }
 
         @Override
-        protected void onPostExecute(String userReviewsSearchResults){
+        protected void onPostExecute(String[] userReviewsSearchResults){
             Log.i(LOG_TAG, "UserReviewsQueryTask onPostExecute() method called...");
             // As soon as the loading is complete, hide the loading indicator
             mLoadingIndicator.setVisibility(View.INVISIBLE);
             if(userReviewsSearchResults != null && !userReviewsSearchResults.equals("")){
                 // Call showJsonDataView if we have valid, non-null results
                 showJsonDataView();
-                mSearchResultsTextView.setText(userReviewsSearchResults);
+                for(String userReviewString : userReviewsSearchResults) {
+                    mSearchResultsTextView.append((userReviewString) + "\n\n");
+                }
             } else {
                 // Call showErrorMessage if the result is null in onPostExecute
                 showErrorMessage();
@@ -309,10 +353,10 @@ public class MainActivity extends AppCompatActivity {
             Log.i(LOG_TAG, "onOptionsItemSelected() method -- most popular movies called...");
             mSearchResultsTextView.setText("");
             moviePopularityType = "popularity"; // Most popular movies
-            makeMovieDbPopularityQuery(moviePopularityType);
+//            makeMovieDbPopularityQuery(moviePopularityType);
 //            makeTrailerQuery(movieId);
 //            makeUserReviewsQuery(movieId);
-//            makeUrlMovieTitleQueryString(movieTitle);
+            makeUrlMovieTitleQueryString(movieTitle);
             return true;
         }
 
@@ -320,14 +364,13 @@ public class MainActivity extends AppCompatActivity {
             Log.i(LOG_TAG, "onOptionsItemSelected() method -- highly rated movies called...");
             mSearchResultsTextView.setText("");
             moviePopularityType = "top_rated"; // Most highly rated movies
-            makeMovieDbPopularityQuery(moviePopularityType);
+//            makeMovieDbPopularityQuery(moviePopularityType);
 //            makeTrailerQuery(movieId);
 //            makeUserReviewsQuery(movieId);
-//            makeUrlMovieTitleQueryString(movieTitle);
+            makeUrlMovieTitleQueryString(movieTitle);
             return true;
         }
 
         return super.onOptionsItemSelected(item);
     }
-
 }

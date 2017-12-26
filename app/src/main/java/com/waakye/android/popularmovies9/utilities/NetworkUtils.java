@@ -213,12 +213,12 @@ public final class NetworkUtils {
     // Method to build URL for the user reviews of a particular movie using its movie ID
     // http://api.themoviedb.org/3/movie/83542/reviews?api_key=<>
 
-    public static URL createUserReviewsUrl(int movieId){
+    public static URL createUserReviewsUrl(String movieId){
 
         Uri builtUri = null;
 
         builtUri = Uri.parse(MOVIE_DB_BASE_URL).buildUpon()
-                .appendPath(String.valueOf(movieId))
+                .appendPath(movieId)
                 .appendPath(REVIEWS)
                 .appendQueryParameter(API_KEY_PARAM, API_KEY)
                 .build();
@@ -237,12 +237,12 @@ public final class NetworkUtils {
 
     // Method to build trailer URL for a movie's trailers using its movie ID
     // trailers: http://api.themoviedb.org/3/movie/157336/videos?api_key=<>
-    public static URL createMovieTrailerUrl(int movieId){
+    public static URL createMovieTrailerUrl(String movieId){
 
         Uri builtUri = null;
 
         builtUri = Uri.parse(MOVIE_DB_BASE_URL).buildUpon()
-                .appendPath(String.valueOf(movieId))
+                .appendPath(movieId)
                 .appendPath(VIDEOS)
                 .appendQueryParameter(API_KEY_PARAM, API_KEY)
                 .build();

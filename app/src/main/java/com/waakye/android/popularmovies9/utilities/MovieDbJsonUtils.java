@@ -33,7 +33,7 @@ public class MovieDbJsonUtils {
      *
      * @throws org.json.JSONException  If JSON data cannot be properly parsed.
      */
-    // Can be used for the popularity type search as well as the title search
+    // Can be used for the popularity type search
     public static String[] getSimpleMovieStringsFromJson(Context context, String movieJsonStr)
             throws JSONException {
         Log.i(LOG_TAG, "getSimpleMovieStringsFromJson() method called...");
@@ -67,6 +67,36 @@ public class MovieDbJsonUtils {
 
         return parsedMovieData;
     }
+
+    public static String[] getMovieTitleStringsFromJson(Context context, String movieJsonStr)
+            throws JSONException {
+        Log.i(LOG_TAG, "getMovieTitleStringsFromJson() method called...");
+
+                /* String array to hold each movie's data */
+        String[] parsedMovieTitleData = null;
+
+        JSONObject baseMovieTitleJsonResponse = new JSONObject(movieJsonStr);
+
+        JSONArray movieTitlesArray = baseMovieTitleJsonResponse.getJSONArray("results");
+
+        parsedMovieTitleData = new String[movieTitlesArray.length()];
+
+        for (int i = 0; i < movieTitlesArray.length(); i++){
+            // Get movie JSONObject at position i
+            JSONObject currentMovieTitle = movieTitlesArray.getJSONObject(i);
+
+            String movieTitle = currentMovieTitle.getString("title");
+            String movieSynopsis = currentMovieTitle.getString("overview");
+            String moviePosterPath = currentMovieTitle.getString("poster_path");
+            String movieReleaseDate = currentMovieTitle.getString("release_date");
+            String movieId = currentMovieTitle.getString("id");
+
+            parsedMovieTitleData[i] = MOVIE_POSTER_PREFIX + moviePosterPath;
+        }
+
+        return parsedMovieTitleData;
+    }
+
 
     // For this query: http://api.themoviedb.org/3/movie/157336/videos?api_key=b2433ced24ee89f33371c184240eca2a
     public static String[] getTrailerStringsFromJson(Context context, String trailerJsonStr)

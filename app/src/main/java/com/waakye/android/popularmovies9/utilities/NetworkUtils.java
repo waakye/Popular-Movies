@@ -92,39 +92,6 @@ public final class NetworkUtils {
         return url;
     }
 
-    public static URL createUrl(String typeOfPopularity){
-        Log.i(LOG_TAG, "createUrl() method called...");
-
-        String word = null;
-        if(typeOfPopularity == "popularity.desc"){
-
-            word = "popular";
-        } else if (typeOfPopularity == "vote_desc"){
-            word = "top_rated";
-        }
-
-        Uri builtUri = Uri.parse(MOVIE_DB_BASE_URL).buildUpon()
-                .appendPath(word)
-                .appendQueryParameter(API_KEY_PARAM, API_KEY)
-                .appendQueryParameter(LANGUAGE_PARAM, LANGUAGE_ENGLISH)
-                .appendQueryParameter(CERTIFICATION_COUNTRY_PARAM, COUNTRY_US)
-                .appendQueryParameter(ADULT_PARAM, FALSE)
-                .appendQueryParameter(VIDEO_PARAM, FALSE)
-                .appendQueryParameter(VOTE_COUNT_PARAM, MINIMUM_VOTE_COUNT_1000)
-                .appendQueryParameter(PAGE_PARAM, PAGE_1)
-                .build();
-
-        URL url = null;
-        try {
-            url = new URL(builtUri.toString());
-        } catch (MalformedURLException e){
-            e.printStackTrace();
-        }
-        Log.v(LOG_TAG, "Built URI " + url);
-
-        return url;
-    }
-
     public static URL createMostPopularUrl(){
         Uri builtUri = Uri.parse(MOVIE_DB_POPULAR_MOVIE_BASE_URL).buildUpon()
                 .appendQueryParameter(API_KEY_PARAM, API_KEY)
@@ -321,5 +288,4 @@ public final class NetworkUtils {
             urlConnection.disconnect();
         }
     }
-
 }

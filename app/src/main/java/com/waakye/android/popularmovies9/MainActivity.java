@@ -1,6 +1,5 @@
 package com.waakye.android.popularmovies9;
 
-import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -10,9 +9,11 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
+import com.waakye.android.popularmovies9.utilities.MovieDbJsonUtils;
 import com.waakye.android.popularmovies9.utilities.NetworkUtils;
+
+import org.json.JSONException;
 
 import java.io.IOException;
 import java.net.URL;
@@ -24,6 +25,8 @@ public class MainActivity extends AppCompatActivity {
     private TextView mSearchResultsTextView;
 
     private String moviePopularityType;
+
+    private URL movieSearchUrl;
 
     // MovieId of "Jack Reacher" movie
     private static int JACK_REACHER_MOVIE_ID = 343611;
@@ -66,8 +69,7 @@ public class MainActivity extends AppCompatActivity {
     private void makeMovieDbPopularityQuery(String popularityType){
 
         Log.i(LOG_TAG, "makeMovieDbPopularityQuery() method called...");
-        URL movieDbDiscoverUrl = NetworkUtils.buildByPopularityTypeUrl(popularityType);
-        new MovieDbQueryTask().execute(movieDbDiscoverUrl);
+        new MovieDbQueryTask().execute(popularityType);
     }
 
     private void makeUserReviewsQuery(int movieId){
@@ -120,7 +122,7 @@ public class MainActivity extends AppCompatActivity {
         mErrorMessageDisplay.setVisibility(View.VISIBLE);
     }
 
-    public class MovieDbQueryTask extends AsyncTask<URL, Void, String> {
+    public class MovieDbQueryTask extends AsyncTask<String, Void, String[]> {
 
         // Override onPreExecute to set the loading indicator to visible
         @Override
@@ -130,27 +132,49 @@ public class MainActivity extends AppCompatActivity {
         }
 
         @Override
-        protected String doInBackground(URL... params) {
+        protected String[] doInBackground(String... params) {
             Log.i(LOG_TAG, "MovieDbQueryTask doInBackground() method called...");
-            URL searchUrl = params[0];
-            String movieDbSearchResults = null;
+
+            // If there's no search terms, then there's nothing to look up
+            if(params.length == 0){
+                return null;
+            }
+
+            URL movieSearchUrl = NetworkUtils.buildByPopularityTypeUrl(moviePopularityType);
+            if(moviePopularityType == "popularity"){
+                movieSearchUrl = NetworkUtils.createMostPopularUrl();
+                Log.i(LOG_TAG, "movieSearchUrl is " + movieSearchUrl);
+            } else if(moviePopularityType == "top_rated"){
+                movieSearchUrl = NetworkUtils.createHighlyRatedUrl();
+                Log.i(LOG_TAG, "movieSearchUrl is " + movieSearchUrl);
+            }
+
+
             try {
-                movieDbSearchResults = NetworkUtils.getResponseFromHttpUrl(searchUrl);
+                String jsonMovieResponse = NetworkUtils.getResponseFromHttpUrl(movieSearchUrl);
+                String[] simpleJsonMovieData = MovieDbJsonUtils
+                        .getSimpleMovieStringsFromJson(MainActivity.this, jsonMovieResponse);
+                return simpleJsonMovieData;
             } catch (IOException e){
                 e.printStackTrace();
+                return null;
+            } catch (JSONException e){
+                e.printStackTrace();
+                return null;
             }
-            return movieDbSearchResults;
         }
 
         @Override
-        protected void onPostExecute(String movieDbSearchResults){
+        protected void onPostExecute(String[] movieDbSearchResults){
             Log.i(LOG_TAG, "MovieDbQueryTask onPostExecute() method called...");
             // As soon as the loading is complete, hide the loading indicator
             mLoadingIndicator.setVisibility(View.INVISIBLE);
             if(movieDbSearchResults != null && !movieDbSearchResults.equals("")){
                 // Call showJsonDataView if we have valid, non-null results
                 showJsonDataView();
-                mSearchResultsTextView.setText(movieDbSearchResults);
+                for(String movieString : movieDbSearchResults){
+                    mSearchResultsTextView.append((movieString) + "\n\n");
+                }
             } else {
                 // Call showErrorMessage if the result is null in onPostExecute
                 showErrorMessage();
@@ -283,21 +307,23 @@ public class MainActivity extends AppCompatActivity {
         int itemThatWasClicked = item.getItemId();
         if(itemThatWasClicked == R.id.action_popular_movies) {
             Log.i(LOG_TAG, "onOptionsItemSelected() method -- most popular movies called...");
-            Context context = MainActivity.this;
-            moviePopularityType = "popularity.desc"; // Most popular movies
-            String textToShow = "Popular Movies clicked";
-            Toast.makeText(context, textToShow, Toast.LENGTH_SHORT).show();
+            mSearchResultsTextView.setText("");
+            moviePopularityType = "popularity"; // Most popular movies
             makeMovieDbPopularityQuery(moviePopularityType);
+//            makeTrailerQuery(movieId);
+//            makeUserReviewsQuery(movieId);
+//            makeUrlMovieTitleQueryString(movieTitle);
             return true;
         }
 
         if(itemThatWasClicked == R.id.action_highly_rated_movies){
             Log.i(LOG_TAG, "onOptionsItemSelected() method -- highly rated movies called...");
-            Context context = MainActivity.this;
-            moviePopularityType = "vote_average.desc"; // Most highly rated movies
-            String textToShow = "Highly Rated Movies clicked";
-            Toast.makeText(context, textToShow, Toast.LENGTH_SHORT).show();
+            mSearchResultsTextView.setText("");
+            moviePopularityType = "top_rated"; // Most highly rated movies
             makeMovieDbPopularityQuery(moviePopularityType);
+//            makeTrailerQuery(movieId);
+//            makeUserReviewsQuery(movieId);
+//            makeUrlMovieTitleQueryString(movieTitle);
             return true;
         }
 

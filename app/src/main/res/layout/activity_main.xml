@@ -20,7 +20,6 @@
                 android:id="@+id/text_view_moviedb_search_results_json"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Make a search!"
                 android:padding="@dimen/activity_margin"
                 android:textSize="20sp" />
         </ScrollView>

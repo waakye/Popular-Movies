@@ -36,7 +36,7 @@ public class MainActivity extends AppCompatActivity {
 
     private RecyclerView.LayoutManager layoutManager;
 
-    // Option seelected in onOptionsItemSelected method
+    // Option selected in onOptionsItemSelected method
     private int itemThatWasClicked;
 
     private TextView mSearchResultsTextView;
@@ -72,7 +72,6 @@ public class MainActivity extends AppCompatActivity {
         mMoviesList.setAdapter(mAdapter);
 
         // Currently, the Adapter is loaded with String array data of the poster image urls
-        // TODO Need to have the returned data be an array of inflated poster images
         mAdapter = new MovieAdapter(this, simpleJsonMovieData);
 
         mErrorMessageDisplay = (TextView)findViewById(R.id.text_view_error_message_display);
@@ -132,7 +131,6 @@ public class MainActivity extends AppCompatActivity {
         // First, make sure the error is invisible
         mErrorMessageDisplay.setVisibility(View.INVISIBLE);
         // Then, make sure the JSON is visible
-//        mSearchResultsTextView.setVisibility(View.VISIBLE);
         mMoviesList.setVisibility(View.VISIBLE);
     }
 
@@ -145,7 +143,6 @@ public class MainActivity extends AppCompatActivity {
     private void showErrorMessage(){
         Log.i(LOG_TAG, "showErrorMessage() method called...");
         // First, hide the currently visible data
-//        mSearchResultsTextView.setVisibility(View.INVISIBLE);
         mMoviesList.setVisibility(View.INVISIBLE);
         // Then, show the error
         mErrorMessageDisplay.setVisibility(View.VISIBLE);
@@ -169,14 +166,23 @@ public class MainActivity extends AppCompatActivity {
                 return null;
             }
 
+            // Assign to an int called popType the menu item selected
             int popType = itemThatWasClicked;
-            Log.i(LOG_TAG, "popType: " + itemThatWasClicked);;
+            Log.i(LOG_TAG, "popType: " + itemThatWasClicked);
+
+            // Using NetworkUtils method to create a URL for either
+            // 1) most popular movies or
+            // 2) top rated movies
             URL movieSearchUrl = NetworkUtils.createPopularityTypeUrl(popType);
             Log.i(LOG_TAG, "movieSearchUrl is: " + movieSearchUrl);
 
             try {
                 Log.i(LOG_TAG, "try-catch block query for json movie response");
+
+                // Get the HTTP response to determine whether to create an internet connection
                 String jsonMovieResponse = NetworkUtils.getResponseFromHttpUrl(movieSearchUrl);
+
+                // Returns a String array that holds the movie data
                 simpleJsonMovieData = MovieDbJsonUtils
                         .getSimpleMovieStringsFromJson(MainActivity.this, jsonMovieResponse);
                 return simpleJsonMovieData;
@@ -197,7 +203,10 @@ public class MainActivity extends AppCompatActivity {
             if(movieDbSearchResults != null && !movieDbSearchResults.equals("")){
                 // Call showJsonDataView if we have valid, non-null results
                 showJsonDataView();
+                // Sets the RecyclerView Adapter, MovieAdapter, to the data source
                 mAdapter.setMovieData(simpleJsonMovieData);
+
+                // RecyclerView's adapter is set to the RecyclerView Adapter
                 mMoviesList.setAdapter(mAdapter);
             } else {
                 // Call showErrorMessage if the result is null in onPostExecute
@@ -376,10 +385,8 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item){
         itemThatWasClicked = item.getItemId();
         if(itemThatWasClicked == R.id.action_popular_movies) {
+            // Menu item that was clicked
             itemThatWasClicked = 1;
-//            Log.i(LOG_TAG, "onOptionsItemSelected() method -- most popular movies called...");
-//            mSearchResultsTextView.setText("");
-//            moviePopularityType = "popularity"; // Most popular movies
             makeMovieDbPopularityQuery(itemThatWasClicked);
             Log.i(LOG_TAG, "itemThatWasClicked: " + itemThatWasClicked);
 //            makeTrailerQuery(movieId);
@@ -390,9 +397,6 @@ public class MainActivity extends AppCompatActivity {
 
         if(itemThatWasClicked == R.id.action_highly_rated_movies){
             itemThatWasClicked = 2;
-//            Log.i(LOG_TAG, "onOptionsItemSelected() method -- highly rated movies called...");
-//            mSearchResultsTextView.setText("");
-//            moviePopularityType = "top_rated"; // Most highly rated movies
             makeMovieDbPopularityQuery(itemThatWasClicked);
             Log.i(LOG_TAG, "itemThatWasClicked: " + itemThatWasClicked);
 //            makeTrailerQuery(movieId);

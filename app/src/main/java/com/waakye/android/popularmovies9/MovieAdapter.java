@@ -93,8 +93,6 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
 
         Log.i(LOG_TAG, "moviePosterUrl: " + individualMoviePosterUrl);
 
-        viewHolder.getTextView().setText(mMovieData[position]);
-
         // Take the image url from the TextView and convert it to a String
         Picasso.with(context).load(individualMoviePosterUrl).into(listItemMovieImageView);
     }
@@ -138,14 +136,8 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
                 }
             });
 
-            listItemMovieTextView = (TextView) itemView.findViewById(R.id.text_view_item_movie_again);
-
             listItemMovieImageView = (ImageView) itemView.findViewById(R.id.image_view_item_movie);
 
-        }
-
-        public TextView getTextView() {
-            return listItemMovieTextView;
         }
 
         /**

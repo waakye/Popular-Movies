@@ -6,7 +6,10 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.squareup.picasso.Picasso;
 
 /**
  * Created by lesterlie on 12/26/17.
@@ -16,7 +19,18 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
 
     public static final String LOG_TAG = MovieAdapter.class.getSimpleName();
 
+    // ImageView variable that refers to the ImageView on activity_main.xml
+    public ImageView listItemMovieImageView;
+
+    // Movie Poster Prefix that completes the url
+    public static String MOVIE_POSTER_PREFIX = "https://image.tmdb.org/t/p/w500";
+
+    // Define a String array that will contain the movie data
     private String[] mMovieData;
+
+    private Context context;
+
+    TextView listItemMovieTextView;
 
     /**
      * Constructor for MovieAdapter that accepts a number of Movie items to display and the
@@ -24,8 +38,9 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
      *
      * @param dataSet    String[] containing the data to populate views to be used by RecyclerView
      */
-    public MovieAdapter(String[] dataSet){
+    public MovieAdapter(Context context, String[] dataSet){
         mMovieData = dataSet;
+        this.context = context;
     }
 
     /**
@@ -42,11 +57,15 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
     @Override
     public MovieViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
 
+        Log.i(LOG_TAG, "onCreateViewHolder() method called...");
+
         Context context = viewGroup.getContext();
 
         LayoutInflater inflater = LayoutInflater.from(context);
 
-        int layoutForListItem = R.layout.movies_list_item;
+        // MovieViewHolder created and connected to the movies_image_view_item.xml layout
+        int layoutForListItem = R.layout.movies_image_view_item;
+
         boolean shouldAttachToParentImmediately = false;
 
         // Create a new view
@@ -68,9 +87,16 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
      */
     @Override
     public void onBindViewHolder(MovieViewHolder viewHolder, final int position) {
-        Log.d(LOG_TAG, "#" + position);
+        Log.d(LOG_TAG, "onBindViewHolder() method called with #" + position);
+
+        String individualMoviePosterUrl = mMovieData[position];
+
+        Log.i(LOG_TAG, "moviePosterUrl: " + individualMoviePosterUrl);
 
         viewHolder.getTextView().setText(mMovieData[position]);
+
+        // Take the image url from the TextView and convert it to a String
+        Picasso.with(context).load(individualMoviePosterUrl).into(listItemMovieImageView);
     }
 
     /**
@@ -112,7 +138,10 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
                 }
             });
 
-            listItemMovieTextView = (TextView) itemView.findViewById(R.id.text_view_item_movie);
+            listItemMovieTextView = (TextView) itemView.findViewById(R.id.text_view_item_movie_again);
+
+            listItemMovieImageView = (ImageView) itemView.findViewById(R.id.image_view_item_movie);
+
         }
 
         public TextView getTextView() {
@@ -126,6 +155,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
          * @param listIndex Position of the item in the list
          */
         public void bind(int listIndex) {
+            Log.i(LOG_TAG, "bind() method called...");
             listItemMovieTextView.setText(String.valueOf(listIndex));
         }
     }

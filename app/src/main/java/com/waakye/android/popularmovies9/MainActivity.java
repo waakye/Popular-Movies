@@ -3,7 +3,7 @@ package com.waakye.android.popularmovies9;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.Menu;
@@ -24,31 +24,31 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String LOG_TAG = MainActivity.class.getSimpleName();
 
-    private TextView mSearchResultsTextView;
+    private TextView mErrorMessageDisplay;
 
-//    private String moviePopularityType;
+    private ProgressBar mLoadingIndicator;
+
+    protected String[] simpleJsonMovieData;
+
+    private RecyclerView mMoviesList;
+
+    private MovieAdapter mAdapter;
+
+    private RecyclerView.LayoutManager layoutManager;
+
+    // Option seelected in onOptionsItemSelected method
+    private int itemThatWasClicked;
+
+    private TextView mSearchResultsTextView;
 
     private URL movieSearchUrl;
 
+    // MovieId of "Jack Reacher" movie is "343611"
     private String movieId = "343611";
 
     private String movieTitle = "Jack Reacher";
 
     private String edit_text_search_terms = "";
-
-    private TextView mErrorMessageDisplay;
-
-    private ProgressBar mLoadingIndicator;
-
-    private static final int NUM_LIST_ITEMS = 100;
-
-    private MovieAdapter mAdapter;
-
-    private RecyclerView mMoviesList;
-
-    protected String[] simpleJsonMovieData;
-
-    private int itemThatWasClicked;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,19 +56,26 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        // Set RecyclerView variable to the View with id recycler_view_movies
         mMoviesList = (RecyclerView)findViewById(R.id.recycler_view_movies);
 
-        mErrorMessageDisplay = (TextView)findViewById(R.id.text_view_error_message_display);
-
-        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
-        mMoviesList.setLayoutManager(layoutManager);
-
+        // Define the RecyclerView with a fixed size
         mMoviesList.setHasFixedSize(true);
 
+        // Define the layout being used as a GridLayout with 3 columns
+        GridLayoutManager layoutManager = new GridLayoutManager(MainActivity.this, 3);
+
+        // Set the RecyclerView to be attached to the GridLayout
+        mMoviesList.setLayoutManager(layoutManager);
+
+        // Attach the RecyclerView to the MovieAdapter
         mMoviesList.setAdapter(mAdapter);
 
-        mAdapter = new MovieAdapter(simpleJsonMovieData);
+        // Currently, the Adapter is loaded with String array data of the poster image urls
+        // TODO Need to have the returned data be an array of inflated poster images
+        mAdapter = new MovieAdapter(this, simpleJsonMovieData);
 
+        mErrorMessageDisplay = (TextView)findViewById(R.id.text_view_error_message_display);
 
         mLoadingIndicator = (ProgressBar) findViewById(R.id.progress_bar_loading_indicator);
     }

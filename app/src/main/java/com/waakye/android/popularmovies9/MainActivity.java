@@ -26,7 +26,7 @@ public class MainActivity extends AppCompatActivity {
 
     private TextView mSearchResultsTextView;
 
-    private String moviePopularityType;
+//    private String moviePopularityType;
 
     private URL movieSearchUrl;
 
@@ -46,6 +46,7 @@ public class MainActivity extends AppCompatActivity {
 
     private RecyclerView mMoviesList;
 
+    private int itemThatWasClicked;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,16 +56,16 @@ public class MainActivity extends AppCompatActivity {
 
         mMoviesList = (RecyclerView)findViewById(R.id.recycler_view_movies);
 
+        mErrorMessageDisplay = (TextView)findViewById(R.id.text_view_error_message_display);
+
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         mMoviesList.setLayoutManager(layoutManager);
 
         mMoviesList.setHasFixedSize(true);
 
-        mAdapter = new MovieAdapter(NUM_LIST_ITEMS);
-
         mMoviesList.setAdapter(mAdapter);
 
-        mErrorMessageDisplay = (TextView)findViewById(R.id.text_view_error_message_display);
+        mAdapter = new MovieAdapter(NUM_LIST_ITEMS);
 
         mLoadingIndicator = (ProgressBar) findViewById(R.id.progress_bar_loading_indicator);
     }
@@ -85,10 +86,10 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private void makeMovieDbPopularityQuery(String popularityType){
+    private void makeMovieDbPopularityQuery(int popularityType){
 
         Log.i(LOG_TAG, "makeMovieDbPopularityQuery() method called...");
-        new MovieDbQueryTask().execute(popularityType);
+        new MovieDbQueryTask().execute(itemThatWasClicked);
     }
 
     private void makeUserReviewsQuery(String movieId){
@@ -121,7 +122,7 @@ public class MainActivity extends AppCompatActivity {
         // First, make sure the error is invisible
         mErrorMessageDisplay.setVisibility(View.INVISIBLE);
         // Then, make sure the JSON is visible
-        mSearchResultsTextView.setVisibility(View.VISIBLE);
+//        mSearchResultsTextView.setVisibility(View.VISIBLE);
     }
 
     /**
@@ -133,12 +134,12 @@ public class MainActivity extends AppCompatActivity {
     private void showErrorMessage(){
         Log.i(LOG_TAG, "showErrorMessage() method called...");
         // First, hide the currently visible data
-        mSearchResultsTextView.setVisibility(View.INVISIBLE);
+//        mSearchResultsTextView.setVisibility(View.INVISIBLE);
         // Then, show the error
         mErrorMessageDisplay.setVisibility(View.VISIBLE);
     }
 
-    public class MovieDbQueryTask extends AsyncTask<String, Void, String[]> {
+    public class MovieDbQueryTask extends AsyncTask<Integer, Void, String[]> {
 
         // Override onPreExecute to set the loading indicator to visible
         @Override
@@ -148,7 +149,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         @Override
-        protected String[] doInBackground(String... params) {
+        protected String[] doInBackground(Integer... params) {
             Log.i(LOG_TAG, "MovieDbQueryTask doInBackground() method called...");
 
             // If there's no search terms, then there's nothing to look up
@@ -156,17 +157,21 @@ public class MainActivity extends AppCompatActivity {
                 return null;
             }
 
-            URL movieSearchUrl = NetworkUtils.buildByPopularityTypeUrl(moviePopularityType);
-            if(moviePopularityType == "popularity"){
-                movieSearchUrl = NetworkUtils.createMostPopularUrl();
-                Log.i(LOG_TAG, "movieSearchUrl is " + movieSearchUrl);
-            } else if(moviePopularityType == "top_rated"){
-                movieSearchUrl = NetworkUtils.createHighlyRatedUrl();
-                Log.i(LOG_TAG, "movieSearchUrl is " + movieSearchUrl);
-            }
-
+//            URL movieSearchUrl = NetworkUtils.buildByPopularityTypeUrl(moviePopularityType);
+//            if(moviePopularityType == "popularity"){
+//                movieSearchUrl = NetworkUtils.createMostPopularUrl();
+//                Log.i(LOG_TAG, "movieSearchUrl is " + movieSearchUrl);
+//            } else if(moviePopularityType == "top_rated"){
+//                movieSearchUrl = NetworkUtils.createHighlyRatedUrl();
+//                Log.i(LOG_TAG, "movieSearchUrl is " + movieSearchUrl);
+//            }
+            int popType = itemThatWasClicked;
+            Log.i(LOG_TAG, "popType: " + itemThatWasClicked);;
+            URL movieSearchUrl = NetworkUtils.createPopularityTypeUrl(popType);
+            Log.i(LOG_TAG, "movieSearchUrl is: " + movieSearchUrl);
 
             try {
+                Log.i(LOG_TAG, "try-catch block query for json movie response");
                 String jsonMovieResponse = NetworkUtils.getResponseFromHttpUrl(movieSearchUrl);
                 String[] simpleJsonMovieData = MovieDbJsonUtils
                         .getSimpleMovieStringsFromJson(MainActivity.this, jsonMovieResponse);
@@ -188,9 +193,7 @@ public class MainActivity extends AppCompatActivity {
             if(movieDbSearchResults != null && !movieDbSearchResults.equals("")){
                 // Call showJsonDataView if we have valid, non-null results
                 showJsonDataView();
-                for(String movieString : movieDbSearchResults){
-                    mSearchResultsTextView.append((movieString) + "\n\n");
-                }
+                mMoviesList.setAdapter(mAdapter);
             } else {
                 // Call showErrorMessage if the result is null in onPostExecute
                 showErrorMessage();
@@ -366,12 +369,14 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item){
-        int itemThatWasClicked = item.getItemId();
+        itemThatWasClicked = item.getItemId();
         if(itemThatWasClicked == R.id.action_popular_movies) {
-            Log.i(LOG_TAG, "onOptionsItemSelected() method -- most popular movies called...");
-            mSearchResultsTextView.setText("");
-            moviePopularityType = "popularity"; // Most popular movies
-            makeMovieDbPopularityQuery(moviePopularityType);
+            itemThatWasClicked = 1;
+//            Log.i(LOG_TAG, "onOptionsItemSelected() method -- most popular movies called...");
+//            mSearchResultsTextView.setText("");
+//            moviePopularityType = "popularity"; // Most popular movies
+            makeMovieDbPopularityQuery(itemThatWasClicked);
+            Log.i(LOG_TAG, "itemThatWasClicked: " + itemThatWasClicked);
 //            makeTrailerQuery(movieId);
 //            makeUserReviewsQuery(movieId);
 //            makeUrlMovieTitleQueryString(movieTitle);
@@ -379,10 +384,12 @@ public class MainActivity extends AppCompatActivity {
         }
 
         if(itemThatWasClicked == R.id.action_highly_rated_movies){
-            Log.i(LOG_TAG, "onOptionsItemSelected() method -- highly rated movies called...");
-            mSearchResultsTextView.setText("");
-            moviePopularityType = "top_rated"; // Most highly rated movies
-            makeMovieDbPopularityQuery(moviePopularityType);
+            itemThatWasClicked = 2;
+//            Log.i(LOG_TAG, "onOptionsItemSelected() method -- highly rated movies called...");
+//            mSearchResultsTextView.setText("");
+//            moviePopularityType = "top_rated"; // Most highly rated movies
+            makeMovieDbPopularityQuery(itemThatWasClicked);
+            Log.i(LOG_TAG, "itemThatWasClicked: " + itemThatWasClicked);
 //            makeTrailerQuery(movieId);
 //            makeUserReviewsQuery(movieId);
 //            makeUrlMovieTitleQueryString(movieTitle);

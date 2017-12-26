@@ -7,8 +7,6 @@ import android.os.Parcelable;
  * Created by lesterlie on 12/26/17.
  */
 
-
-
 public class MovieListing implements Parcelable {
 
     public String movieTitle;
@@ -17,27 +15,6 @@ public class MovieListing implements Parcelable {
     public String movieVoteRating;
     public String movieReleaseDate;
     public String movieId;
-
-    /**
-     * Stores the MovieListing data to the Parcel object
-     */
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(movieTitle);
-        dest.writeString(movieSynopsis);
-        dest.writeString(moviePosterPath);
-        dest.writeString(movieVoteRating);
-        dest.writeString(movieReleaseDate);
-        dest.writeString(movieId);
-    }
-
-    /**
-     * Auto-generated method stub
-     */
-    @Override
-    public int describeContents() {
-        return 0;
-    }
 
     /**
      * Constructor that initializes MovieListing object
@@ -54,6 +31,14 @@ public class MovieListing implements Parcelable {
     }
 
     /**
+     * Auto-generated method stub
+     */
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    /**
      * This constructor retrieves data from the Parcel object
      * and is invoked by the method createFromParcel (Parcel source) of the object CREATOR
      * @param in
@@ -67,6 +52,19 @@ public class MovieListing implements Parcelable {
         movieId = in.readString();
     }
 
+    /**
+     * Stores the MovieListing data to the Parcel object
+     */
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(movieTitle);
+        dest.writeString(movieSynopsis);
+        dest.writeString(moviePosterPath);
+        dest.writeString(movieVoteRating);
+        dest.writeString(movieReleaseDate);
+        dest.writeString(movieId);
+    }
+
     public static final Creator<MovieListing> CREATOR = new Creator<MovieListing>() {
         @Override
         public MovieListing createFromParcel(Parcel source) {
@@ -78,4 +76,28 @@ public class MovieListing implements Parcelable {
             return new MovieListing[size];
         }
     };
+
+    public String getMovieTitle() {
+        return movieTitle;
+    }
+
+    public String getMovieSynopsis() {
+        return movieSynopsis;
+    }
+
+    public String getMoviePosterPath() {
+        return moviePosterPath;
+    }
+
+    public String getMovieVoteRating() {
+        return movieVoteRating;
+    }
+
+    public String getMovieReleaseDate() {
+        return movieReleaseDate;
+    }
+
+    public String getMovieId(){
+        return movieId;
+    }
 }

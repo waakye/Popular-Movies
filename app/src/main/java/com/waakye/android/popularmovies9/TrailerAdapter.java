@@ -107,7 +107,7 @@ public class TrailerAdapter extends RecyclerView.Adapter<TrailerAdapter.TrailerV
     public class TrailerViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         // Will display the position in the list
-        TextView listItemTrailerView;
+        TextView listItemTrailerNameView;
 
         /**
          * Constructor for our ViewHolder.  Within this constructor, we get a reference to the
@@ -119,7 +119,7 @@ public class TrailerAdapter extends RecyclerView.Adapter<TrailerAdapter.TrailerV
         public TrailerViewHolder(View itemView){
             super(itemView);
 
-            listItemTrailerView = (TextView) itemView.findViewById(R.id.text_view_item_trailer);
+            listItemTrailerNameView = (TextView) itemView.findViewById(R.id.text_view_item_trailer_name);
 
             // Call setOnClickListener on the View passed into the constructor (use 'this' as
             // the OnClickListener)
@@ -128,7 +128,7 @@ public class TrailerAdapter extends RecyclerView.Adapter<TrailerAdapter.TrailerV
         }
 
         public TextView getTextView() {
-            return listItemTrailerView;
+            return listItemTrailerNameView;
         }
 
         /**

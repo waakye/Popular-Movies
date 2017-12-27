@@ -6,7 +6,7 @@
     android:padding="@dimen/activity_margin">
 
     <TextView
-        android:id="@+id/text_view_item_trailer"
+        android:id="@+id/text_view_item_trailer_name"
         style="@style/TextAppearance.AppCompat.Title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

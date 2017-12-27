@@ -159,7 +159,7 @@ public class TrailerActivity extends AppCompatActivity implements TrailerAdapter
                 String jsonTrailerResponse = NetworkUtils.getResponseFromHttpUrl(trailerSearchUrl);
 
                 simplerJsonTrailerData = MovieDbJsonUtils
-                        .getTrailerStringsFromJson(TrailerActivity.this, jsonTrailerResponse);
+                        .getTrailerNameStringsFromJson(TrailerActivity.this, jsonTrailerResponse);
                 return simplerJsonTrailerData;
 
 

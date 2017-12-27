@@ -136,6 +136,39 @@ public class MovieDbJsonUtils {
         return parseTrailerData;
     }
 
+    // For this query: http://api.themoviedb.org/3/movie/157336/videos?api_key=b2433ced24ee89f33371c184240eca2a
+    public static String[] getTrailerNameStringsFromJson(Context context, String trailerJsonStr)
+            throws JSONException{
+
+        Log.i(LOG_TAG, "getTrailerStringsFromJson() method called...");
+
+        /* String array to hold each trailers's data */
+        String[] parseTrailerData = null;
+
+        JSONObject baseTrailerJsonResponse = new JSONObject(trailerJsonStr);
+
+        JSONArray trailersArray = baseTrailerJsonResponse.getJSONArray("results");
+
+        // Define parsedTrailerData as a String array with a length determined by the number of
+        // trailers in the trailersArray
+        parseTrailerData = new String[trailersArray.length()];
+
+        for(int i = 0; i < trailersArray.length(); i++){
+            // Get trailer JSONObject at position i
+            JSONObject currentTrailer = trailersArray.getJSONObject(i);
+
+            String trailerName = currentTrailer.getString("name");
+            String trailerType = currentTrailer.getString("type");
+            String trailerSite = currentTrailer.getString("site");
+            String trailerKey = currentTrailer.getString("key");
+
+            parseTrailerData[i] = trailerName;
+        }
+
+        return parseTrailerData;
+    }
+
+
     /**
      * This method parses JSON from a web response and returns a List of Trailers describing the
      * trailers' charactertistics

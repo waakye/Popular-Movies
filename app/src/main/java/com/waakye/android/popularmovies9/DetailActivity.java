@@ -1,6 +1,7 @@
 package com.waakye.android.popularmovies9;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
@@ -9,6 +10,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -102,7 +104,15 @@ public class DetailActivity extends AppCompatActivity {
         mTrailersTextView = (TextView) findViewById(R.id.text_view_trailers);
 
         makeUserReviewsQuery(mIndividualMovieId);
-        makeTrailerQuery(mIndividualMovieId);
+//        makeTrailerQuery(mIndividualMovieId);
+        Button trailerButton = (Button)findViewById(R.id.trailer_button);
+        trailerButton.setOnClickListener(new View.OnClickListener(){
+            public void onClick(View v){
+                Intent intent = new Intent(DetailActivity.this, TrailerActivity.class);
+                startActivity(intent);
+
+            }
+        });
     }
 
     private void makeUserReviewsQuery(String movieId){

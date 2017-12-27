@@ -109,6 +109,7 @@ public class DetailActivity extends AppCompatActivity {
         trailerButton.setOnClickListener(new View.OnClickListener(){
             public void onClick(View v){
                 Intent intent = new Intent(DetailActivity.this, TrailerActivity.class);
+                intent.putExtra("movieId", mIndividualMovieId);
                 startActivity(intent);
 
             }

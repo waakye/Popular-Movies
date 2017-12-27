@@ -24,7 +24,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements MovieAdapter.ListItemClickListener{
+public class MainActivity extends AppCompatActivity implements MovieListingAdapter.ListItemClickListener{
 
     private static final String LOG_TAG = MainActivity.class.getSimpleName();
 
@@ -36,13 +36,15 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.List
 
     private RecyclerView mMoviesList;
 
-    private MovieAdapter mAdapter;
+    private MovieListingAdapter mAdapter;
 
     private RecyclerView.LayoutManager layoutManager;
 
     private List<MovieListing> jsonMovieDataList = new ArrayList<>();
 
     protected String[] simpleJsonMovieData;
+
+    protected List<MovieListing> listJsonMovieData;
 
     // Option selected in onOptionsItemSelected method
     private int itemThatWasClicked;
@@ -83,12 +85,12 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.List
         // Attach the RecyclerView to the MovieAdapter
         mMoviesList.setAdapter(mAdapter);
 
-        // Currently, the Adapter is loaded with String array data of the poster image urls
-        // Pass in second "this" as the ListItemClickListener to the MovieAdapter constructor
-        /*
-         * The MovieAdapter is responsible for displaying each item in the list.
+        /**
+         * The MovieListingAdapter is responsible for displaying each item in the list.  The first
+         * "this" refers to a list of MovieListing objects, the second "this" refers ot the
+         * ListItemClickListener of the MovieListingAdapter constructor
          */
-        mAdapter = new MovieAdapter(this, simpleJsonMovieData, this);
+        mAdapter = new MovieListingAdapter(this, listJsonMovieData, this);
 
         mErrorMessageDisplay = (TextView)findViewById(R.id.text_view_error_message_display);
 
@@ -245,12 +247,10 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.List
             if(movieDbSearchResults != null && !movieDbSearchResults.equals("")){
                 // Call showJsonDataView if we have valid, non-null results
                 showJsonDataView();
-                // A String array of movie Urls based on the List of MovieListing objects
-                String[] movieUrls = extractMovieUrlsInMain(movieDbSearchResults);
 
                 // Sets the RecyclerView Adapter, MovieAdapter, to the data source, a String array of
                 // movie urls
-                mAdapter.setMovieData(movieUrls);
+                mAdapter.setMovieData(movieDbSearchResults);
 
                 // RecyclerView's adapter is set to the RecyclerView Adapter
                 mMoviesList.setAdapter(mAdapter);
@@ -260,20 +260,6 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.List
             }
         }
     }
-
-    public String[] extractMovieUrlsInMain (List<MovieListing> movieDbSearchResults){
-        Log.i(LOG_TAG, "extractMovieUrlsInMain() method callled...");
-
-        // Create a String[] array with a length equal to the size of the List of Movies
-        String[] moviePosterUrls = new String[movieDbSearchResults.size()];
-        int index = 0;
-        for(MovieListing movie : movieDbSearchResults){
-            moviePosterUrls[index] = (String) movie.getMoviePosterPath();
-            index++;
-        }
-        return moviePosterUrls;
-    }
-
 
     public class TrailersQueryTask extends AsyncTask<String, Void, String[]>{
 

@@ -19,6 +19,8 @@ import org.json.JSONException;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by lesterlie on 12/27/17.
@@ -50,6 +52,10 @@ public class TrailerActivity extends AppCompatActivity implements TrailerAdapter
     private TrailerAdapter mAdapter;
 
     private RecyclerView mTrailersList;
+
+    private List<Trailer> jsonTrailerDataList = new ArrayList<>();
+
+    protected String[] jsonTrailerData;
 
     protected String[] simplerJsonTrailerData;
 
@@ -135,7 +141,7 @@ public class TrailerActivity extends AppCompatActivity implements TrailerAdapter
         mToast.show();
     }
 
-    public class TrailersQueryTask extends AsyncTask<String, Void, String[]> {
+    public class TrailersQueryTask extends AsyncTask<String, Void, List<Trailer>> {
 
         // Override onPreExecute to set the loading indicator to visible
         @Override
@@ -145,7 +151,7 @@ public class TrailerActivity extends AppCompatActivity implements TrailerAdapter
         }
 
         @Override
-        protected String[] doInBackground(String... params) {
+        protected List<Trailer> doInBackground(String... params) {
             Log.i(LOG_TAG, "TrailersQueryTask doInBackground() method called...");
 
             // If there's no search terms, then there's nothing to look up
@@ -158,10 +164,9 @@ public class TrailerActivity extends AppCompatActivity implements TrailerAdapter
             try {
                 String jsonTrailerResponse = NetworkUtils.getResponseFromHttpUrl(trailerSearchUrl);
 
-                simplerJsonTrailerData = MovieDbJsonUtils
-                        .getTrailerNameStringsFromJson(TrailerActivity.this, jsonTrailerResponse);
-                return simplerJsonTrailerData;
+                jsonTrailerDataList = MovieDbJsonUtils.extractTrailerFromJson(jsonTrailerResponse);
 
+                return jsonTrailerDataList;
 
             } catch (IOException e){
                 e.printStackTrace();
@@ -173,14 +178,15 @@ public class TrailerActivity extends AppCompatActivity implements TrailerAdapter
         }
 
         @Override
-        protected void onPostExecute(String[] trailersSearchResults){
+        protected void onPostExecute(List<Trailer> trailersSearchResults){
             Log.i(LOG_TAG, "TrailersQueryTask onPostExecute() method called...");
             // As soon as the loading is complete, hide the loading indicator
             mTrailerActivityLoadingIndicator.setVisibility(View.INVISIBLE);
             if(trailersSearchResults != null && !trailersSearchResults.equals("")){
                 // Call showJsonDataView if we have valid, non-null results
                 showJsonDataView();
-                mAdapter.setTrailerData(simplerJsonTrailerData);
+                // A String array of trailer names based on the List of Trailer objects
+                String[] trailerNames = extractTrailerNames(trailersSearchResults);
                 mTrailersList.setAdapter(mAdapter);
             } else {
                 // Call showErrorMessage if the result is null in onPostExecute
@@ -188,4 +194,18 @@ public class TrailerActivity extends AppCompatActivity implements TrailerAdapter
             }
         }
     }
+
+    public String[] extractTrailerNames (List<Trailer> trailers){
+        Log.i(LOG_TAG, "extractMovieUrlsInMain() method callled...");
+
+        // Create a String[] array with a length equal to the size of the List of Movies
+        String[] trailerNames = new String[trailers.size()];
+        int index = 0;
+        for(Trailer trailer : trailers){
+            trailerNames[index] = (String) trailer.getTrailerName();
+            index++;
+        }
+        return trailerNames;
+    }
+
 }

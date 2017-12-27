@@ -50,6 +50,7 @@ public class TrailerActivity extends AppCompatActivity {
 
     private RecyclerView mTrailersList;
 
+    protected String[] simplerJsonTrailerData;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,7 +73,7 @@ public class TrailerActivity extends AppCompatActivity {
 
         mTrailersList.setAdapter(mAdapter);
 
-        mAdapter = new TrailerAdapter(NUM_LIST_ITEMS);
+        mAdapter = new TrailerAdapter(simplerJsonTrailerData);
 
         mTrailerActivityLoadingIndicator = (ProgressBar) findViewById(R.id.trailer_activity_progress_bar_loading_indicator);
 
@@ -84,8 +85,36 @@ public class TrailerActivity extends AppCompatActivity {
 
         Log.i(LOG_TAG, "makeTrailerQuery() method called...");
         new TrailersQueryTask().execute(movieId);
-
     }
+
+    /**
+     * This method will make the View for the JSON data visible and hide the error message
+     *
+     * Since it is okay to redundantly set the visibility of a View, we don't need to check whether
+     * each view is current visible or invisible
+     */
+    private void showJsonDataView(){
+        Log.i(LOG_TAG, "showJsonDataView() method called...");
+        // First, make sure the error is invisible
+        mTrailerActivityErrorMessageDisplay.setVisibility(View.INVISIBLE);
+        // Then, make sure the JSON is visible
+        mTrailersList.setVisibility(View.VISIBLE);
+    }
+
+    /**
+     * This method will make the error message visible and hide the JSON View.
+     *
+     * Since it is okay to redundantly set  the visiblity of a View, we don't need to check whether
+     * each view is currently visible or invisible
+     */
+    private void showErrorMessage(){
+        Log.i(LOG_TAG, "showErrorMessage() method called...");
+        // First, hide the currently visible data
+        mTrailersList.setVisibility(View.INVISIBLE);
+        // Then, show the error
+        mTrailerActivityErrorMessageDisplay.setVisibility(View.VISIBLE);
+    }
+
 
     public class TrailersQueryTask extends AsyncTask<String, Void, String[]> {
 
@@ -110,9 +139,9 @@ public class TrailerActivity extends AppCompatActivity {
             try {
                 String jsonTrailerResponse = NetworkUtils.getResponseFromHttpUrl(trailerSearchUrl);
 
-                String[] trailerJsonMovieData = MovieDbJsonUtils
-                        .getTrailerStringsFromJson(TrailerActivity.this,jsonTrailerResponse);
-                return trailerJsonMovieData;
+                simplerJsonTrailerData = MovieDbJsonUtils
+                        .getTrailerStringsFromJson(TrailerActivity.this, jsonTrailerResponse);
+                return simplerJsonTrailerData;
 
 
             } catch (IOException e){
@@ -131,11 +160,12 @@ public class TrailerActivity extends AppCompatActivity {
             mTrailerActivityLoadingIndicator.setVisibility(View.INVISIBLE);
             if(trailersSearchResults != null && !trailersSearchResults.equals("")){
                 // Call showJsonDataView if we have valid, non-null results
-//                showJsonDataView();
+                showJsonDataView();
+                mAdapter.setTrailerData(simplerJsonTrailerData);
                 mTrailersList.setAdapter(mAdapter);
             } else {
                 // Call showErrorMessage if the result is null in onPostExecute
-//                showErrorMessage();
+                showErrorMessage();
             }
         }
     }

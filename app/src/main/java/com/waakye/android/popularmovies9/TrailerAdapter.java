@@ -16,15 +16,15 @@ public class TrailerAdapter extends RecyclerView.Adapter<TrailerAdapter.TrailerV
 
     public static final String LOG_TAG = TrailerAdapter.class.getSimpleName();
 
-    private int mNumberOfTrailerItems;
+    private String[] mTrailerData;
 
     /**
      * Constructor for TrailerAdapter that accepts a number of Trailer items to display and the
      * specification for the ListItemClickListener
      *
-     * @param numberOfTrailerItems    Number of movie items to display in list
+     * @param dataSet    String[] containing the data to populate views to be used by RecyclerView
      */
-    public TrailerAdapter(int numberOfTrailerItems){ mNumberOfTrailerItems = numberOfTrailerItems;}
+    public TrailerAdapter(String[] dataSet) { mTrailerData = dataSet;}
 
 
     /**
@@ -41,10 +41,12 @@ public class TrailerAdapter extends RecyclerView.Adapter<TrailerAdapter.TrailerV
     @Override
     public TrailerViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
         Context context = viewGroup.getContext();
-        int layoutForListItem = R.layout.movies_list_item;
         LayoutInflater inflater = LayoutInflater.from(context);
+
+        int layoutForListItem = R.layout.trailer_list_item;
         boolean shouldAttachToParentImmediately = false;
 
+        // Create a new view
         View view = inflater.inflate(layoutForListItem, viewGroup, shouldAttachToParentImmediately);
         TrailerViewHolder viewHolder = new TrailerViewHolder(view);
 
@@ -57,14 +59,15 @@ public class TrailerAdapter extends RecyclerView.Adapter<TrailerAdapter.TrailerV
      * the list for this particular position, using the 'position' argument that is conveniently
      * passed into us.
      *
-     * @param holder    The ViewHolder which should be updated to represent the contents of the
-     *                  item at the given position in the data set.
+     * @param viewHolder    The ViewHolder which should be updated to represent the contents of the
+     *                      item at the given position in the data set
      * @param position  The position of the item within the adapter's data set.
      */
     @Override
-    public void onBindViewHolder(TrailerViewHolder holder, int position) {
+    public void onBindViewHolder(TrailerViewHolder viewHolder, final int position) {
         Log.d(LOG_TAG, "#" + position);
-        holder.bind(position);
+
+        viewHolder.getTextView().setText(mTrailerData[position]);
     }
 
     /**
@@ -75,7 +78,7 @@ public class TrailerAdapter extends RecyclerView.Adapter<TrailerAdapter.TrailerV
      */
     @Override
     public int getItemCount() {
-        return mNumberOfTrailerItems;
+        return mTrailerData.length;
     }
 
 
@@ -85,7 +88,7 @@ public class TrailerAdapter extends RecyclerView.Adapter<TrailerAdapter.TrailerV
     public class TrailerViewHolder extends RecyclerView.ViewHolder {
 
         // Will display the position in the list
-        TextView listItemMovieView;
+        TextView listItemTrailerView;
 
         /**
          * Constructor for our ViewHolder.  Within this constructor, we get a reference to the
@@ -97,7 +100,19 @@ public class TrailerAdapter extends RecyclerView.Adapter<TrailerAdapter.TrailerV
         public TrailerViewHolder(View itemView){
             super(itemView);
 
-            listItemMovieView = (TextView) itemView.findViewById(R.id.text_view_item_movie);
+            // Define click listener for the ViewHolder's view
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Log.i(LOG_TAG, "Element " + getAdapterPosition() + " clicked.");
+                }
+            });
+
+            listItemTrailerView = (TextView) itemView.findViewById(R.id.text_view_item_trailer);
+        }
+
+        public TextView getTextView() {
+            return listItemTrailerView;
         }
 
         /**
@@ -107,7 +122,13 @@ public class TrailerAdapter extends RecyclerView.Adapter<TrailerAdapter.TrailerV
          * @param listIndex Position of the item in the list
          */
         public void bind(int listIndex) {
-            listItemMovieView.setText(String.valueOf(listIndex));
+            listItemTrailerView.setText(String.valueOf(listIndex));
         }
+    }
+
+    public void setTrailerData(String[] trailerData) {
+        Log.i(LOG_TAG, "setTrailerData() method is called...");
+        mTrailerData = trailerData;
+        notifyDataSetChanged();
     }
 }

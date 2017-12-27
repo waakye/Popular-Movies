@@ -10,6 +10,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.waakye.android.popularmovies9.utilities.MovieDbJsonUtils;
 import com.waakye.android.popularmovies9.utilities.NetworkUtils;
@@ -30,7 +31,7 @@ import java.net.URL;
  * 3) When a user clicks an item in the recyclerView or list, then show the trailer using an intent
  */
 
-public class TrailerActivity extends AppCompatActivity {
+public class TrailerActivity extends AppCompatActivity implements TrailerAdapter.ListItemClickListener {
 
     public static String LOG_TAG = TrailerActivity.class.getSimpleName();
 
@@ -51,6 +52,8 @@ public class TrailerActivity extends AppCompatActivity {
     private RecyclerView mTrailersList;
 
     protected String[] simplerJsonTrailerData;
+
+    private Toast mToast;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,7 +76,7 @@ public class TrailerActivity extends AppCompatActivity {
 
         mTrailersList.setAdapter(mAdapter);
 
-        mAdapter = new TrailerAdapter(simplerJsonTrailerData);
+        mAdapter = new TrailerAdapter(this, simplerJsonTrailerData, this);
 
         mTrailerActivityLoadingIndicator = (ProgressBar) findViewById(R.id.trailer_activity_progress_bar_loading_indicator);
 
@@ -115,6 +118,22 @@ public class TrailerActivity extends AppCompatActivity {
         mTrailerActivityErrorMessageDisplay.setVisibility(View.VISIBLE);
     }
 
+    /**
+     * This callback is invoked when you click on an item in the list.
+     *
+     * @param clickedItemIndex Index in the list of the item that was clicked.
+     */
+    @Override
+    public void onListItemClick(int clickedItemIndex) {
+        if (mToast != null) {
+            mToast.cancel();
+        }
+
+        String toastMessage = "Item #" + clickedItemIndex + " clicked.";
+        mToast = Toast.makeText(this, toastMessage, Toast.LENGTH_LONG);
+
+        mToast.show();
+    }
 
     public class TrailersQueryTask extends AsyncTask<String, Void, String[]> {
 

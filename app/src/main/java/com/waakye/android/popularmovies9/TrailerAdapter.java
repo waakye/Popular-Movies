@@ -18,13 +18,32 @@ public class TrailerAdapter extends RecyclerView.Adapter<TrailerAdapter.TrailerV
 
     private String[] mTrailerData;
 
+    private Context context;
+
+    /**
+     * An on-click handler that we've defined to make it easy for an Activity to interface with
+     * our RecyclerView
+     */
+    final private ListItemClickListener mOnClickListener;
+
+    /**
+     * The interface that receives onClick messages
+     */
+    public interface ListItemClickListener {
+        void onListItemClick(int clickedItemIndex);
+    }
+
     /**
      * Constructor for TrailerAdapter that accepts a number of Trailer items to display and the
      * specification for the ListItemClickListener
      *
      * @param dataSet    String[] containing the data to populate views to be used by RecyclerView
      */
-    public TrailerAdapter(String[] dataSet) { mTrailerData = dataSet;}
+    public TrailerAdapter(Context context, String[] dataSet, ListItemClickListener listener) {
+        this.context = context;
+        mTrailerData = dataSet;
+        mOnClickListener = listener;
+    }
 
 
     /**
@@ -85,7 +104,7 @@ public class TrailerAdapter extends RecyclerView.Adapter<TrailerAdapter.TrailerV
     /**
      * Cache of the children views for a list item
      */
-    public class TrailerViewHolder extends RecyclerView.ViewHolder {
+    public class TrailerViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         // Will display the position in the list
         TextView listItemTrailerView;
@@ -100,15 +119,12 @@ public class TrailerAdapter extends RecyclerView.Adapter<TrailerAdapter.TrailerV
         public TrailerViewHolder(View itemView){
             super(itemView);
 
-            // Define click listener for the ViewHolder's view
-            itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    Log.i(LOG_TAG, "Element " + getAdapterPosition() + " clicked.");
-                }
-            });
-
             listItemTrailerView = (TextView) itemView.findViewById(R.id.text_view_item_trailer);
+
+            // Call setOnClickListener on the View passed into the constructor (use 'this' as
+            // the OnClickListener)
+            itemView.setOnClickListener(this);
+
         }
 
         public TextView getTextView() {
@@ -116,13 +132,13 @@ public class TrailerAdapter extends RecyclerView.Adapter<TrailerAdapter.TrailerV
         }
 
         /**
-         * Create a convenience method that takes an integer as input and use that integer to
-         * display the appropriate text within a list item.
-         *
-         * @param listIndex Position of the item in the list
+         * Called whenever a view was clicked
+         * @param v The View that was clicked
          */
-        public void bind(int listIndex) {
-            listItemTrailerView.setText(String.valueOf(listIndex));
+        @Override
+        public void onClick(View v){
+            int clickedPosition = getAdapterPosition();
+            mOnClickListener.onListItemClick(clickedPosition);
         }
     }
 

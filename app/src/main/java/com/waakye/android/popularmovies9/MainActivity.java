@@ -119,13 +119,6 @@ public class MainActivity extends AppCompatActivity implements MovieListingAdapt
         new MovieDbQueryTask().execute(itemThatWasClicked);
     }
 
-    private void makeUserReviewsQuery(String movieId){
-
-        Log.i(LOG_TAG, "makeUserReviewsQuery() method called...");
-        new UserReviewsQueryTask().execute(movieId);
-
-    }
-
     private void makeTrailerQuery(String movieId){
 
         Log.i(LOG_TAG, "makeTrailerQuery() method called...");
@@ -368,59 +361,6 @@ public class MainActivity extends AppCompatActivity implements MovieListingAdapt
         }
     }
 
-    public class UserReviewsQueryTask extends AsyncTask<String, Void, String[]>{
-
-        // Override onPreExecute to set the loading indicator to visible
-        @Override
-        protected void onPreExecute(){
-            super.onPreExecute();
-            mLoadingIndicator.setVisibility(View.VISIBLE);
-        }
-
-        @Override
-        protected String[] doInBackground(String... params) {
-            Log.i(LOG_TAG, "UserReviewsQueryTask doInBackground() method called...");
-
-            // If there's no search terms, then there's nothing to look up
-            if(params.length == 0){
-                return null;
-            }
-
-            URL reviewsSearchUrl = NetworkUtils.createUserReviewsUrl(movieId);
-
-            try {
-                String jsonReviewsResponse = NetworkUtils.getResponseFromHttpUrl(reviewsSearchUrl);
-
-                String[] reviewsJsonMovieData = MovieDbJsonUtils
-                        .getUserReviewStringsFromJson(MainActivity.this,jsonReviewsResponse);
-                return reviewsJsonMovieData;
-            } catch (IOException e){
-                e.printStackTrace();
-                return null;
-            } catch (JSONException e){
-                e.printStackTrace();
-                return null;
-            }
-        }
-
-        @Override
-        protected void onPostExecute(String[] userReviewsSearchResults){
-            Log.i(LOG_TAG, "UserReviewsQueryTask onPostExecute() method called...");
-            // As soon as the loading is complete, hide the loading indicator
-            mLoadingIndicator.setVisibility(View.INVISIBLE);
-            if(userReviewsSearchResults != null && !userReviewsSearchResults.equals("")){
-                // Call showJsonDataView if we have valid, non-null results
-                showJsonDataView();
-                for(String userReviewString : userReviewsSearchResults) {
-                    mSearchResultsTextView.append((userReviewString) + "\n\n");
-                }
-            } else {
-                // Call showErrorMessage if the result is null in onPostExecute
-                showErrorMessage();
-            }
-        }
-    }
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu){
         getMenuInflater().inflate(R.menu.menu_main, menu);
@@ -436,7 +376,6 @@ public class MainActivity extends AppCompatActivity implements MovieListingAdapt
             makeMovieDbPopularityQuery(itemThatWasClicked);
             Log.i(LOG_TAG, "itemThatWasClicked: " + itemThatWasClicked);
 //            makeTrailerQuery(movieId);
-//            makeUserReviewsQuery(movieId);
 //            makeUrlMovieTitleQueryString(movieTitle);
             return true;
         }
@@ -446,11 +385,9 @@ public class MainActivity extends AppCompatActivity implements MovieListingAdapt
             makeMovieDbPopularityQuery(itemThatWasClicked);
             Log.i(LOG_TAG, "itemThatWasClicked: " + itemThatWasClicked);
 //            makeTrailerQuery(movieId);
-//            makeUserReviewsQuery(movieId);
 //            makeUrlMovieTitleQueryString(movieTitle);
             return true;
         }
-
         return super.onOptionsItemSelected(item);
     }
 }

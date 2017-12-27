@@ -7,10 +7,10 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <TextView
-            android:id="@+id/text_view_trailers"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/recycler_view_trailers"
+            android:layout_height="match_parent"
+            android:layout_width="match_parent"/>
 
         <TextView
             android:id="@+id/trailer_activity_text_view_error_message_display"
@@ -20,7 +20,6 @@
             android:text="@string/error_message"
             android:textSize="22sp"
             android:visibility="invisible" />
-
 
         <ProgressBar
             android:id="@+id/trailer_activity_progress_bar_loading_indicator"

@@ -48,8 +48,6 @@ public class MainActivity extends AppCompatActivity
 
     private MovieListingAdapter mAdapter;
 
-    private RecyclerView.LayoutManager layoutManager;
-
     private List<MovieListing> jsonMovieDataList = new ArrayList<>();
 
     protected List<MovieListing> listJsonMovieData;
@@ -71,6 +69,8 @@ public class MainActivity extends AppCompatActivity
     private String edit_text_search_terms = "";
 
     private static final int MOVIE_POSTER_LOADER_ID = 0;
+
+    private int popType = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -108,7 +108,6 @@ public class MainActivity extends AppCompatActivity
         LoaderManager lm = getSupportLoaderManager();
         lm.initLoader(MOVIE_POSTER_LOADER_ID, null, this);
 
-
     }
 
     // https://api.themoviedb.org/3/search/movie?api_key={api_key}&query=Jack+Reacher
@@ -130,6 +129,9 @@ public class MainActivity extends AppCompatActivity
     private void makeMovieDbPopularityQuery(int popularityType){
 
         Log.i(LOG_TAG, "makeMovieDbPopularityQuery() method called...");
+        // Since a loader is used onCreate, we must restart the loader
+        getSupportLoaderManager().restartLoader(MOVIE_POSTER_LOADER_ID, null, this);
+
     }
 
     private void makeUrlMovieTitleQueryString(String movieTitle){
@@ -228,11 +230,12 @@ public class MainActivity extends AppCompatActivity
              */
             @Override
             public List<MovieListing> loadInBackground() {
-                // Assign to an int called popType the menu item selected
-//                int popType = itemThatWasClicked;
-//                Log.i(LOG_TAG, "popType: " + itemThatWasClicked);
 
-                int popType = MOST_POPULAR_MOVIES_POPULARITY_TYPE;
+                if(itemThatWasClicked == 0) {
+                    popType = MOST_POPULAR_MOVIES_POPULARITY_TYPE;
+                } else {
+                    popType = itemThatWasClicked;
+                }
 
                 // Using NetworkUtils method to create a URL for either
                 // 1) most popular movies or

@@ -6,6 +6,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.waakye.android.popularmovies9.MovieListing;
+import com.waakye.android.popularmovies9.Trailer;
 
 import org.json.JSONArray;
 import org.json.JSONException;

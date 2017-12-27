@@ -115,10 +115,24 @@
         </LinearLayout>
 
         <TextView
+            android:text="@string/trailers"
+            android:textStyle="bold"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/activity_margin"/>
+
+        <TextView
+            android:id="@+id/text_view_trailers"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/activity_margin"/>
+
+        <TextView
             android:text="@string/user_reviews"
             android:textStyle="bold"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/activity_margin"/>
 
         <TextView
             android:id="@+id/text_view_user_reviews"

@@ -15,5 +15,6 @@
     <string name="movie_synopsis">Synopsis </string>
     <string name="movie_id">Movie Id: </string>
     <string name="user_reviews">User Reviews</string>
+    <string name="trailers">Trailers</string>
 
 </resources>

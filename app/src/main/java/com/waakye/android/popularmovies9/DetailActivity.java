@@ -38,6 +38,8 @@ public class DetailActivity extends AppCompatActivity {
 
     private TextView mUserReviewsTextView;
 
+    private TextView mTrailersTextView;
+
     private static String mIndividualMovieId;
 
     TextView mTextViewMovieTitle;
@@ -97,8 +99,10 @@ public class DetailActivity extends AppCompatActivity {
 
         mUserReviewsTextView = (TextView) findViewById(R.id.text_view_user_reviews);
 
-        makeUserReviewsQuery(movieListing.getMovieId());
+        mTrailersTextView = (TextView) findViewById(R.id.text_view_trailers);
 
+        makeUserReviewsQuery(mIndividualMovieId);
+        makeTrailerQuery(mIndividualMovieId);
     }
 
     private void makeUserReviewsQuery(String movieId){
@@ -107,6 +111,14 @@ public class DetailActivity extends AppCompatActivity {
         new UserReviewsQueryTask().execute(mIndividualMovieId);
 
     }
+
+    private void makeTrailerQuery(String movieId){
+
+        Log.i(LOG_TAG, "makeTrailerQuery() method called...");
+        new TrailersQueryTask().execute(mIndividualMovieId);
+
+    }
+
 
     /**
      * This method will make the View for the JSON data visible and
@@ -135,8 +147,6 @@ public class DetailActivity extends AppCompatActivity {
         // Then, show the error
         mDetailActivityErrorMessageDisplay.setVisibility(View.VISIBLE);
     }
-
-
 
     public class UserReviewsQueryTask extends AsyncTask<String, Void, String[]> {
 
@@ -184,6 +194,61 @@ public class DetailActivity extends AppCompatActivity {
                 showJsonDataView();
                 for(String userReviewString : userReviewsSearchResults) {
                     mUserReviewsTextView.append((userReviewString) + "\n\n");
+                }
+            } else {
+                // Call showErrorMessage if the result is null in onPostExecute
+                showErrorMessage();
+            }
+        }
+    }
+
+    public class TrailersQueryTask extends AsyncTask<String, Void, String[]>{
+
+        // Override onPreExecute to set the loading indicator to visible
+        @Override
+        protected void onPreExecute(){
+            super.onPreExecute();
+            mDetailActivityLoadingIndicator.setVisibility(View.VISIBLE);
+        }
+
+        @Override
+        protected String[] doInBackground(String... params) {
+            Log.i(LOG_TAG, "TrailersQueryTask doInBackground() method called...");
+
+            // If there's no search terms, then there's nothing to look up
+            if(params.length == 0){
+                return null;
+            }
+
+            URL trailerSearchUrl = NetworkUtils.createMovieTrailerUrl(mIndividualMovieId);
+
+            try {
+                String jsonTrailerResponse = NetworkUtils.getResponseFromHttpUrl(trailerSearchUrl);
+
+                String[] trailerJsonMovieData = MovieDbJsonUtils
+                        .getTrailerStringsFromJson(DetailActivity.this,jsonTrailerResponse);
+                return trailerJsonMovieData;
+
+
+            } catch (IOException e){
+                e.printStackTrace();
+                return null;
+            } catch (JSONException e){
+                e.printStackTrace();
+                return null;
+            }
+        }
+
+        @Override
+        protected void onPostExecute(String[] trailersSearchResults){
+            Log.i(LOG_TAG, "TrailersQueryTask onPostExecute() method called...");
+            // As soon as the loading is complete, hide the loading indicator
+            mDetailActivityLoadingIndicator.setVisibility(View.INVISIBLE);
+            if(trailersSearchResults != null && !trailersSearchResults.equals("")){
+                // Call showJsonDataView if we have valid, non-null results
+                showJsonDataView();
+                for(String trailerString : trailersSearchResults){
+                    mTrailersTextView.append((trailerString) + "\n\n");
                 }
             } else {
                 // Call showErrorMessage if the result is null in onPostExecute

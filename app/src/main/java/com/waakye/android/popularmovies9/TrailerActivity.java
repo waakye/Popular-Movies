@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
@@ -32,15 +34,22 @@ public class TrailerActivity extends AppCompatActivity {
 
     public static String LOG_TAG = TrailerActivity.class.getSimpleName();
 
+    private TextView mTrailerResultsTextView;
+
+    private String movieId;
+
     // TextView to display the error message
     private TextView mTrailerActivityErrorMessageDisplay;
-
-    private TextView mTrailerResultsTextView;
 
     // Loading Indicator
     private ProgressBar mTrailerActivityLoadingIndicator;
 
-    private String movieId;
+    private static final int NUM_LIST_ITEMS = 100;
+
+    private TrailerAdapter mAdapter;
+
+    private RecyclerView mTrailersList;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,9 +61,18 @@ public class TrailerActivity extends AppCompatActivity {
         movieId = intent.getStringExtra("movieId");
         Log.i(LOG_TAG, "the movie id is " + movieId);
 
-        mTrailerResultsTextView = (TextView)findViewById(R.id.text_view_trailers);
+        mTrailersList = (RecyclerView)findViewById(R.id.recycler_view_trailers);
 
         mTrailerActivityErrorMessageDisplay = (TextView)findViewById(R.id.trailer_activity_text_view_error_message_display);
+
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+        mTrailersList.setLayoutManager(layoutManager);
+
+        mTrailersList.setHasFixedSize(true);
+
+        mTrailersList.setAdapter(mAdapter);
+
+        mAdapter = new TrailerAdapter(NUM_LIST_ITEMS);
 
         mTrailerActivityLoadingIndicator = (ProgressBar) findViewById(R.id.trailer_activity_progress_bar_loading_indicator);
 
@@ -114,15 +132,11 @@ public class TrailerActivity extends AppCompatActivity {
             if(trailersSearchResults != null && !trailersSearchResults.equals("")){
                 // Call showJsonDataView if we have valid, non-null results
 //                showJsonDataView();
-                for(String trailerString : trailersSearchResults) {
-                    mTrailerResultsTextView.append((trailerString) + "\n\n");
-                }
+                mTrailersList.setAdapter(mAdapter);
             } else {
                 // Call showErrorMessage if the result is null in onPostExecute
 //                showErrorMessage();
             }
         }
     }
-
-
 }

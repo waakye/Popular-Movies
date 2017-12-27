@@ -3,6 +3,7 @@ package com.waakye.android.popularmovies9;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.LoaderManager;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
@@ -50,8 +51,6 @@ public class MainActivity extends AppCompatActivity
     private RecyclerView.LayoutManager layoutManager;
 
     private List<MovieListing> jsonMovieDataList = new ArrayList<>();
-
-    protected String[] simpleJsonMovieData;
 
     protected List<MovieListing> listJsonMovieData;
 
@@ -104,6 +103,12 @@ public class MainActivity extends AppCompatActivity
         mErrorMessageDisplay = (TextView)findViewById(R.id.text_view_error_message_display);
 
         mLoadingIndicator = (ProgressBar) findViewById(R.id.progress_bar_loading_indicator);
+
+        // Before user clicks on a preference, onCreate uses MOST_POPULAR_MOVIES popularity type
+        LoaderManager lm = getSupportLoaderManager();
+        lm.initLoader(MOVIE_POSTER_LOADER_ID, null, this);
+
+
     }
 
     // https://api.themoviedb.org/3/search/movie?api_key={api_key}&query=Jack+Reacher
@@ -125,36 +130,6 @@ public class MainActivity extends AppCompatActivity
     private void makeMovieDbPopularityQuery(int popularityType){
 
         Log.i(LOG_TAG, "makeMovieDbPopularityQuery() method called...");
-        /*
-         * This ID will uniquely identify the Loader. We can use it, for example, to get a handle
-         * on our Loader at a later point in time through the support LoaderManager.
-         */
-        int loaderId = MOVIE_POSTER_LOADER_ID;
-
-        /*
-         * From MainActivity, we have implemented the LoaderCallbacks interface with the type of
-         * List of MovieListing objects. (implements LoaderCallbacks<List<MovieListing>>)
-         * The variable callback is passed to the call to initLoader below. This means that
-         * whenever the loaderManager has something to notify us of, it will do so through
-         * this callback.
-         */
-        LoaderCallbacks<List<MovieListing>> callback = MainActivity.this;
-
-        /*
-         * The second parameter of the initLoader method below is a Bundle. Optionally, you can
-         * pass a Bundle to initLoader that you can then access from within the onCreateLoader
-         * callback. In our case, we don't actually use the Bundle, but it's here in case we wanted
-         * to.
-         */
-        Bundle bundleForLoader = null;
-
-        /*
-         * Ensures a loader is initialized and active. If the loader doesn't already exist, one is
-         * created and (if the activity/fragment is currently started) starts the loader. Otherwise
-         * the last created loader is re-used.
-         */
-        getSupportLoaderManager().initLoader(loaderId, bundleForLoader, callback);
-
     }
 
     private void makeUrlMovieTitleQueryString(String movieTitle){
@@ -254,8 +229,10 @@ public class MainActivity extends AppCompatActivity
             @Override
             public List<MovieListing> loadInBackground() {
                 // Assign to an int called popType the menu item selected
-                int popType = itemThatWasClicked;
-                Log.i(LOG_TAG, "popType: " + itemThatWasClicked);
+//                int popType = itemThatWasClicked;
+//                Log.i(LOG_TAG, "popType: " + itemThatWasClicked);
+
+                int popType = MOST_POPULAR_MOVIES_POPULARITY_TYPE;
 
                 // Using NetworkUtils method to create a URL for either
                 // 1) most popular movies or

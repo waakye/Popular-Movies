@@ -3,6 +3,9 @@ package com.waakye.android.popularmovies9;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.LoaderManager.LoaderCallbacks;
+import android.support.v4.content.AsyncTaskLoader;
+import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -24,9 +27,15 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements MovieListingAdapter.ListItemClickListener{
+public class MainActivity extends AppCompatActivity
+        implements MovieListingAdapter.ListItemClickListener,
+        LoaderCallbacks<List<MovieListing>> {
 
     private static final String LOG_TAG = MainActivity.class.getSimpleName();
+
+    // Popularity types
+    public final static int MOST_POPULAR_MOVIES_POPULARITY_TYPE = 1;
+    public final static int HIGHLY_RATED_MOVIES_POPULARITY_TYPE = 2;
 
     // TextView to display the error message
     private TextView mErrorMessageDisplay;
@@ -116,7 +125,36 @@ public class MainActivity extends AppCompatActivity implements MovieListingAdapt
     private void makeMovieDbPopularityQuery(int popularityType){
 
         Log.i(LOG_TAG, "makeMovieDbPopularityQuery() method called...");
-        new MovieDbQueryTask().execute(itemThatWasClicked);
+        /*
+         * This ID will uniquely identify the Loader. We can use it, for example, to get a handle
+         * on our Loader at a later point in time through the support LoaderManager.
+         */
+        int loaderId = MOVIE_POSTER_LOADER_ID;
+
+        /*
+         * From MainActivity, we have implemented the LoaderCallbacks interface with the type of
+         * List of MovieListing objects. (implements LoaderCallbacks<List<MovieListing>>)
+         * The variable callback is passed to the call to initLoader below. This means that
+         * whenever the loaderManager has something to notify us of, it will do so through
+         * this callback.
+         */
+        LoaderCallbacks<List<MovieListing>> callback = MainActivity.this;
+
+        /*
+         * The second parameter of the initLoader method below is a Bundle. Optionally, you can
+         * pass a Bundle to initLoader that you can then access from within the onCreateLoader
+         * callback. In our case, we don't actually use the Bundle, but it's here in case we wanted
+         * to.
+         */
+        Bundle bundleForLoader = null;
+
+        /*
+         * Ensures a loader is initialized and active. If the loader doesn't already exist, one is
+         * created and (if the activity/fragment is currently started) starts the loader. Otherwise
+         * the last created loader is re-used.
+         */
+        getSupportLoaderManager().initLoader(loaderId, bundleForLoader, callback);
+
     }
 
     private void makeUrlMovieTitleQueryString(String movieTitle){
@@ -175,76 +213,129 @@ public class MainActivity extends AppCompatActivity implements MovieListingAdapt
         Intent intent = new Intent(getBaseContext(), DetailActivity.class);
         intent.putExtra("movie", mlisting);
         startActivity(intent);
-
     }
 
-    public class MovieDbQueryTask extends AsyncTask<Integer, Void, List<MovieListing>> {
+    /**
+     * Instantiate and return a new Loader for the given ID.
+     *
+     * @param id The ID whose loader is to be created.
+     * @param loaderArgs Any arguments supplied by the caller.
+     *
+     * @return Return a new Loader instance that is ready to start loading.
+     */
+    @Override
+    public Loader<List<MovieListing>> onCreateLoader(int id, Bundle loaderArgs) {
 
-        // Override onPreExecute to set the loading indicator to visible
-        @Override
-        protected void onPreExecute(){
-            super.onPreExecute();
-            mLoadingIndicator.setVisibility(View.VISIBLE);
-        }
+        return new AsyncTaskLoader<List<MovieListing>>(this) {
 
-        @Override
-        protected List<MovieListing> doInBackground(Integer... params) {
-            Log.i(LOG_TAG, "MovieDbQueryTask doInBackground() method called...");
+            /* This List<MovieListing> will hold and help cache our MovieListing data */
+            List<MovieListing> mMovieListingData = null;
 
-            // If there's no search terms, then there's nothing to look up
-            if(params.length == 0){
-                return null;
+            /**
+             * Subclasses of AsyncTaskLoader must implement this to take care of their loading data
+             */
+            @Override
+            protected void onStartLoading(){
+                if(mMovieListingData != null){
+                    deliverResult(mMovieListingData);
+                } else {
+                    mLoadingIndicator.setVisibility(View.VISIBLE);
+                    forceLoad();
+                }
             }
 
-            // Assign to an int called popType the menu item selected
-            int popType = itemThatWasClicked;
-            Log.i(LOG_TAG, "popType: " + itemThatWasClicked);
+            /**
+             * This is the method of the AsyncTaskLoader that will load and parse the JSON data
+             * from TheMovieDB in the background.
+             *
+             * @return Movie data from TheMovieDB as a List of MovieListing objects;
+             *         null if an error occurs
+             */
+            @Override
+            public List<MovieListing> loadInBackground() {
+                // Assign to an int called popType the menu item selected
+                int popType = itemThatWasClicked;
+                Log.i(LOG_TAG, "popType: " + itemThatWasClicked);
 
-            // Using NetworkUtils method to create a URL for either
-            // 1) most popular movies or
-            // 2) top rated movies
-            URL movieSearchUrl = NetworkUtils.createPopularityTypeUrl(popType);
-            Log.i(LOG_TAG, "movieSearchUrl is: " + movieSearchUrl);
+                // Using NetworkUtils method to create a URL for either
+                // 1) most popular movies or
+                // 2) top rated movies
+                URL movieSearchUrl = NetworkUtils.createPopularityTypeUrl(popType);
+                Log.i(LOG_TAG, "movieSearchUrl is: " + movieSearchUrl);
 
-            try {
-                Log.i(LOG_TAG, "try-catch block query for json movie response");
+                try {
+                    Log.i(LOG_TAG, "try-catch block query for json movie response");
 
-                // Get the HTTP response to determine whether to create an internet connection
-                String jsonMovieResponse = NetworkUtils.getResponseFromHttpUrl(movieSearchUrl);
+                    // Get the HTTP response to determine whether to create an internet connection
+                    String jsonMovieResponse = NetworkUtils.getResponseFromHttpUrl(movieSearchUrl);
 
-                jsonMovieDataList = MovieDbJsonUtils.extractItemFromJson(jsonMovieResponse);
+                    jsonMovieDataList =
+                            MovieDbJsonUtils.extractItemFromJson(jsonMovieResponse);
 
-                // Returns a List of MovieListing objects
-                return jsonMovieDataList;
-            } catch (IOException e){
-                e.printStackTrace();
-                return null;
-            } catch (JSONException e){
-                e.printStackTrace();
-                return null;
+                    // Returns a List of MovieListing objects
+                    return jsonMovieDataList;
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    return null;
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    return null;
+                }
             }
-        }
 
-        @Override
-        protected void onPostExecute(List<MovieListing> movieDbSearchResults){
-            Log.i(LOG_TAG, "MovieDbQueryTask onPostExecute() method called...");
-            // As soon as the loading is complete, hide the loading indicator
-            mLoadingIndicator.setVisibility(View.INVISIBLE);
-            if(movieDbSearchResults != null && !movieDbSearchResults.equals("")){
-                // Call showJsonDataView if we have valid, non-null results
-                showJsonDataView();
-
-                // Sets the RecyclerView Adapter, MovieAdapter, to the data source, a String array of
-                // movie urls
-                mAdapter.setMovieData(movieDbSearchResults);
-
-                // RecyclerView's adapter is set to the RecyclerView Adapter
-                mMoviesList.setAdapter(mAdapter);
-            } else {
-                // Call showErrorMessage if the result is null in onPostExecute
-                showErrorMessage();
+            /**
+             * Sends the result of the load to the registered listener.
+             *
+             * @param data The result of the load
+             */
+            public void deliverResult(List<MovieListing> data) {
+                mMovieListingData = data;
+                super.deliverResult(data);
             }
+        };
+    }
+
+    /**
+     * Called when a previously created loader has finished its load.
+     *
+     * @param loader The Loader that has finished.
+     * @param data The data generated by the Loader.
+     */
+    @Override
+    public void onLoadFinished(Loader<List<MovieListing>> loader, List<MovieListing> data) {
+
+        // As soon as the loading is complete, hide the loading indicator
+        mLoadingIndicator.setVisibility(View.INVISIBLE);
+        if(data != null && !data.equals("")){
+            // Call showJsonDataView if we have valid, non-null results
+            showJsonDataView();
+            // Sets the RecyclerView Adapter, MovieAdapter, to the data source, a String array of movie urls
+            mAdapter.setMovieData(data);
+            // RecyclerView's adapter is set to the RecyclerView Adapter
+            mMoviesList.setAdapter(mAdapter);
+
+        } else {
+            // Call showErrorMessage if the result is null in onPostExecute
+            showErrorMessage();
         }
+    }
+
+    @Override
+    public void onLoaderReset(Loader<List<MovieListing>> loader) {
+         /*
+         * We aren't using this method in our example application, but we are required to Override
+         * it to implement the LoaderCallbacks<String> interface
+         */
+    }
+
+    /**
+     * This method is used when we are resetting data, so that at one point in time during a
+     * refresh of our data, you can see that there is no data showing.
+     */
+    private void invalidateData() {
+        mAdapter.setMovieData(null);
     }
 
     public class MovieTitleQueryTask extends AsyncTask<String, Void, String[]>{
@@ -312,7 +403,7 @@ public class MainActivity extends AppCompatActivity implements MovieListingAdapt
         itemThatWasClicked = item.getItemId();
         if(itemThatWasClicked == R.id.action_popular_movies) {
             // Menu item that was clicked
-            itemThatWasClicked = 1;
+            itemThatWasClicked = MOST_POPULAR_MOVIES_POPULARITY_TYPE;
             makeMovieDbPopularityQuery(itemThatWasClicked);
             Log.i(LOG_TAG, "itemThatWasClicked: " + itemThatWasClicked);
 //            makeUrlMovieTitleQueryString(movieTitle);
@@ -320,7 +411,7 @@ public class MainActivity extends AppCompatActivity implements MovieListingAdapt
         }
 
         if(itemThatWasClicked == R.id.action_highly_rated_movies){
-            itemThatWasClicked = 2;
+            itemThatWasClicked = HIGHLY_RATED_MOVIES_POPULARITY_TYPE;
             makeMovieDbPopularityQuery(itemThatWasClicked);
             Log.i(LOG_TAG, "itemThatWasClicked: " + itemThatWasClicked);
 //            makeUrlMovieTitleQueryString(movieTitle);

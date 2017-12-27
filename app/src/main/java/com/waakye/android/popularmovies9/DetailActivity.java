@@ -69,21 +69,21 @@ public class DetailActivity extends AppCompatActivity {
 
         // Getting reference to TextView text_view_movie_synopsis in activity_detail
         mTextViewMovieSynopsis = (TextView)findViewById(R.id.text_view_movie_synopsis);
-        mTextViewMoviePosterPath = (TextView)findViewById(R.id.text_view_movie_poster_path);
+//        mTextViewMoviePosterPath = (TextView)findViewById(R.id.text_view_movie_poster_path);
         mTextViewMovieVoteAverage = (TextView)findViewById(R.id.text_view_movie_vote_average);
         mTextViewMovieReleaseDate = (TextView)findViewById(R.id.text_view_movie_release_date);
-        mTextViewMovieId = (TextView)findViewById(R.id.text_view_movie_id);
+//        mTextViewMovieId = (TextView)findViewById(R.id.text_view_movie_id);
 
         mMoviePoster = (ImageView) findViewById(R.id.image_view_detail_activity_movie_poster);
 
         if (movieListing != null){
             mTextViewMovieTitle.setText(movieListing.getMovieTitle());
             mTextViewMovieSynopsis.setText(movieListing.getMovieSynopsis());
-            mTextViewMoviePosterPath.setText(" " + MovieAdapter.MOVIE_POSTER_PREFIX
-                    + movieListing.getMoviePosterPath());
+//            mTextViewMoviePosterPath.setText(" " + MovieAdapter.MOVIE_POSTER_PREFIX
+//                    + movieListing.getMoviePosterPath());
             mTextViewMovieVoteAverage.setText(" " + movieListing.getMovieVoteAverage());
             mTextViewMovieReleaseDate.setText(" " + movieListing.getMovieReleaseDate());
-            mTextViewMovieId.setText(" " + movieListing.getMovieId());
+//            mTextViewMovieId.setText(" " + movieListing.getMovieId());
             mIndividualMovieId = movieListing.getMovieId();
         }
 
@@ -118,7 +118,6 @@ public class DetailActivity extends AppCompatActivity {
         new TrailersQueryTask().execute(mIndividualMovieId);
 
     }
-
 
     /**
      * This method will make the View for the JSON data visible and

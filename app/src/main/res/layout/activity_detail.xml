@@ -82,39 +82,6 @@
             tools:text="The story of Henry Hill" />
 
         <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/activity_margin"
-            android:text="@string/poster_path"
-            android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/text_view_movie_poster_path"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/activity_margin"
-            android:orientation="horizontal">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/movie_id"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/text_view_movie_id"
-                android:layout_marginLeft="@dimen/indent_margin"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                tools:text="111111"/>
-        </LinearLayout>
-
-        <TextView
             android:text="@string/trailers"
             android:textStyle="bold"
             android:layout_width="wrap_content"

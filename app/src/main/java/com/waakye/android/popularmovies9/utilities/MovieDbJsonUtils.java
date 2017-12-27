@@ -102,7 +102,7 @@ public class MovieDbJsonUtils {
         return parsedMovieTitleData;
     }
 
-
+    // TODO: convert strings into URLs so user can click to watch the trailers or present the trailers as buttons
     // For this query: http://api.themoviedb.org/3/movie/157336/videos?api_key=b2433ced24ee89f33371c184240eca2a
     public static String[] getTrailerStringsFromJson(Context context, String trailerJsonStr)
             throws JSONException{

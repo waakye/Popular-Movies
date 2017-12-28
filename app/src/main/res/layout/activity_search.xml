@@ -38,6 +38,14 @@
 
         <!-- Display Results -->
 
+        <TextView
+            android:id="@+id/text_view_moviedb_search_results_json"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/activity_margin"
+            android:textSize="20sp"/>
+
+
         <android.support.v7.widget.RecyclerView
             android:id="@+id/recycler_view_searched_movies"
             android:layout_width="match_parent"

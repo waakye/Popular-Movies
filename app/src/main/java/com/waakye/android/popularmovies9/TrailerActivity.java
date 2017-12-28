@@ -1,6 +1,7 @@
 package com.waakye.android.popularmovies9;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -37,6 +38,8 @@ public class TrailerActivity extends AppCompatActivity implements TrailerAdapter
 
     public static String LOG_TAG = TrailerActivity.class.getSimpleName();
 
+    private static final String YOUTUBE_BASE_URL = "https://www.youtube.com/watch?v=";
+
     private TextView mTrailerResultsTextView;
 
     private String movieId;
@@ -46,8 +49,6 @@ public class TrailerActivity extends AppCompatActivity implements TrailerAdapter
 
     // Loading Indicator
     private ProgressBar mTrailerActivityLoadingIndicator;
-
-    private static final int NUM_LIST_ITEMS = 100;
 
     private TrailerAdapter mAdapter;
 
@@ -131,14 +132,16 @@ public class TrailerActivity extends AppCompatActivity implements TrailerAdapter
      */
     @Override
     public void onListItemClick(int clickedItemIndex) {
-        if (mToast != null) {
-            mToast.cancel();
-        }
+        Log.i(LOG_TAG, "onListItemClick() method called...");
 
-        String toastMessage = "Item #" + clickedItemIndex + " clicked.";
-        mToast = Toast.makeText(this, toastMessage, Toast.LENGTH_LONG);
+        Trailer individualTrailer = jsonTrailerDataList.get(clickedItemIndex);
+        String individualTrailerKey = individualTrailer.getTrailerKey();
+        String trailerUrl = YOUTUBE_BASE_URL + individualTrailerKey;
+        Intent i = new Intent(Intent.ACTION_VIEW);
+        i.setData(Uri.parse(trailerUrl));
+        startActivity(i);
 
-        mToast.show();
+
     }
 
     public class TrailersQueryTask extends AsyncTask<String, Void, List<Trailer>> {
@@ -187,6 +190,9 @@ public class TrailerActivity extends AppCompatActivity implements TrailerAdapter
                 showJsonDataView();
                 // A String array of trailer names based on the List of Trailer objects
                 String[] trailerNames = extractTrailerNames(trailersSearchResults);
+
+                mAdapter.setTrailerData(trailerNames);
+
                 mTrailersList.setAdapter(mAdapter);
             } else {
                 // Call showErrorMessage if the result is null in onPostExecute
@@ -196,7 +202,7 @@ public class TrailerActivity extends AppCompatActivity implements TrailerAdapter
     }
 
     public String[] extractTrailerNames (List<Trailer> trailers){
-        Log.i(LOG_TAG, "extractMovieUrlsInMain() method callled...");
+        Log.i(LOG_TAG, "extractTrailerNames() method callled...");
 
         // Create a String[] array with a length equal to the size of the List of Movies
         String[] trailerNames = new String[trailers.size()];
@@ -207,5 +213,4 @@ public class TrailerActivity extends AppCompatActivity implements TrailerAdapter
         }
         return trailerNames;
     }
-
 }

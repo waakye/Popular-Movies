@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="@dimen/activity_margin">
+
+        <!-- Label -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-medium"
+            android:text="@string/find_a_favorite_movie"
+            android:textAppearance="?android:textAppearanceSmall"
+            android:textColor="@color/colorAccent" />
+
+        <EditText
+            android:id="@+id/edit_search_terms"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/activity_margin"
+            android:fontFamily="sans-serif-light"
+            android:hint="@string/enter_a_movie_title"
+            android:inputType="textCapWords"
+            android:textAppearance="?android:textAppearanceMedium" />
+
+        <Button
+            android:id="@+id/search_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/activity_margin"
+            android:text="@string/search" />
+
+        <!-- Display Results -->
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/recycler_view_searched_movies"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+
+        <!-- Empty view is only visible when the list has no items. -->
+        <TextView
+            android:id="@+id/empty_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="@string/no_results_found"
+            android:textAppearance="?android:textAppearanceMedium"/>
+
+        <!-- Loading indicator is only shown before the first load -->
+        <ProgressBar
+            android:id="@+id/loading_indicator"
+            style="@style/Widget.AppCompat.ProgressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"/>
+
+    </LinearLayout>
+</RelativeLayout>
+

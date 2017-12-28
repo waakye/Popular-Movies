@@ -12,7 +12,7 @@
     <!-- SearchMoviesActivity -->
     <string name="search">Search</string>
     <string name="search_hint">Enter movie title</string>
-    <string name="find_a_favorite_movie">Find a Favorite Movies</string>
+    <string name="find_a_favorite_movie">Find a Favorite Movie</string>
     <string name="enter_a_movie_title">Please enter a movie title</string>
 
     <string name="no_results_found">No results found</string>

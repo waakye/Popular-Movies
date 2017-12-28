@@ -1,7 +1,6 @@
 package com.waakye.android.popularmovies9;
 
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
@@ -36,6 +35,7 @@ public class MainActivity extends AppCompatActivity
     // Popularity types
     public final static int MOST_POPULAR_MOVIES_POPULARITY_TYPE = 1;
     public final static int HIGHLY_RATED_MOVIES_POPULARITY_TYPE = 2;
+    public final static int SEARCH_FAVORITE_MOVIES = 3;
 
     // TextView to display the error message
     private TextView mErrorMessageDisplay;
@@ -100,33 +100,11 @@ public class MainActivity extends AppCompatActivity
 
     }
 
-    // https://api.themoviedb.org/3/search/movie?api_key={api_key}&query=Jack+Reacher
-    public String urlQueryString(String search_terms) {
-
-        Log.i(LOG_TAG, "urlQueryString() method called...");
-        search_terms = search_terms.trim().replace(" ", "+");
-
-        StringBuilder sb = new StringBuilder(NetworkUtils.MOVIE_DB_TITLE_SEARCH_BASE_URL);
-        sb.append("?api_key=");
-        sb.append(NetworkUtils.API_KEY);
-        sb.append("&query=");
-        sb.append(search_terms);
-        String builtString = sb.toString();
-        return builtString;
-
-    }
-
     private void makeMovieDbPopularityQuery(int popularityType){
 
         Log.i(LOG_TAG, "makeMovieDbPopularityQuery() method called...");
         // Since a loader is used onCreate, we must restart the loader
         getSupportLoaderManager().restartLoader(MOVIE_POSTER_LOADER_ID, null, this);
-
-    }
-
-    private void makeUrlMovieTitleQueryString(String movieTitle){
-        Log.i(LOG_TAG, "makeUrlMovieTitleQueryString() method called...");
-        new MovieTitleQueryTask().execute(movieTitle);
     }
 
     /**
@@ -308,59 +286,6 @@ public class MainActivity extends AppCompatActivity
         mAdapter.setMovieData(null);
     }
 
-    public class MovieTitleQueryTask extends AsyncTask<String, Void, String[]>{
-
-        // Override onPreExecute to set the loading indicator to visible
-        @Override
-        protected void onPreExecute(){
-            super.onPreExecute();
-            mLoadingIndicator.setVisibility(View.VISIBLE);
-        }
-
-        @Override
-        protected String[] doInBackground(String... params) {
-            Log.i(LOG_TAG, "MovieTitleQueryTask doInBackground() method called...");
-
-            // If there's no search terms, then there's nothing to look up
-            if(params.length == 0){
-                return null;
-            }
-
-            String movieTitleUrl = urlQueryString(movieTitle);
-            URL movieTitlerSearchUrl = NetworkUtils.createTitleSearchUrl(movieTitleUrl);
-
-            try {
-                String jsonMovieTitleResponse = NetworkUtils.getResponseFromHttpUrl(movieTitlerSearchUrl);
-
-                String[] movieTitleJsonMovieData = MovieDbJsonUtils
-                        .getMovieTitleStringsFromJson(MainActivity.this,jsonMovieTitleResponse);
-                return movieTitleJsonMovieData;
-            } catch (IOException e){
-                e.printStackTrace();
-                return null;
-            } catch (JSONException e){
-                e.printStackTrace();
-                return null;
-            }
-        }
-
-        @Override
-        protected void onPostExecute(String[] movieTitleSearchResults){
-            Log.i(LOG_TAG, "MovieTitleQueryTask onPostExecute() method called...");
-            // As soon as the loading is complete, hide the loading indicator
-            mLoadingIndicator.setVisibility(View.INVISIBLE);
-            if(movieTitleSearchResults != null && !movieTitleSearchResults.equals("")){
-                // Call showJsonDataView if we have valid, non-null results
-                showJsonDataView();
-                for(String movieTitleString : movieTitleSearchResults){
-                    mSearchResultsTextView.append((movieTitleString) + "\n\n");
-                }
-            }  else {
-                // Call showErrorMessage if the result is null in onPostExecute
-                showErrorMessage();
-            }
-        }
-    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu){
@@ -386,6 +311,12 @@ public class MainActivity extends AppCompatActivity
             Log.i(LOG_TAG, "itemThatWasClicked: " + itemThatWasClicked);
 //            makeUrlMovieTitleQueryString(movieTitle);
             return true;
+        }
+
+        if(itemThatWasClicked == R.id.action_search_favorite_movies){
+            itemThatWasClicked = SEARCH_FAVORITE_MOVIES;
+            Intent i = new Intent(this, SearchMoviesActivity.class);
+            startActivity(i);
         }
         return super.onOptionsItemSelected(item);
     }

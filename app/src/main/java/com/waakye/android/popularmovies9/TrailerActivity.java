@@ -62,6 +62,9 @@ public class TrailerActivity extends AppCompatActivity implements TrailerAdapter
 
     private Toast mToast;
 
+    private static final int TRAILER_LOADER_ID = 11;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

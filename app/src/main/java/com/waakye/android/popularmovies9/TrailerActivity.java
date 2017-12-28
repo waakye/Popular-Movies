@@ -20,21 +20,14 @@ import org.json.JSONException;
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Created by lesterlie on 12/27/17.
  */
 
-/**
- * Things to do with the movie id:
- * 1) Get all the trailers related to this movieId
- * 2) Show the trailers as a list in a RecyclerView or ListView
- * 3) When a user clicks an item in the recyclerView or list, then show the trailer using an intent
- */
-
-public class TrailerActivity extends AppCompatActivity implements TrailerAdapter.ListItemClickListener {
+public class TrailerActivity extends AppCompatActivity
+        implements TrailerListingAdapter.ListItemClickListener {
 
     public static String LOG_TAG = TrailerActivity.class.getSimpleName();
 
@@ -50,15 +43,15 @@ public class TrailerActivity extends AppCompatActivity implements TrailerAdapter
     // Loading Indicator
     private ProgressBar mTrailerActivityLoadingIndicator;
 
-    private TrailerAdapter mAdapter;
+    private TrailerListingAdapter mAdapter;
 
     private RecyclerView mTrailersList;
 
-    private List<Trailer> jsonTrailerDataList = new ArrayList<>();
+    protected List<Trailer> jsonTrailerDataList;
 
-    protected String[] jsonTrailerData;
-
-    protected String[] simplerJsonTrailerData;
+//    protected String[] jsonTrailerData;
+//
+//    protected String[] simplerJsonTrailerData;
 
     private Toast mToast;
 
@@ -77,7 +70,8 @@ public class TrailerActivity extends AppCompatActivity implements TrailerAdapter
 
         mTrailersList = (RecyclerView)findViewById(R.id.recycler_view_trailers);
 
-        mTrailerActivityErrorMessageDisplay = (TextView)findViewById(R.id.trailer_activity_text_view_error_message_display);
+        mTrailerActivityErrorMessageDisplay =
+                (TextView)findViewById(R.id.trailer_activity_text_view_error_message_display);
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         mTrailersList.setLayoutManager(layoutManager);
@@ -86,12 +80,12 @@ public class TrailerActivity extends AppCompatActivity implements TrailerAdapter
 
         mTrailersList.setAdapter(mAdapter);
 
-        mAdapter = new TrailerAdapter(this, simplerJsonTrailerData, this);
+        mAdapter = new TrailerListingAdapter(this, jsonTrailerDataList, this);
 
-        mTrailerActivityLoadingIndicator = (ProgressBar) findViewById(R.id.trailer_activity_progress_bar_loading_indicator);
+        mTrailerActivityLoadingIndicator =
+                (ProgressBar) findViewById(R.id.trailer_activity_progress_bar_loading_indicator);
 
         makeTrailerQuery(movieId);
-
     }
 
     private void makeTrailerQuery(String movieId){
@@ -139,12 +133,11 @@ public class TrailerActivity extends AppCompatActivity implements TrailerAdapter
 
         Trailer individualTrailer = jsonTrailerDataList.get(clickedItemIndex);
         String individualTrailerKey = individualTrailer.getTrailerKey();
+
         String trailerUrl = YOUTUBE_BASE_URL + individualTrailerKey;
         Intent i = new Intent(Intent.ACTION_VIEW);
         i.setData(Uri.parse(trailerUrl));
         startActivity(i);
-
-
     }
 
     public class TrailersQueryTask extends AsyncTask<String, Void, List<Trailer>> {
@@ -191,10 +184,8 @@ public class TrailerActivity extends AppCompatActivity implements TrailerAdapter
             if(trailersSearchResults != null && !trailersSearchResults.equals("")){
                 // Call showJsonDataView if we have valid, non-null results
                 showJsonDataView();
-                // A String array of trailer names based on the List of Trailer objects
-                String[] trailerNames = extractTrailerNames(trailersSearchResults);
 
-                mAdapter.setTrailerData(trailerNames);
+                mAdapter.setTrailerData(trailersSearchResults);
 
                 mTrailersList.setAdapter(mAdapter);
             } else {
@@ -204,16 +195,16 @@ public class TrailerActivity extends AppCompatActivity implements TrailerAdapter
         }
     }
 
-    public String[] extractTrailerNames (List<Trailer> trailers){
-        Log.i(LOG_TAG, "extractTrailerNames() method callled...");
-
-        // Create a String[] array with a length equal to the size of the List of Movies
-        String[] trailerNames = new String[trailers.size()];
-        int index = 0;
-        for(Trailer trailer : trailers){
-            trailerNames[index] = (String) trailer.getTrailerName();
-            index++;
-        }
-        return trailerNames;
-    }
+//    public String[] extractTrailerNames (List<Trailer> trailers){
+//        Log.i(LOG_TAG, "extractTrailerNames() method callled...");
+//
+//        // Create a String[] array with a length equal to the size of the List of Movies
+//        String[] trailerNames = new String[trailers.size()];
+//        int index = 0;
+//        for(Trailer trailer : trailers){
+//            trailerNames[index] = (String) trailer.getTrailerName();
+//            index++;
+//        }
+//        return trailerNames;
+//    }
 }

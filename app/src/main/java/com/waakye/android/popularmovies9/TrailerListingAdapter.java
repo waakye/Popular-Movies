@@ -136,7 +136,11 @@ public class TrailerListingAdapter
     public void onBindViewHolder(TrailerListingViewHolder viewHolder, final int position) {
         Log.d(LOG_TAG, "#" + position);
 
-        viewHolder.getTextView().setText(trailerListingsList.indexOf(position));
+        String[] trailerNamesArray = extractTrailerNames(trailerListingsList);
+
+        String individualTrailerName = trailerNamesArray[position];
+
+        viewHolder.getTextView().setText(individualTrailerName);
     }
 
     /**
@@ -154,5 +158,17 @@ public class TrailerListingAdapter
         Log.i(LOG_TAG, "setMovieData() method is called...");
         trailerListingsList = trailerData;
         notifyDataSetChanged();
+    }
+
+    public String[] extractTrailerNames(List<Trailer> trailerSearchResults){
+        Log.i(LOG_TAG, "extractTrailerNames() method called...");
+
+        String[] trailerNames = new String[trailerSearchResults.size()];
+        int index = 0;
+        for(Trailer trailer: trailerSearchResults){
+            trailerNames[index] = (String)trailer.getTrailerName();
+            index++;
+        }
+        return trailerNames;
     }
 }

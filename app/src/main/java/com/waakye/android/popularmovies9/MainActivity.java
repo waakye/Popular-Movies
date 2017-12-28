@@ -16,7 +16,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.waakye.android.popularmovies9.utilities.MovieDbJsonUtils;
 import com.waakye.android.popularmovies9.utilities.NetworkUtils;
@@ -55,18 +54,9 @@ public class MainActivity extends AppCompatActivity
     // Option selected in onOptionsItemSelected method
     private int itemThatWasClicked;
 
-    private Toast mToast;
-
     private TextView mSearchResultsTextView;
 
-    private URL movieSearchUrl;
-
-    // MovieId of "Jack Reacher" movie is "343611"
-    private String movieId = "343611";
-
     private String movieTitle = "Jack Reacher";
-
-    private String edit_text_search_terms = "";
 
     private static final int MOVIE_POSTER_LOADER_ID = 0;
 

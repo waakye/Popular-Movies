@@ -32,5 +32,17 @@
     <!-- SettingsActivity -->
     <string name="action_settings">Settings</string>
 
+    <!-- Preference Screen -->
+    <string name="pref_popularity_label_most_popular">Most Popular Movies</string>
+    <string name="pref_popularity_label_highly_rated">Highly Rated Movies</string>
+    <string name="pref_popularity_label_my_favorites">My Favorites Movies</string>
+
+    <string name="pref_popularity_most_popular">Most Popular</string>
+    <string name="pref_popularity_highly_rated">Highly Rated</string>
+    <string name="pref_popularity_my_favorites">My Favorites</string>
+
+    <string name="pref_key" translatable="false">popularity</string>
+
+    <string name="pref_label">Popularity Types</string>
 
 </resources>

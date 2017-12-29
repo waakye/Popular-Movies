@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="pref_popularity_options">
+        <item>@string/pref_popularity_label_most_popular</item>
+        <item>@string/pref_popularity_label_highly_rated</item>
+        <item>@string/pref_popularity_label_my_favorites</item>
+    </string-array>
+
+    <string-array name="pref_popularity_values">
+        <item>@string/pref_popularity_most_popular</item>
+        <item>@string/pref_popularity_highly_rated</item>
+        <item>@string/pref_popularity_my_favorites</item>
+    </string-array>
+
+</resources>

@@ -97,6 +97,10 @@ public class SearchMoviesActivity extends AppCompatActivity
                 theMovieDbQueryUrl = urlQueryString(search_terms);
                 makeUrlMovieTitleQueryString(theMovieDbQueryUrl);
 
+                LoaderManager lm = getSupportLoaderManager();
+                lm.initLoader(SEARCHED_MOVIE_POSTER_LOADER_ID, null, SearchMoviesActivity.this);
+
+
             }
         });
     }
@@ -104,35 +108,8 @@ public class SearchMoviesActivity extends AppCompatActivity
     private void makeUrlMovieTitleQueryString(String movieTitle) {
         Log.i(LOG_TAG, "makeUrlMovieTitleQueryString() method called...");
 
-        /*
-         * This ID will uniquely identify the Loader. We can use it, for example, to get a handle
-         * on our Loader at a later point in time through the support LoaderManager.
-         */
-        int loaderId = SEARCHED_MOVIE_POSTER_LOADER_ID;
+        getSupportLoaderManager().restartLoader(SEARCHED_MOVIE_POSTER_LOADER_ID, null, this);
 
-        /*
-         * From MainActivity, we have implemented the LoaderCallbacks interface with the type of
-         * List of MovieListing objects. (implements LoaderCallbacks<List<MovieListing>>)
-         * The variable callback is passed to the call to initLoader below. This means that
-         * whenever the loaderManager has something to notify us of, it will do so through
-         * this callback.
-         */
-        LoaderManager.LoaderCallbacks<List<MovieListing>> callback = SearchMoviesActivity.this;
-
-        /*
-         * The second parameter of the initLoader method below is a Bundle. Optionally, you can
-         * pass a Bundle to initLoader that you can then access from within the onCreateLoader
-         * callback. In our case, we don't actually use the Bundle, but it's here in case we wanted
-         * to.
-         */
-        Bundle bundleForLoader = null;
-
-        /*
-         * Ensures a loader is initialized and active. If the loader doesn't already exist, one is
-         * created and (if the activity/fragment is currently started) starts the loader. Otherwise
-         * the last created loader is re-used.
-         */
-        getSupportLoaderManager().initLoader(loaderId, bundleForLoader, callback);
     }
 
     /**

@@ -38,8 +38,6 @@ public class SearchMoviesActivity extends AppCompatActivity
     // Loading Indicator
     private ProgressBar mLoadingIndicator;
 
-    private TextView mSearchResultsTextView;
-
     private MovieListingAdapter mAdapter;
 
     private RecyclerView mSearchedMoviesList;
@@ -52,6 +50,8 @@ public class SearchMoviesActivity extends AppCompatActivity
 
     public static String theMovieDbQueryUrl = "";
 
+    private static final int SEARCHED_MOVIE_POSTER_LOADER_ID = 33;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -63,8 +63,9 @@ public class SearchMoviesActivity extends AppCompatActivity
         // Define the RecyclerView with a fixed size
         mSearchedMoviesList.setHasFixedSize(true);
 
-        // Define the layout being used as a GridLayout with 3 columns
-        GridLayoutManager layoutManager = new GridLayoutManager(SearchMoviesActivity.this, 2);
+        // Define the layout being used as a GridLayout with 2 columns
+        GridLayoutManager layoutManager =
+                new GridLayoutManager(SearchMoviesActivity.this, 2);
 
         // Set the RecyclerView to be attached to the Gridlayout
         mSearchedMoviesList.setLayoutManager(layoutManager);
@@ -166,9 +167,7 @@ public class SearchMoviesActivity extends AppCompatActivity
         Intent intent = new Intent(getBaseContext(), DetailActivity.class);
         intent.putExtra("movie", mlisting);
         startActivity(intent);
-
     }
-
 
     public class MovieTitleQueryTask extends AsyncTask<String, Void, List<MovieListing>> {
 

@@ -1,8 +1,10 @@
 package com.waakye.android.popularmovies9;
 
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.AsyncTaskLoader;
+import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -28,7 +30,8 @@ import java.util.List;
  */
 
 public class SearchMoviesActivity extends AppCompatActivity
-        implements MovieListingAdapter.ListItemClickListener{
+        implements MovieListingAdapter.ListItemClickListener,
+        android.support.v4.app.LoaderManager.LoaderCallbacks<List<MovieListing>> {
 
     private static final String LOG_TAG = SearchMoviesActivity.class.getSimpleName();
 
@@ -58,7 +61,7 @@ public class SearchMoviesActivity extends AppCompatActivity
         setContentView(R.layout.activity_search);
 
         // Set Recyclerview variable to the View with id recycler_view_searched_movies
-        mSearchedMoviesList = (RecyclerView)findViewById(R.id.recycler_view_searched_movies);
+        mSearchedMoviesList = (RecyclerView) findViewById(R.id.recycler_view_searched_movies);
 
         // Define the RecyclerView with a fixed size
         mSearchedMoviesList.setHasFixedSize(true);
@@ -98,19 +101,47 @@ public class SearchMoviesActivity extends AppCompatActivity
         });
     }
 
-    private void makeUrlMovieTitleQueryString(String movieTitle){
+    private void makeUrlMovieTitleQueryString(String movieTitle) {
         Log.i(LOG_TAG, "makeUrlMovieTitleQueryString() method called...");
 
-        new MovieTitleQueryTask().execute(movieTitle);
+        /*
+         * This ID will uniquely identify the Loader. We can use it, for example, to get a handle
+         * on our Loader at a later point in time through the support LoaderManager.
+         */
+        int loaderId = SEARCHED_MOVIE_POSTER_LOADER_ID;
+
+        /*
+         * From MainActivity, we have implemented the LoaderCallbacks interface with the type of
+         * List of MovieListing objects. (implements LoaderCallbacks<List<MovieListing>>)
+         * The variable callback is passed to the call to initLoader below. This means that
+         * whenever the loaderManager has something to notify us of, it will do so through
+         * this callback.
+         */
+        LoaderManager.LoaderCallbacks<List<MovieListing>> callback = SearchMoviesActivity.this;
+
+        /*
+         * The second parameter of the initLoader method below is a Bundle. Optionally, you can
+         * pass a Bundle to initLoader that you can then access from within the onCreateLoader
+         * callback. In our case, we don't actually use the Bundle, but it's here in case we wanted
+         * to.
+         */
+        Bundle bundleForLoader = null;
+
+        /*
+         * Ensures a loader is initialized and active. If the loader doesn't already exist, one is
+         * created and (if the activity/fragment is currently started) starts the loader. Otherwise
+         * the last created loader is re-used.
+         */
+        getSupportLoaderManager().initLoader(loaderId, bundleForLoader, callback);
     }
 
     /**
      * This method will make the View for the JSON data visible and hide the error message
-     *
+     * <p>
      * Since it is okay to redundantly set the visibility of a View, we don't need to check whether
      * each view is current visible or invisible
      */
-    private void showJsonDataView(){
+    private void showJsonDataView() {
         Log.i(LOG_TAG, "showJsonDataView() method called...");
         // First, make sure the error is invisible
         mErrorMessageDisplay.setVisibility(View.INVISIBLE);
@@ -120,11 +151,11 @@ public class SearchMoviesActivity extends AppCompatActivity
 
     /**
      * This method will make the error message visible and hide the JSON View.
-     *
+     * <p>
      * Since it is okay to redundantly set  the visiblity of a View, we don't need to check whether
      * each view is currently visible or invisible
      */
-    private void showErrorMessage(){
+    private void showErrorMessage() {
         Log.i(LOG_TAG, "showErrorMessage() method called...");
         // First, hide the currently visible data
         mSearchedMoviesList.setVisibility(View.INVISIBLE);
@@ -162,65 +193,84 @@ public class SearchMoviesActivity extends AppCompatActivity
         String individualMovieId = individualMovie.getMovieId();
 
         MovieListing mlisting = new MovieListing(individualTitle, individualSynopsis,
-                individualPosterPath, individualVoteAverage, individualReleaseDate, individualMovieId );
+                individualPosterPath, individualVoteAverage, individualReleaseDate, individualMovieId);
 
         Intent intent = new Intent(getBaseContext(), DetailActivity.class);
         intent.putExtra("movie", mlisting);
         startActivity(intent);
     }
 
-    public class MovieTitleQueryTask extends AsyncTask<String, Void, List<MovieListing>> {
+    @Override
+    public Loader<List<MovieListing>> onCreateLoader(int id, Bundle args) {
+        return new AsyncTaskLoader<List<MovieListing>>(this) {
 
-        // Override onPreExecute to set the loading indicator to visible
-        @Override
-        protected void onPreExecute(){
-            super.onPreExecute();
-            mLoadingIndicator.setVisibility(View.VISIBLE);
-        }
+            List<MovieListing> mMovieListingData = null;
 
-        @Override
-        protected List<MovieListing> doInBackground(String... params) {
-            Log.i(LOG_TAG, "MovieTitleQueryTask doInBackground() method called...");
-
-            // If there's no search terms, then there's nothing to look up
-            if(params.length == 0){
-                return null;
+            @Override
+            protected void onStartLoading() {
+                if (mMovieListingData != null) {
+                    deliverResult(mMovieListingData);
+                } else {
+                    mLoadingIndicator.setVisibility(View.VISIBLE);
+                    forceLoad();
+                }
             }
 
-            URL movieTitlerSearchUrl = NetworkUtils.createTitleSearchUrl(theMovieDbQueryUrl);
+            @Override
+            public List<MovieListing> loadInBackground() {
 
-            try {
-                String jsonMovieTitleResponse = NetworkUtils.getResponseFromHttpUrl(movieTitlerSearchUrl);
+                URL movieTitlerSearchUrl = NetworkUtils.createTitleSearchUrl(theMovieDbQueryUrl);
 
-                jsonMovieTitleDataList = MovieDbJsonUtils.extractItemFromJson(jsonMovieTitleResponse);
+                try {
+                    String jsonMovieTitleResponse = NetworkUtils.getResponseFromHttpUrl(movieTitlerSearchUrl);
 
-                // Returns a List of MovieListing objects
-                return jsonMovieTitleDataList;
-            } catch (IOException e){
-                e.printStackTrace();
-                return null;
-            } catch (JSONException e){
-                e.printStackTrace();
-                return null;
+                    jsonMovieTitleDataList = MovieDbJsonUtils.extractItemFromJson(jsonMovieTitleResponse);
+
+                    // Returns a List of MovieListing objects
+                    return jsonMovieTitleDataList;
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    return null;
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    return null;
+                }
             }
-        }
 
-        @Override
-        protected void onPostExecute(List<MovieListing> movieTitleSearchResults){
-            Log.i(LOG_TAG, "MovieTitleQueryTask onPostExecute() method called...");
-            // As soon as the loading is complete, hide the loading indicator
-            if(movieTitleSearchResults != null && !movieTitleSearchResults.equals("")){
-                // Call showJsonDataView if we have valid, non-null results
-                showJsonDataView();
-
-                mAdapter.setMovieData(movieTitleSearchResults);
-
-                mSearchedMoviesList.setAdapter(mAdapter);
-
-            }  else {
-                // Call showErrorMessage if the result is null in onPostExecute
-                showErrorMessage();
+            /**
+             * Sends the result of the load to the registered listener.
+             *
+             * @param data The result of the load
+             */
+            public void deliverResult(List<MovieListing> data) {
+                mMovieListingData = data;
+                super.deliverResult(data);
             }
+        };
+    }
+
+    @Override
+    public void onLoadFinished(Loader<List<MovieListing>> loader, List<MovieListing> data) {
+        // As soon as the loading is complete, hide the loading indicator
+        mLoadingIndicator.setVisibility(View.INVISIBLE);
+        if (data != null && !data.equals("")) {
+
+            showJsonDataView();
+
+            mAdapter.setMovieData(data);
+
+            mSearchedMoviesList.setAdapter(mAdapter);
+
+        } else {
+            // Call showErrorMessage if the result is null in onPostExecute
+            showErrorMessage();
         }
     }
+
+    @Override
+    public void onLoaderReset(Loader<List<MovieListing>> loader) {
+
+    }
 }
+
+

@@ -1,8 +1,10 @@
 package com.waakye.android.popularmovies9;
 
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
@@ -18,12 +20,15 @@ import org.json.JSONException;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by lesterlie on 12/29/17.
  */
 
-public class SearchMoviesActivity extends AppCompatActivity {
+public class SearchMoviesActivity extends AppCompatActivity
+        implements MovieListingAdapter.ListItemClickListener{
 
     private static final String LOG_TAG = SearchMoviesActivity.class.getSimpleName();
 
@@ -35,7 +40,13 @@ public class SearchMoviesActivity extends AppCompatActivity {
 
     private TextView mSearchResultsTextView;
 
+    private MovieListingAdapter mAdapter;
+
     private RecyclerView mSearchedMoviesList;
+
+    private List<MovieListing> jsonMovieTitleDataList = new ArrayList<>();
+
+    protected List<MovieListing> listJsonMovieData;
 
     public String search_terms = "";
 
@@ -46,7 +57,27 @@ public class SearchMoviesActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search);
 
-        mSearchResultsTextView = (TextView) findViewById(R.id.text_view_moviedb_search_results_json);
+        // Set Recyclerview variable to the View with id recycler_view_searched_movies
+        mSearchedMoviesList = (RecyclerView)findViewById(R.id.recycler_view_searched_movies);
+
+        // Define the RecyclerView with a fixed size
+        mSearchedMoviesList.setHasFixedSize(true);
+
+        // Define the layout being used as a GridLayout with 3 columns
+        GridLayoutManager layoutManager = new GridLayoutManager(SearchMoviesActivity.this, 2);
+
+        // Set the RecyclerView to be attached to the Gridlayout
+        mSearchedMoviesList.setLayoutManager(layoutManager);
+
+        // Attach the RecyclerView to the MovieListingAdapter
+        mSearchedMoviesList.setAdapter(mAdapter);
+
+        /**
+         * The MovieListingAdapter is responsible for displaying each item in the list.  The first
+         * "this" refers to a list of MovieListing objects.  The second "this" refers to the
+         * ListItemClickListener of the MovieListingAdapter constructor
+         */
+        mAdapter = new MovieListingAdapter(this, listJsonMovieData, this);
 
         mErrorMessageDisplay = (TextView) findViewById(R.id.text_view_error_message_display);
 
@@ -89,7 +120,29 @@ public class SearchMoviesActivity extends AppCompatActivity {
 
     }
 
-    public class MovieTitleQueryTask extends AsyncTask<String, Void, String[]> {
+    @Override
+    public void onListItemClick(int clickedItemIndex) {
+        Log.i(LOG_TAG, "onListItem() method called...");
+
+        MovieListing individualMovie = jsonMovieTitleDataList.get(clickedItemIndex);
+        String individualTitle = individualMovie.getMovieTitle();
+        String individualSynopsis = individualMovie.getMovieSynopsis();
+        String individualVoteAverage = individualMovie.getMovieVoteAverage();
+        String individualReleaseDate = individualMovie.getMovieReleaseDate();
+        String individualPosterPath = individualMovie.getMoviePosterPath();
+        String individualMovieId = individualMovie.getMovieId();
+
+        MovieListing mlisting = new MovieListing(individualTitle, individualSynopsis,
+                individualPosterPath, individualVoteAverage, individualReleaseDate, individualMovieId );
+
+        Intent intent = new Intent(getBaseContext(), DetailActivity.class);
+        intent.putExtra("movie", mlisting);
+        startActivity(intent);
+
+    }
+
+
+    public class MovieTitleQueryTask extends AsyncTask<String, Void, List<MovieListing>> {
 
         // Override onPreExecute to set the loading indicator to visible
         @Override
@@ -98,7 +151,7 @@ public class SearchMoviesActivity extends AppCompatActivity {
         }
 
         @Override
-        protected String[] doInBackground(String... params) {
+        protected List<MovieListing> doInBackground(String... params) {
             Log.i(LOG_TAG, "MovieTitleQueryTask doInBackground() method called...");
 
             // If there's no search terms, then there's nothing to look up
@@ -111,9 +164,10 @@ public class SearchMoviesActivity extends AppCompatActivity {
             try {
                 String jsonMovieTitleResponse = NetworkUtils.getResponseFromHttpUrl(movieTitlerSearchUrl);
 
-                String[] movieTitleJsonMovieData = MovieDbJsonUtils
-                        .getMovieTitleStringsFromJson(SearchMoviesActivity.this,jsonMovieTitleResponse);
-                return movieTitleJsonMovieData;
+                jsonMovieTitleDataList = MovieDbJsonUtils.extractItemFromJson(jsonMovieTitleResponse);
+
+                // Returns a List of MovieListing objects
+                return jsonMovieTitleDataList;
             } catch (IOException e){
                 e.printStackTrace();
                 return null;
@@ -124,15 +178,16 @@ public class SearchMoviesActivity extends AppCompatActivity {
         }
 
         @Override
-        protected void onPostExecute(String[] movieTitleSearchResults){
+        protected void onPostExecute(List<MovieListing> movieTitleSearchResults){
             Log.i(LOG_TAG, "MovieTitleQueryTask onPostExecute() method called...");
             // As soon as the loading is complete, hide the loading indicator
             if(movieTitleSearchResults != null && !movieTitleSearchResults.equals("")){
                 // Call showJsonDataView if we have valid, non-null results
-                for(String movieTitleString : movieTitleSearchResults){
-                    // TODO: need to move this to recycler view
-                    mSearchResultsTextView.append((movieTitleString) + "\n\n");
-                }
+
+                mAdapter.setMovieData(movieTitleSearchResults);
+
+                mSearchedMoviesList.setAdapter(mAdapter);
+
             }  else {
                 // Call showErrorMessage if the result is null in onPostExecute
             }

@@ -316,6 +316,13 @@ public class MainActivity extends AppCompatActivity
             Intent i = new Intent(this, SearchMoviesActivity.class);
             startActivity(i);
         }
+
+        if (itemThatWasClicked == R.id.action_settings) {
+            Intent startSettingsActivity = new Intent(this, SettingsActivity.class);
+            startActivity(startSettingsActivity);
+            return true;
+        }
+
         return super.onOptionsItemSelected(item);
     }
 }

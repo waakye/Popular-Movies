@@ -16,6 +16,7 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.waakye.android.popularmovies9.adapters.MovieListingAdapter;
 import com.waakye.android.popularmovies9.utilities.MovieDbJsonUtils;
 import com.waakye.android.popularmovies9.utilities.NetworkUtils;
 
@@ -35,7 +36,8 @@ public class MainActivity extends AppCompatActivity
     // Popularity types
     public final static int MOST_POPULAR_MOVIES_POPULARITY_TYPE = 1;
     public final static int HIGHLY_RATED_MOVIES_POPULARITY_TYPE = 2;
-    public final static int SEARCH_FAVORITE_MOVIES = 3;
+    public final static int MY_FAVORITE_MOVIES_POPULARITY_TYPE = 3;
+    public final static int SEARCH_FAVORITE_MOVIES = 4;
 
     // TextView to display the error message
     private TextView mErrorMessageDisplay;
@@ -310,6 +312,14 @@ public class MainActivity extends AppCompatActivity
             Log.i(LOG_TAG, "itemThatWasClicked: " + itemThatWasClicked);
             return true;
         }
+
+        if(itemThatWasClicked == R.id.action_favorite_movies_search){
+            itemThatWasClicked = MY_FAVORITE_MOVIES_POPULARITY_TYPE;
+            Log.i(LOG_TAG, "itemThatWasClicked: " + itemThatWasClicked);
+            return true;
+        }
+
+
 
         if(itemThatWasClicked == R.id.action_search_favorite_movies){
             itemThatWasClicked = SEARCH_FAVORITE_MOVIES;

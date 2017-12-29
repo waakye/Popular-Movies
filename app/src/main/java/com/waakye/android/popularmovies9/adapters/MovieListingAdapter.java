@@ -1,4 +1,4 @@
-package com.waakye.android.popularmovies9;
+package com.waakye.android.popularmovies9.adapters;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
@@ -9,6 +9,8 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import com.squareup.picasso.Picasso;
+import com.waakye.android.popularmovies9.MovieListing;
+import com.waakye.android.popularmovies9.R;
 
 import java.util.List;
 

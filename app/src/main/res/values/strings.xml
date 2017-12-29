@@ -7,6 +7,7 @@
     <!-- Menu items for MainActivity-->
     <string name="popular_movies_search">Popular Movies</string>
     <string name="highly_rated_movies_search">Highly Rated Movies</string>
+    <string name="my_favorite_movies">My Favorite Movies</string>
     <string name="search_favorite_movies">Search Favorite Movies</string>
 
     <!-- SearchMoviesActivity -->

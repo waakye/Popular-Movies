@@ -301,7 +301,6 @@ public class MainActivity extends AppCompatActivity
             itemThatWasClicked = MOST_POPULAR_MOVIES_POPULARITY_TYPE;
             makeMovieDbPopularityQuery(itemThatWasClicked);
             Log.i(LOG_TAG, "itemThatWasClicked: " + itemThatWasClicked);
-//            makeUrlMovieTitleQueryString(movieTitle);
             return true;
         }
 
@@ -309,7 +308,6 @@ public class MainActivity extends AppCompatActivity
             itemThatWasClicked = HIGHLY_RATED_MOVIES_POPULARITY_TYPE;
             makeMovieDbPopularityQuery(itemThatWasClicked);
             Log.i(LOG_TAG, "itemThatWasClicked: " + itemThatWasClicked);
-//            makeUrlMovieTitleQueryString(movieTitle);
             return true;
         }
 

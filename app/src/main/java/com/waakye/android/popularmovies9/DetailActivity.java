@@ -83,7 +83,7 @@ public class DetailActivity extends AppCompatActivity {
         }
 
         String moviePosterUrl =
-                MovieAdapter.MOVIE_POSTER_PREFIX + movieListing.getMoviePosterPath();
+                MovieListingAdapter.MOVIE_POSTER_PREFIX + movieListing.getMoviePosterPath();
         Log.i(LOG_TAG, "moviePosterUrl: " + moviePosterUrl);
 
         Picasso.with(context).load(moviePosterUrl).into(mMoviePoster);
@@ -93,7 +93,7 @@ public class DetailActivity extends AppCompatActivity {
         mDetailActivityLoadingIndicator = (ProgressBar) findViewById(R.id.detail_activity_progress_bar_loading_indicator);
 
         mUserReviewsTextView = (TextView) findViewById(R.id.text_view_user_reviews);
-        
+
         makeUserReviewsQuery(mIndividualMovieId);
         Button trailerButton = (Button)findViewById(R.id.trailer_button);
         trailerButton.setOnClickListener(new View.OnClickListener(){

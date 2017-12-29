@@ -103,6 +103,34 @@ public class SearchMoviesActivity extends AppCompatActivity
         new MovieTitleQueryTask().execute(movieTitle);
     }
 
+    /**
+     * This method will make the View for the JSON data visible and hide the error message
+     *
+     * Since it is okay to redundantly set the visibility of a View, we don't need to check whether
+     * each view is current visible or invisible
+     */
+    private void showJsonDataView(){
+        Log.i(LOG_TAG, "showJsonDataView() method called...");
+        // First, make sure the error is invisible
+        mErrorMessageDisplay.setVisibility(View.INVISIBLE);
+        // Then, make sure the JSON is visible
+        mSearchedMoviesList.setVisibility(View.VISIBLE);
+    }
+
+    /**
+     * This method will make the error message visible and hide the JSON View.
+     *
+     * Since it is okay to redundantly set  the visiblity of a View, we don't need to check whether
+     * each view is currently visible or invisible
+     */
+    private void showErrorMessage(){
+        Log.i(LOG_TAG, "showErrorMessage() method called...");
+        // First, hide the currently visible data
+        mSearchedMoviesList.setVisibility(View.INVISIBLE);
+        // Then, show the error
+        mErrorMessageDisplay.setVisibility(View.VISIBLE);
+    }
+
     // https://api.themoviedb.org/3/search/movie?api_key={api_key}&query=Jack+Reacher
     public String urlQueryString(String search_terms) {
 
@@ -148,6 +176,7 @@ public class SearchMoviesActivity extends AppCompatActivity
         @Override
         protected void onPreExecute(){
             super.onPreExecute();
+            mLoadingIndicator.setVisibility(View.VISIBLE);
         }
 
         @Override
@@ -183,6 +212,7 @@ public class SearchMoviesActivity extends AppCompatActivity
             // As soon as the loading is complete, hide the loading indicator
             if(movieTitleSearchResults != null && !movieTitleSearchResults.equals("")){
                 // Call showJsonDataView if we have valid, non-null results
+                showJsonDataView();
 
                 mAdapter.setMovieData(movieTitleSearchResults);
 
@@ -190,6 +220,7 @@ public class SearchMoviesActivity extends AppCompatActivity
 
             }  else {
                 // Call showErrorMessage if the result is null in onPostExecute
+                showErrorMessage();
             }
         }
     }

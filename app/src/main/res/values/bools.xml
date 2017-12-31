@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <bool name="pref_show_most_popular_default">true</bool>
+    <bool name="pref_show_highly_rated_default">false</bool>
+    <bool name="pref_show_my_favorites_default">false</bool>
+</resources>

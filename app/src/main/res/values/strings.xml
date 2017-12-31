@@ -33,14 +33,30 @@
     <!-- SettingsActivity -->
     <string name="action_settings">Settings</string>
 
+    <!--  Used by Preferences   -->
+
+    <string name="pref_show_most_popular_label">Show Most Popular</string>
+    <string name="pref_show_highly_rated_label">Show Highly Rated</string>
+    <string name="pref_show_my_favorites_label">Show My Favorites</string>
+
+    <string name="pref_show_most_popular_key" translatable="false">show_most_popular</string>
+    <string name="pref_show_highly_rated_key" translatable="false">show_highly_rated</string>
+    <string name="pref_show_my_favorites_key" translatable="false">show_my_favorites</string>
+
+    <!-- Summary for Checkboxes -->
+    <string name="pref_show_true">Shown</string>
+    <string name="pref_show_false">Hidden</string>
+
     <!-- Preference Screen -->
+    <!-- Labels -->
     <string name="pref_popularity_label_most_popular">Most Popular Movies</string>
     <string name="pref_popularity_label_highly_rated">Highly Rated Movies</string>
     <string name="pref_popularity_label_my_favorites">My Favorites Movies</string>
 
-    <string name="pref_popularity_most_popular">Most Popular</string>
-    <string name="pref_popularity_highly_rated">Highly Rated</string>
-    <string name="pref_popularity_my_favorites">My Favorites</string>
+    <!-- Values -->
+    <string name="pref_popularity_most_popular_value" translatable="false">Most Popular</string>
+    <string name="pref_popularity_highly_rated_value" translatable="false">Highly Rated</string>
+    <string name="pref_popularity_my_favorites_value" translatable="false">My Favorites</string>
 
     <string name="pref_key" translatable="false">popularity</string>
 

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <fragment xmlns:android="http://schemas.android.com/apk/res/android"
     android:name="com.waakye.android.popularmovies9.SettingsFragment"
-    android:id="@+id/popularity_settings_fragment"
+    android:id="@+id/action_settings"
     android:layout_width="match_parent"
     android:layout_height="match_parent"/>

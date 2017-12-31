@@ -1,8 +1,9 @@
 package com.waakye.android.popularmovies9;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.support.v4.app.LoaderManager;
+import android.preference.PreferenceManager;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
@@ -17,6 +18,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.waakye.android.popularmovies9.adapters.MovieListingAdapter;
+import com.waakye.android.popularmovies9.data.MoviePreferences;
 import com.waakye.android.popularmovies9.utilities.MovieDbJsonUtils;
 import com.waakye.android.popularmovies9.utilities.NetworkUtils;
 
@@ -29,7 +31,8 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity
         implements MovieListingAdapter.ListItemClickListener,
-        LoaderCallbacks<List<MovieListing>> {
+        LoaderCallbacks<List<MovieListing>>,
+        SharedPreferences.OnSharedPreferenceChangeListener {
 
     private static final String LOG_TAG = MainActivity.class.getSimpleName();
 
@@ -38,6 +41,8 @@ public class MainActivity extends AppCompatActivity
     public final static int HIGHLY_RATED_MOVIES_POPULARITY_TYPE = 2;
     public final static int MY_FAVORITE_MOVIES_POPULARITY_TYPE = 3;
     public final static int SEARCH_FAVORITE_MOVIES = 4;
+
+    private static boolean PREFERENCES_HAVE_BEEN_UPDATED = false;
 
     // TextView to display the error message
     private TextView mErrorMessageDisplay;
@@ -96,10 +101,26 @@ public class MainActivity extends AppCompatActivity
 
         mLoadingIndicator = (ProgressBar) findViewById(R.id.progress_bar_loading_indicator);
 
-        // Before user clicks on a preference, onCreate uses MOST_POPULAR_MOVIES popularity type
-        LoaderManager lm = getSupportLoaderManager();
-        lm.initLoader(MOVIE_POSTER_LOADER_ID, null, this);
+        int loaderId = MOVIE_POSTER_LOADER_ID;
 
+        LoaderCallbacks<List<MovieListing>> callback = MainActivity.this;
+
+        Bundle bundleForLoader = null;
+
+        getSupportLoaderManager().initLoader(loaderId, bundleForLoader, callback);
+
+        Log.d(LOG_TAG, "onCreate: registering preference changed listener");
+
+        PreferenceManager.getDefaultSharedPreferences(this)
+                .registerOnSharedPreferenceChangeListener(this);
+    }
+
+    @Override
+    protected void onDestroy(){
+        super.onDestroy();
+        /* Unregister MainActivity as an OnPreferenceChangedListener to avoid any memory leaks. */
+        PreferenceManager.getDefaultSharedPreferences(this)
+                .unregisterOnSharedPreferenceChangeListener(this);
     }
 
     private void makeMovieDbPopularityQuery(int popularityType){
@@ -135,6 +156,21 @@ public class MainActivity extends AppCompatActivity
         mMoviesList.setVisibility(View.INVISIBLE);
         // Then, show the error
         mErrorMessageDisplay.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    protected void onStart(){
+        super.onStart();
+
+        /**
+         * If the preferences for popularity type have changed since the user was last in
+         * MainActivity, perform another query and set the flag to false.
+         */
+        if(PREFERENCES_HAVE_BEEN_UPDATED) {
+            Log.d(LOG_TAG, "onStart() method called and preferences were updated...");
+            getSupportLoaderManager().restartLoader(MOVIE_POSTER_LOADER_ID, null, this);
+            PREFERENCES_HAVE_BEEN_UPDATED = false;
+        }
     }
 
     /**
@@ -201,11 +237,8 @@ public class MainActivity extends AppCompatActivity
             @Override
             public List<MovieListing> loadInBackground() {
 
-                if(itemThatWasClicked == 0) {
-                    popType = MOST_POPULAR_MOVIES_POPULARITY_TYPE;
-                } else {
-                    popType = itemThatWasClicked;
-                }
+                // Used SharedPreferences to determine the popularity type
+                popType = MoviePreferences.getPreferredPopularityType(MainActivity.this);
 
                 // Using NetworkUtils method to create a URL for either
                 // 1) most popular movies or
@@ -288,7 +321,6 @@ public class MainActivity extends AppCompatActivity
         mAdapter.setMovieData(null);
     }
 
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu){
         getMenuInflater().inflate(R.menu.menu_main, menu);
@@ -298,29 +330,6 @@ public class MainActivity extends AppCompatActivity
     @Override
     public boolean onOptionsItemSelected(MenuItem item){
         itemThatWasClicked = item.getItemId();
-        if(itemThatWasClicked == R.id.action_popular_movies) {
-            // Menu item that was clicked
-            itemThatWasClicked = MOST_POPULAR_MOVIES_POPULARITY_TYPE;
-            makeMovieDbPopularityQuery(itemThatWasClicked);
-            Log.i(LOG_TAG, "itemThatWasClicked: " + itemThatWasClicked);
-            return true;
-        }
-
-        if(itemThatWasClicked == R.id.action_highly_rated_movies){
-            itemThatWasClicked = HIGHLY_RATED_MOVIES_POPULARITY_TYPE;
-            makeMovieDbPopularityQuery(itemThatWasClicked);
-            Log.i(LOG_TAG, "itemThatWasClicked: " + itemThatWasClicked);
-            return true;
-        }
-
-        if(itemThatWasClicked == R.id.action_favorite_movies_search){
-            itemThatWasClicked = MY_FAVORITE_MOVIES_POPULARITY_TYPE;
-            Log.i(LOG_TAG, "itemThatWasClicked: " + itemThatWasClicked);
-            return true;
-        }
-
-
-
         if(itemThatWasClicked == R.id.action_search_favorite_movies){
             itemThatWasClicked = SEARCH_FAVORITE_MOVIES;
             Intent i = new Intent(this, SearchMoviesActivity.class);
@@ -334,5 +343,11 @@ public class MainActivity extends AppCompatActivity
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
+
+         PREFERENCES_HAVE_BEEN_UPDATED = true;
     }
 }

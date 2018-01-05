@@ -43,5 +43,9 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".MainActivity"/>
         </activity>
+        <provider
+            android:name="com.waakye.android.popularmovies9.data.MovieListingContentProvider"
+            android:authorities="com.android.provider.favoriteMovies"
+            android:exported="false"/>
     </application>
 </manifest>

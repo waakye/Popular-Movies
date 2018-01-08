@@ -16,6 +16,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.waakye.android.popularmovies9.adapters.MovieListingAdapter;
 import com.waakye.android.popularmovies9.data.MoviePreferences;
@@ -339,6 +340,12 @@ public class MainActivity extends AppCompatActivity
         if (itemThatWasClicked == R.id.action_settings) {
             Intent startSettingsActivity = new Intent(this, SettingsActivity.class);
             startActivity(startSettingsActivity);
+            return true;
+        }
+
+        if (itemThatWasClicked == R.id.action_my_favorite_movies){
+            Toast toast = Toast.makeText(this, "My Favorites selected", Toast.LENGTH_SHORT);
+            toast.show();
             return true;
         }
 

@@ -2,34 +2,22 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <!--<item-->
-        <!--android:id="@+id/action_popular_movies"-->
-        <!--android:orderInCategory="1"-->
-        <!--app:showAsAction="collapseActionView"-->
-        <!--android:title="@string/popular_movies_search"/>-->
 
-    <!--<item-->
-        <!--android:id="@+id/action_highly_rated_movies"-->
-        <!--android:orderInCategory="2"-->
-        <!--app:showAsAction="collapseActionView"-->
-        <!--android:title="@string/highly_rated_movies_search"/>-->
-
-    <!--<item-->
-        <!--android:id="@+id/action_favorite_movies_search"-->
-        <!--android:orderInCategory="3"-->
-        <!--app:showAsAction="collapseActionView"-->
-        <!--android:title="@string/my_favorite_movies"/>-->
+    <item
+        android:id="@+id/action_settings"
+        android:orderInCategory="1"
+        android:title="@string/action_settings"
+        app:showAsAction="never" />
 
     <item
         android:id="@+id/action_search_favorite_movies"
-        android:orderInCategory="99"
+        android:orderInCategory="2"
         app:showAsAction="collapseActionView"
         android:title="@string/search_favorite_movies"/>
 
     <item
-        android:id="@+id/action_settings"
-        android:orderInCategory="100"
-        android:title="@string/action_settings"
-        app:showAsAction="never" />
-
+        android:id="@+id/action_my_favorite_movies"
+        android:orderInCategory="3"
+        android:title="@string/my_favorite_movies"
+        app:showAsAction="collapseActionView"/>
 </menu>

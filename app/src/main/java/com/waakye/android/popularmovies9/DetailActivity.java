@@ -1,7 +1,9 @@
 package com.waakye.android.popularmovies9;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
@@ -14,9 +16,11 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.squareup.picasso.Picasso;
 import com.waakye.android.popularmovies9.adapters.MovieListingAdapter;
+import com.waakye.android.popularmovies9.data.MovieListingContract.MovieListingEntry;
 import com.waakye.android.popularmovies9.utilities.MovieDbJsonUtils;
 import com.waakye.android.popularmovies9.utilities.NetworkUtils;
 
@@ -53,6 +57,13 @@ public class DetailActivity extends AppCompatActivity {
 
     private Context context;
 
+    private String mTitle;
+    private String mSynopsis;
+    private String mPosterPath;
+    private String mVoteAverage;
+    private String mReleaseDate;
+    private String mMovieId;
+
     @Override
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
@@ -75,16 +86,22 @@ public class DetailActivity extends AppCompatActivity {
 
         mMoviePoster = (ImageView) findViewById(R.id.image_view_detail_activity_movie_poster);
 
+        mTitle = movieListing.getMovieTitle();
+        mSynopsis = movieListing.getMovieSynopsis();
+        mPosterPath = movieListing.getMoviePosterPath();
+        mVoteAverage = movieListing.getMovieVoteAverage();
+        mReleaseDate = movieListing.getMovieReleaseDate();
+        mMovieId = movieListing.getMovieId();
+
         if (movieListing != null){
-            mTextViewMovieTitle.setText(movieListing.getMovieTitle());
-            mTextViewMovieSynopsis.setText(movieListing.getMovieSynopsis());
-            mTextViewMovieVoteAverage.setText(" " + movieListing.getMovieVoteAverage());
-            mTextViewMovieReleaseDate.setText(" " + movieListing.getMovieReleaseDate());
-            mIndividualMovieId = movieListing.getMovieId();
+            mTextViewMovieTitle.setText(mTitle);
+            mTextViewMovieSynopsis.setText(mSynopsis);
+            mTextViewMovieVoteAverage.setText(" " + mVoteAverage);
+            mTextViewMovieReleaseDate.setText(" " + mReleaseDate);
+            mIndividualMovieId = mMovieId;
         }
 
-        String moviePosterUrl =
-                MovieListingAdapter.MOVIE_POSTER_PREFIX + movieListing.getMoviePosterPath();
+        String moviePosterUrl = MovieListingAdapter.MOVIE_POSTER_PREFIX + mPosterPath;
         Log.i(LOG_TAG, "moviePosterUrl: " + moviePosterUrl);
 
         Picasso.with(context).load(moviePosterUrl).into(mMoviePoster);
@@ -104,6 +121,46 @@ public class DetailActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+
+        Button addToFavoriteButton = (Button)findViewById(R.id.favorites_button);
+        addToFavoriteButton.setOnClickListener(new View.OnClickListener(){
+
+            @Override
+            public void onClick(View view) {
+                onClickAddFavorite(view);
+            }
+        });
+    }
+
+    /**
+     * onClickAddFavorite is called when "ADD" button is clicked.
+     * It retrieves user input and inserts that new favorite data into the underlying database
+     * @param view
+     */
+    public void onClickAddFavorite(View view){
+        // Insert favorite movie via a ContentResolver
+
+        // Create a new empty ContentValues object
+        ContentValues cv = new ContentValues();
+
+        cv.put(MovieListingEntry.COLUMN_MOVIE_TITLE, mTitle);
+        cv.put(MovieListingEntry.COLUMN_MOVIE_SYNOPSIS, mSynopsis);
+        cv.put(MovieListingEntry.COLUMN_MOVIE_POSTER_PATH, mPosterPath);
+        cv.put(MovieListingEntry.COLUMN_MOVIE_VOTE_AVERAGE, mVoteAverage);
+        cv.put(MovieListingEntry.COLUMN_MOVIE_RELEASE_DATE, mReleaseDate);
+        cv.put(MovieListingEntry.COLUMN_MOVIE_ID, mMovieId);
+
+        // Insert the content values via a ContentResolver
+        Uri uri = getContentResolver().insert(MovieListingEntry.CONTENT_URI, cv);
+
+        // Display the URI that's returned with a Toast.
+        if (uri != null){
+            Toast.makeText(getBaseContext(), uri.toString(), Toast.LENGTH_SHORT).show();
+        }
+
+        // Finish activity (this returns back to MainActivity)
+        finish();
+
     }
 
     private void makeUserReviewsQuery(String movieId){

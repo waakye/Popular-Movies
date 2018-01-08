@@ -1,13 +1,17 @@
 package com.waakye.android.popularmovies9.data;
 
 import android.content.ContentProvider;
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.UriMatcher;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+
+import com.waakye.android.popularmovies9.data.MovieListingContract.MovieListingEntry;
 
 /**
  * Created by lesterlie on 1/5/18.
@@ -55,10 +59,37 @@ public class MovieListingContentProvider extends ContentProvider {
         return true;
     }
 
+    // Implement insert to handle requests to insert a single new row of data
     @Override
     public Uri insert(@NonNull Uri uri, ContentValues values) {
 
-        throw new UnsupportedOperationException("Not yet implemented");
+        // Get access to the favorite database (to write new data to)
+        final SQLiteDatabase db = mMovieListingDbHelper.getWritableDatabase();
+
+        // Write URI matching code to identify the match for the favorites directory
+        int match = sUriMatcher.match(uri);
+        Uri returnUri; // URI to be returned
+
+        switch (match){
+            case FAVORITES:
+                // Inserting values into favorites table
+                long id = db.insert(MovieListingEntry.TABLE_NAME, null, values);
+                if ( id > 0 ){
+                    returnUri = ContentUris.withAppendedId(MovieListingEntry.CONTENT_URI, id);
+                } else {
+                    throw new android.database.SQLException("Failed to insert row into " + uri);
+                }
+                break;
+            default:
+                // Default case throws an UnsupportedOperationException
+                throw new UnsupportedOperationException("Unknown uri: " + uri);
+        }
+
+        // Notify the resolver if uri has been changed, and return the newly inserted URI
+        getContext().getContentResolver().notifyChange(uri, null);
+
+        // Return constructed uri (this points to the newly inserted row of data)
+        return returnUri;
     }
 
     @Override

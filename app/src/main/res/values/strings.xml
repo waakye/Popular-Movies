@@ -29,6 +29,9 @@
     <string name="user_reviews">User Reviews</string>
     <string name="trailers">Trailers</string>
     <string name="trailer_button">Show Trailers</string>
+    <string name="favorites_button">Add</string>
+    <string name="remove_favorites_button">Remove</string>
+
 
     <!-- SettingsActivity -->
     <string name="action_settings">Settings</string>

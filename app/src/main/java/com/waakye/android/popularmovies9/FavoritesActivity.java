@@ -1,15 +1,14 @@
 package com.waakye.android.popularmovies9;
 
-import android.content.ContentResolver;
 import android.database.Cursor;
-import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.AsyncTaskLoader;
+import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
-import android.view.View;
-import android.widget.ProgressBar;
-import android.widget.TextView;
 
 import com.waakye.android.popularmovies9.data.MovieListingContract;
 
@@ -17,19 +16,20 @@ import com.waakye.android.popularmovies9.data.MovieListingContract;
  * Created by lesterlie on 1/9/18.
  */
 
-// TODO: Figure out how to show the query results of the user's favorite movies
-
-public class FavoritesActivity extends AppCompatActivity {
+public class FavoritesActivity extends AppCompatActivity
+        implements LoaderManager.LoaderCallbacks<Cursor>,
+        CustomCursorAdapter.ListItemClickListener{
 
     public static String LOG_TAG = FavoritesActivity.class.getSimpleName();
 
+    private static int FAVORITE_LOADER_ID = 33;
+
+    // Member variables for adapter and RecyclerView
+    private CustomCursorAdapter mAdapter;
+
     private RecyclerView mRecyclerView;
-    private TextView mErrorMessageDisplay;
-    private ProgressBar mLoadingIndicator;
 
-
-    // An instance variable storing a Cursor called mData
-    private Cursor mData;
+    private Cursor cursorData;
 
     @Override
     protected void onCreate(Bundle savedInstanceState){
@@ -37,80 +37,113 @@ public class FavoritesActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_favorites);
 
-        mErrorMessageDisplay = (TextView)findViewById(R.id.text_view_error_message_display);
+        // Set the RecyclerView to its corresponding view
+        mRecyclerView = (RecyclerView)findViewById(R.id.recycler_view_favorite_movies);
 
-        mLoadingIndicator = (ProgressBar) findViewById(R.id.progress_bar_loading_indicator);
+        // Set the Layout for the RecyclerView to be grid layout
+        mRecyclerView.setLayoutManager(new GridLayoutManager(this, 3));
 
+        // Initialize the adapter and attach it to the RecyclerView
+        mAdapter = new CustomCursorAdapter(this, cursorData, this);
+        mRecyclerView.setAdapter(mAdapter);
 
-        // Execute AsyncTask onCreate()
-        new FetchUserFavoriteMoviesTask().execute();
+        /*
+         Ensure a loader is initialized and active. If the loader doesn't already exist, one is
+         created, otherwise the last created loader is re-used.
+         */
+        getSupportLoaderManager().initLoader(FAVORITE_LOADER_ID, null, this);
 
     }
 
     /**
-     * This method will make the View for the JSON data visible and hide the error message
-     *
-     * Since it is okay to redundantly set the visibility of a View, we don't need to check whether
-     * each view is current visible or invisible
+     * This method is called after this activity has been paused or restarted.
+     * Often, this is after new data has been inserted so this restarts the loader
+     * to re-query the underlying data for any changes.
      */
-    private void showQueryDataView(){
-        Log.i(LOG_TAG, "showQueryDataView() method called...");
-        // First, make sure the error is invisible
-        mErrorMessageDisplay.setVisibility(View.INVISIBLE);
-        // Then, make sure the JSON is visible
-        mRecyclerView.setVisibility(View.VISIBLE);
+    @Override
+    protected void onResume(){
+        super.onResume();
+
+        // re-queries for all favorited movies
+        getSupportLoaderManager().restartLoader(FAVORITE_LOADER_ID, null, this);
     }
 
     /**
-     * This method will make the error message visible and hide the JSON View.
+     * Instantiates and returns a new AsyncTaskLoader with the given ID.
+     * This loader will return task data as a Cursor or null if an error occurs.
      *
-     * Since it is okay to redundantly set  the visiblity of a View, we don't need to check whether
-     * each view is currently visible or invisible
+     * Implements the required callbacks to take care of loading data at all stages of loading.
      */
-    private void showErrorMessage(){
-        Log.i(LOG_TAG, "showErrorMessage() method called...");
-        // First, hide the currently visible data
-        mRecyclerView.setVisibility(View.INVISIBLE);
-        // Then, show the error
-        mErrorMessageDisplay.setVisibility(View.VISIBLE);
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, final Bundle loaderArgs) {
+
+        return new AsyncTaskLoader<Cursor>(this) {
+
+            // Initialize a Cursor, this will hold all the favorite data
+            Cursor mFavoriteData = null;
+
+            // onStartLoading() is called when a loader first starts loading data
+            @Override
+            protected void onStartLoading(){
+                if(mFavoriteData != null){
+                    // Delivers any previously loaded data immediately
+                    deliverResult(mFavoriteData);
+                } else {
+                    // Force a new load
+                    forceLoad();
+                }
+            }
+
+            // loadInBackground() performs asynchronous loading of data
+            @Override
+            public Cursor loadInBackground() {
+                // Will implement to load data
+                try {
+                    // Call the query method on the resolver with the correct URI from the contract class
+                    return getContentResolver().query(MovieListingContract.MovieListingEntry.CONTENT_URI,
+                            null, null, null, null);
+
+                } catch (Exception e){
+                    Log.e(LOG_TAG, "Failed to asynchronously load data");
+                    e.printStackTrace();
+                    return null;
+                }
+            }
+
+            // deliverResult sends the result of the load, a Cursor, to the registered listener
+            public void deliverResult(Cursor data){
+                mFavoriteData = data;
+                super.deliverResult(data);
+            }
+        };
     }
 
-    // A method to retrieve the user's favorite movies stored in the SQLite database
-    public class FetchUserFavoriteMoviesTask extends AsyncTask<Void, Void, Cursor> {
 
-        @Override
-        protected void onPreExecute(){
-            super.onPreExecute();
-            mLoadingIndicator.setVisibility(View.VISIBLE);
-        }
-
-        @Override
-        protected Cursor doInBackground(Void... voids) {
-
-            Log.i(LOG_TAG, "doInBackground() method called...");
-
-            // Make the query to get the data
-
-            // Get the content resolver
-            ContentResolver resolver = getContentResolver();
-
-            // Call the query method on the resolver with the correct URI from the contract class
-            Cursor cursor = resolver.query(MovieListingContract.MovieListingEntry.CONTENT_URI,
-                    null, null, null, null);
-
-            Log.i(LOG_TAG, "query called()...");
-            return cursor;
-        }
-
-        // Store the Cursor object in mData
-        @Override
-        protected void onPostExecute(Cursor cursor){
-            super.onPostExecute(cursor);
-
-            // Set the data for MainActivity
-            mData = cursor;
-        }
+    /**
+     * Called when a previously created loader has finished its load.
+     *
+     * @param loader The Loader that has finished.
+     * @param data The data generated by the Loader.
+     */
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        mAdapter.swapCursor(data);
     }
 
+    /**
+     * Called when a previously created loader is being reset, and thus
+     * making its data unavailable.
+     * onLoaderReset removes any references this activity had to the loader's data.
+     *
+     * @param loader The Loader that is being reset.
+     */
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        mAdapter.swapCursor(null);
+    }
 
+    @Override
+    public void onListItemClick(int clickedItemIndex) {
+
+    }
 }

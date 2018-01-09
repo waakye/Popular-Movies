@@ -92,11 +92,39 @@ public class MovieListingContentProvider extends ContentProvider {
         return returnUri;
     }
 
+    // Implement query to handle request for data by URI
     @Override
     public Cursor query(@NonNull Uri uri, String[] projection, String selection,
                         String[] selectionArgs, String sortOrder) {
 
-        throw new UnsupportedOperationException("Not yet implemented");
+        // Get access to underlying database (read-only for query)
+        final SQLiteDatabase db = mMovieListingDbHelper.getReadableDatabase();
+
+        int match = sUriMatcher.match(uri);
+        Cursor retCursor;
+
+        // Query for the favorites directory and write a default case
+        switch(match){
+            // Query for the favorites directory
+            case FAVORITES:
+                retCursor = db.query(MovieListingEntry.TABLE_NAME,
+                        projection,
+                        selection,
+                        selectionArgs,
+                        null,
+                        null,
+                        null);
+                break;
+            // Default exception
+            default:
+                throw new UnsupportedOperationException("Unknown uri: " + uri);
+        }
+
+        // Set a notification URI on the Cursor and return that Cursor
+        retCursor.setNotificationUri(getContext().getContentResolver(), uri);
+
+        return retCursor;
+
     }
 
     @Override

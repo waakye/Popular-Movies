@@ -27,6 +27,7 @@ public class FavoritesActivity extends AppCompatActivity {
     private TextView mErrorMessageDisplay;
     private ProgressBar mLoadingIndicator;
 
+
     // An instance variable storing a Cursor called mData
     private Cursor mData;
 
@@ -35,6 +36,11 @@ public class FavoritesActivity extends AppCompatActivity {
         Log.i(LOG_TAG, "onCreate() method called...");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_favorites);
+
+        mErrorMessageDisplay = (TextView)findViewById(R.id.text_view_error_message_display);
+
+        mLoadingIndicator = (ProgressBar) findViewById(R.id.progress_bar_loading_indicator);
+
 
         // Execute AsyncTask onCreate()
         new FetchUserFavoriteMoviesTask().execute();
@@ -47,8 +53,8 @@ public class FavoritesActivity extends AppCompatActivity {
      * Since it is okay to redundantly set the visibility of a View, we don't need to check whether
      * each view is current visible or invisible
      */
-    private void showJsonDataView(){
-        Log.i(LOG_TAG, "showJsonDataView() method called...");
+    private void showQueryDataView(){
+        Log.i(LOG_TAG, "showQueryDataView() method called...");
         // First, make sure the error is invisible
         mErrorMessageDisplay.setVisibility(View.INVISIBLE);
         // Then, make sure the JSON is visible
@@ -71,6 +77,12 @@ public class FavoritesActivity extends AppCompatActivity {
 
     // A method to retrieve the user's favorite movies stored in the SQLite database
     public class FetchUserFavoriteMoviesTask extends AsyncTask<Void, Void, Cursor> {
+
+        @Override
+        protected void onPreExecute(){
+            super.onPreExecute();
+            mLoadingIndicator.setVisibility(View.VISIBLE);
+        }
 
         @Override
         protected Cursor doInBackground(Void... voids) {

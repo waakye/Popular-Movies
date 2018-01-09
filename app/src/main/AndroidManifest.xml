@@ -43,6 +43,12 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".MainActivity"/>
         </activity>
+        <activity android:name=".FavoritesActivity"
+            android:parentActivityName=".MainActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".MainActivity"/>
+        </activity>
         <provider
             android:authorities="com.waakye.android.popularmovies9"
             android:name="com.waakye.android.popularmovies9.data.MovieListingContentProvider"

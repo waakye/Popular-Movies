@@ -346,6 +346,8 @@ public class MainActivity extends AppCompatActivity
         if (itemThatWasClicked == R.id.action_my_favorite_movies){
             Toast toast = Toast.makeText(this, "My Favorites selected", Toast.LENGTH_SHORT);
             toast.show();
+            Intent startFavoritesActivity = new Intent(this, FavoritesActivity.class);
+            startActivity(startFavoritesActivity);
             return true;
         }
 

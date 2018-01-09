@@ -19,34 +19,40 @@ import com.waakye.android.popularmovies9.data.MovieListingContract.MovieListingE
 
 public class MovieListingContentProvider extends ContentProvider {
 
+    public static final String LOG_TAG = MovieListingContentProvider.class.getSimpleName();
+
     // Define the final integer constants for the directory of favorites and a single favorite movie
     public static final int FAVORITES = 100;
     public static final int FAVORITE_WITH_ID = 101;
 
-    private static final UriMatcher sUriMatcher = buildUriMatcher();
-
     /**
-     * Define a static buildUriMatcher method that associates URI's with their int match
-     *
-     * Initialize a new matcher object without any matches, then use .addURI(String authority,
-     * String path, int match) to add matches
+     * UriMatcher object to match a content URI to a corresponding code.
+     * The input passed into the constructor represents the code to return for the root URI.
+     * It's common to use NO_MATCH as the input for this case.
      */
-    public static UriMatcher buildUriMatcher(){
+    private static final UriMatcher sUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
 
-        // Initialize a UriMatcher with no matches by passing in NO_MATCH to the constructor
-        UriMatcher uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
+    // Static initializer.  This is run the first time anything is called from this class.
+    static {
+        // The calls to addURI() go here, for all of the content URI patterns that the provider
+        // should recognize.  All paths added to the UriMatcher have a corresponding code to
+        // return when a match is found.
 
-        /*
-          All paths added to the UriMatcher have a corresponding int.
-          For each kind of uri you may want to access, add the corresponding match with addURI.
-          The two calls below add matches for the favorites directory and a single item by ID.
-         */
-        uriMatcher.addURI(MovieListingContract.AUTHORITY, MovieListingContract.PATH_FAVORITES,
-                FAVORITES);
-        uriMatcher.addURI(MovieListingContract.AUTHORITY, MovieListingContract.PATH_FAVORITES
-                + "/#", FAVORITE_WITH_ID);
+        // The content URI of the form "content://com.waakye.android.popularmovies9/favorites"
+        // will map to the integer code {@link #FAVORITES}. This URI is used to provide access to
+        // MULTIPLE rows of the favorites table.
+        sUriMatcher.addURI(MovieListingContract.CONTENT_AUTHORITY,
+                MovieListingContract.PATH_FAVORITES, FAVORITES);
 
-        return uriMatcher;
+        // The content URI of the form "content://com.waakye.android.popularmovies9/favorites/#"
+        // will map to the integer code {@link #FAVORITE_WITH_ID}.  This is used to provide access to
+        // ONE single row of the favorites table.
+        //
+        // In this case, the "#" wildcard is used where "#" can be substituted for an integer.
+        // For example, "content://com.waakye.android.popularmovies9/favorites/3" matches, but
+        // "content://com.waakye.android.popularmovies9/favorites" does not match.
+        sUriMatcher.addURI(MovieListingContract.CONTENT_AUTHORITY,
+                MovieListingContract.PATH_FAVORITES + "/#", FAVORITE_WITH_ID);
     }
 
     // Member variable for a MovieListingDbHelper that's initialized in the onCreate() method
@@ -82,7 +88,7 @@ public class MovieListingContentProvider extends ContentProvider {
                 break;
             default:
                 // Default case throws an UnsupportedOperationException
-                throw new UnsupportedOperationException("Unknown uri: " + uri);
+                throw new UnsupportedOperationException("insert Unknown uri: " + uri);
         }
 
         // Notify the resolver if uri has been changed, and return the newly inserted URI
@@ -98,10 +104,13 @@ public class MovieListingContentProvider extends ContentProvider {
                         String[] selectionArgs, String sortOrder) {
 
         // Get access to underlying database (read-only for query)
-        final SQLiteDatabase db = mMovieListingDbHelper.getReadableDatabase();
+        SQLiteDatabase db = mMovieListingDbHelper.getReadableDatabase();
 
-        int match = sUriMatcher.match(uri);
+        // This cursor will hold the result of the query
         Cursor retCursor;
+
+        // Figure out if the URI matcher can match the URI to a specific code
+        int match = sUriMatcher.match(uri);
 
         // Query for the favorites directory and write a default case
         switch(match){
@@ -113,11 +122,15 @@ public class MovieListingContentProvider extends ContentProvider {
                         selectionArgs,
                         null,
                         null,
-                        null);
+                        sortOrder);
+                break;
+            case FAVORITE_WITH_ID:
+                retCursor =db.query(MovieListingEntry.TABLE_NAME, projection,
+                        selection, selectionArgs, null, null, sortOrder);
                 break;
             // Default exception
             default:
-                throw new UnsupportedOperationException("Unknown uri: " + uri);
+                throw new UnsupportedOperationException("Cannot query unknown URI: " + uri);
         }
 
         // Set a notification URI on the Cursor and return that Cursor

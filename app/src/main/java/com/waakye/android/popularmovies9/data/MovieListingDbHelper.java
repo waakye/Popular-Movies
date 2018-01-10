@@ -25,14 +25,14 @@ public class MovieListingDbHelper extends SQLiteOpenHelper {
 
         final String SQL_CREATE_MOVIE_FAVORITES_TABLE = "CREATE TABLE " +
                 MovieListingEntry.TABLE_NAME + " (" +
-                MovieListingEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
-                MovieListingEntry.COLUMN_MOVIE_TITLE + " TEXT NOT NULL," +
-                MovieListingEntry.COLUMN_MOVIE_SYNOPSIS + " TEXT," +
-                MovieListingEntry.COLUMN_MOVIE_POSTER_PATH + " TEXT," +
-                MovieListingEntry.COLUMN_MOVIE_RELEASE_DATE + " TEXT," +
-                MovieListingEntry.COLUMN_MOVIE_VOTE_AVERAGE + " TEXT," +
-                MovieListingEntry.COLUMN_MOVIE_ID + " TEXT," +
-                MovieListingEntry.COLUMN_MOVIE_FAVORITE + " INTEGER NOT NULL" +
+                MovieListingEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                MovieListingEntry.COLUMN_MOVIE_TITLE + " TEXT NOT NULL, " +
+                MovieListingEntry.COLUMN_MOVIE_SYNOPSIS + " TEXT, " +
+                MovieListingEntry.COLUMN_MOVIE_POSTER_PATH + " TEXT, " +
+                MovieListingEntry.COLUMN_MOVIE_RELEASE_DATE + " TEXT, " +
+                MovieListingEntry.COLUMN_MOVIE_VOTE_AVERAGE + " TEXT, " +
+                MovieListingEntry.COLUMN_MOVIE_ID + " TEXT, " +
+                MovieListingEntry.COLUMN_MOVIE_FAVORITE + " INTEGER " +
                 "); ";
 
         sqLiteDatabase.execSQL(SQL_CREATE_MOVIE_FAVORITES_TABLE);

@@ -9,9 +9,9 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 
 import com.waakye.android.popularmovies9.data.MovieListingContract.MovieListingEntry;
+import static com.waakye.android.popularmovies9.data.MovieListingContract.MovieListingEntry.TABLE_NAME;
 
 /**
  * Created by lesterlie on 1/5/18.
@@ -79,7 +79,7 @@ public class MovieListingContentProvider extends ContentProvider {
         switch (match){
             case FAVORITES:
                 // Inserting values into favorites table
-                long id = db.insert(MovieListingEntry.TABLE_NAME, null, values);
+                long id = db.insert(TABLE_NAME, null, values);
                 if ( id > 0 ){
                     returnUri = ContentUris.withAppendedId(MovieListingEntry.CONTENT_URI, id);
                 } else {
@@ -116,7 +116,7 @@ public class MovieListingContentProvider extends ContentProvider {
         switch(match){
             // Query for the favorites directory
             case FAVORITES:
-                retCursor = db.query(MovieListingEntry.TABLE_NAME,
+                retCursor = db.query(TABLE_NAME,
                         projection,
                         selection,
                         selectionArgs,
@@ -125,7 +125,7 @@ public class MovieListingContentProvider extends ContentProvider {
                         sortOrder);
                 break;
             case FAVORITE_WITH_ID:
-                retCursor =db.query(MovieListingEntry.TABLE_NAME, projection,
+                retCursor =db.query(TABLE_NAME, projection,
                         selection, selectionArgs, null, null, sortOrder);
                 break;
             // Default exception
@@ -141,9 +141,27 @@ public class MovieListingContentProvider extends ContentProvider {
     }
 
     @Override
-    public int delete(@NonNull Uri uri, @Nullable String selection, String[] selectionArgs) {
+    public int delete(@NonNull Uri uri, String selection, String[] selectionArgs) {
 
-        return 0;
+        final SQLiteDatabase db = mMovieListingDbHelper.getWritableDatabase();
+
+        int match = sUriMatcher.match(uri);
+
+        int favoriteDeleted;
+
+        switch(match){
+            case FAVORITE_WITH_ID:
+                String id = uri.getPathSegments().get(1);
+                favoriteDeleted = db.delete(TABLE_NAME, "_id=?", new String[]{id});
+                break;
+            default:
+                throw new UnsupportedOperationException("delete unknown uri: " + uri);
+        }
+
+        if (favoriteDeleted != 0){
+            getContext().getContentResolver().notifyChange(uri, null);
+        }
+        return favoriteDeleted;
     }
 
     @Override

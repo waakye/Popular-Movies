@@ -252,14 +252,12 @@ public class DetailActivity extends AppCompatActivity {
 
     public void onClickRemoveFavorite(View view){
 
-//      Construct the URI for the favorite movie to delete based on the movie ID
-        String stringId = mMovieId;
+        Toast.makeText(this, "Remove button pressed", Toast.LENGTH_SHORT).show();
 
-        Uri uri = MovieListingEntry.CONTENT_URI;
+        Uri uri = MovieListingEntry.CONTENT_URI.buildUpon()
+                .appendEncodedPath(mIndividualMovieId).build();
 
-        uri = uri.buildUpon().appendPath(stringId).build();
-
-        getContentResolver().delete(uri, null, null);
+        getContentResolver().delete(uri, null, new String[]{mIndividualMovieId});
 
     }
 

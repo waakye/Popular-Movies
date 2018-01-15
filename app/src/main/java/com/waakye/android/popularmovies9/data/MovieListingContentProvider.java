@@ -11,6 +11,8 @@ import android.net.Uri;
 import android.support.annotation.NonNull;
 
 import com.waakye.android.popularmovies9.data.MovieListingContract.MovieListingEntry;
+
+import static com.waakye.android.popularmovies9.data.MovieListingContract.MovieListingEntry.COLUMN_MOVIE_ID;
 import static com.waakye.android.popularmovies9.data.MovieListingContract.MovieListingEntry.TABLE_NAME;
 
 /**
@@ -140,29 +142,43 @@ public class MovieListingContentProvider extends ContentProvider {
 
     }
 
+
+    /**
+     * Deletes data at given URI with optional arguments for more fine tuned deletions
+     *
+     * @param uri           The full URI to query
+     * @param selection     An option restriction to apply to rows when deleting
+     * @param selectionArgs Used in conjunction with the selection statement
+     * @return              The number of rows deleted
+     */
     @Override
     public int delete(@NonNull Uri uri, String selection, String[] selectionArgs) {
 
+        // Get access to the database and write URI matching code to recognize a single item
         final SQLiteDatabase db = mMovieListingDbHelper.getWritableDatabase();
 
         int match = sUriMatcher.match(uri);
 
         int favoriteDeleted;
 
+        // Use selections to delete a favorite movie by its row ID
         switch(match){
             case FAVORITE_WITH_ID:
-                String id = uri.getPathSegments().get(1);
-                favoriteDeleted = db.delete(TABLE_NAME, "_id=?", new String[]{id});
+
+                favoriteDeleted = db.delete(TABLE_NAME, COLUMN_MOVIE_ID + "=?",
+                        selectionArgs);
                 break;
             default:
                 throw new UnsupportedOperationException("delete unknown uri: " + uri);
         }
 
+        // Notify the resolver of a change and return the number of favorited movies deleted
         if (favoriteDeleted != 0){
             getContext().getContentResolver().notifyChange(uri, null);
         }
         return favoriteDeleted;
     }
+
 
     @Override
     public int update(@NonNull Uri uri, ContentValues values, String selection,

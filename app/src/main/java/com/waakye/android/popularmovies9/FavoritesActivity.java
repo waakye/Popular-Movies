@@ -12,6 +12,9 @@ import android.util.Log;
 
 import com.waakye.android.popularmovies9.data.MovieListingContract;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Created by lesterlie on 1/9/18.
  */
@@ -40,13 +43,13 @@ public class FavoritesActivity extends AppCompatActivity
         // Set the RecyclerView to its corresponding view
         mRecyclerView = (RecyclerView)findViewById(R.id.recycler_view_favorite_movies);
 
-        // Set the Layout for the RecyclerView to be grid layout
+        // Set the RecyclerView to be attached to the GridLayout
         mRecyclerView.setLayoutManager(new GridLayoutManager(this, 3));
 
         // Initialize the adapter and attach it to the RecyclerView
         mAdapter = new CustomCursorAdapter(this, cursorData, this);
         mRecyclerView.setAdapter(mAdapter);
-
+        
         /*
          Ensure a loader is initialized and active. If the loader doesn't already exist, one is
          created, otherwise the last created loader is re-used.
@@ -142,8 +145,50 @@ public class FavoritesActivity extends AppCompatActivity
         mAdapter.swapCursor(null);
     }
 
+    public List<MovieListing> listOfMovies(Cursor cursor){
+
+        List<MovieListing> myFavoriteMovies = new ArrayList<MovieListing>();
+        cursor.moveToFirst();
+        while(!cursor.isAfterLast()){
+            String title = cursor.getString(cursor.getColumnIndex("movieTitle"));
+            String synopsis = cursor.getString(cursor.getColumnIndex("movieSynopsis"));
+            String posterPath = cursor.getString(cursor.getColumnIndex("moviePosterPath"));
+            String voteAverage = cursor.getString(cursor.getColumnIndex("movieVoteAverage"));
+            String releaseDate = cursor.getString(cursor.getColumnIndex("movieReleaseDate"));
+            String movieId = cursor.getString(cursor.getColumnIndex("movieId"));
+
+            MovieListing movieListing = new MovieListing(title, synopsis, posterPath, voteAverage,
+                    releaseDate, movieId);
+
+            myFavoriteMovies.add(movieListing);
+        }
+
+        return myFavoriteMovies;
+    }
+
     @Override
     public void onListItemClick(int clickedItemIndex) {
+
+        List<MovieListing> myFavorites = listOfMovies(cursorData);
+
+
+
+
+
+//        MovieListing individualMovie = mRecyclerView.get(clickedItemIndex);
+//        String individualTitle = individualMovie.getMovieTitle();
+//        String individualSynopsis = individualMovie.getMovieSynopsis();
+//        String individualVoteAverage = individualMovie.getMovieVoteAverage();
+//        String individualReleaseDate = individualMovie.getMovieReleaseDate();
+//        String individualPosterPath = individualMovie.getMoviePosterPath();
+//        String individualMovieId = individualMovie.getMovieId();
+//
+//        MovieListing mlisting = new MovieListing(individualTitle, individualSynopsis,
+//                individualPosterPath, individualVoteAverage, individualReleaseDate, individualMovieId );
+//
+//        Intent intent = new Intent(getBaseContext(), DetailActivity.class);
+//        intent.putExtra("movie", mlisting);
+//        startActivity(intent);
 
     }
 }

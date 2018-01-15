@@ -1,6 +1,8 @@
 package com.waakye.android.popularmovies9;
 
+import android.content.Intent;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.AsyncTaskLoader;
@@ -9,8 +11,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.waakye.android.popularmovies9.data.MovieListingContract;
+import com.waakye.android.popularmovies9.data.MovieListingDbHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,6 +38,8 @@ public class FavoritesActivity extends AppCompatActivity
 
     private Cursor cursorData;
 
+    private Cursor mFavoriteMovie;
+
     @Override
     protected void onCreate(Bundle savedInstanceState){
         Log.i(LOG_TAG, "onCreate() method called...");
@@ -49,7 +55,7 @@ public class FavoritesActivity extends AppCompatActivity
         // Initialize the adapter and attach it to the RecyclerView
         mAdapter = new CustomCursorAdapter(this, cursorData, this);
         mRecyclerView.setAdapter(mAdapter);
-        
+
         /*
          Ensure a loader is initialized and active. If the loader doesn't already exist, one is
          created, otherwise the last created loader is re-used.
@@ -169,26 +175,28 @@ public class FavoritesActivity extends AppCompatActivity
     @Override
     public void onListItemClick(int clickedItemIndex) {
 
-        List<MovieListing> myFavorites = listOfMovies(cursorData);
+        Toast.makeText(this, "item: " + clickedItemIndex, Toast.LENGTH_SHORT).show();
 
+        // Create database helper
+        MovieListingDbHelper mDbHelper = new MovieListingDbHelper(this);
 
+        SQLiteDatabase db = mDbHelper.getReadableDatabase();
 
+        mFavoriteMovie = MovieListingDbHelper.getFavoriteMovie(String.valueOf(clickedItemIndex), db);
 
+        String title = mFavoriteMovie.getString(mFavoriteMovie.getColumnIndex("movieTitle"));
+        String synopsis = mFavoriteMovie.getString(mFavoriteMovie.getColumnIndex("movieSynopsis"));
+        String posterPath = mFavoriteMovie.getString(mFavoriteMovie.getColumnIndex("moviePosterPath"));
+        String voteAverage = mFavoriteMovie.getString(mFavoriteMovie.getColumnIndex("movieVoteAverage"));
+        String releaseDate = mFavoriteMovie.getString(mFavoriteMovie.getColumnIndex("movieReleaseDate"));
+        String movieId = mFavoriteMovie.getString(mFavoriteMovie.getColumnIndex("movieId"));
 
-//        MovieListing individualMovie = mRecyclerView.get(clickedItemIndex);
-//        String individualTitle = individualMovie.getMovieTitle();
-//        String individualSynopsis = individualMovie.getMovieSynopsis();
-//        String individualVoteAverage = individualMovie.getMovieVoteAverage();
-//        String individualReleaseDate = individualMovie.getMovieReleaseDate();
-//        String individualPosterPath = individualMovie.getMoviePosterPath();
-//        String individualMovieId = individualMovie.getMovieId();
-//
-//        MovieListing mlisting = new MovieListing(individualTitle, individualSynopsis,
-//                individualPosterPath, individualVoteAverage, individualReleaseDate, individualMovieId );
-//
-//        Intent intent = new Intent(getBaseContext(), DetailActivity.class);
-//        intent.putExtra("movie", mlisting);
-//        startActivity(intent);
+        MovieListing favoriteMovie = new MovieListing(title, synopsis, posterPath, voteAverage,
+                releaseDate, movieId);
+
+        Intent intent = new Intent(getBaseContext(), DetailActivity.class);
+        intent.putExtra("movie", favoriteMovie);
+        startActivity(intent);
 
     }
 }

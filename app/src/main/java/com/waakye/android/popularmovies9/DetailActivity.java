@@ -194,7 +194,7 @@ public class DetailActivity extends AppCompatActivity {
             Toast.makeText(this, "Movie is already stored in Favorites", Toast.LENGTH_SHORT).show();
         }
 
-        
+
         // Finish activity (this returns back to MainActivity)
         finish();
 

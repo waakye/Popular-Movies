@@ -2,6 +2,7 @@ package com.waakye.android.popularmovies9;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
@@ -19,6 +20,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.waakye.android.popularmovies9.adapters.MovieListingAdapter;
+import com.waakye.android.popularmovies9.data.MovieListingDbHelper;
 import com.waakye.android.popularmovies9.data.MoviePreferences;
 import com.waakye.android.popularmovies9.utilities.MovieDbJsonUtils;
 import com.waakye.android.popularmovies9.utilities.NetworkUtils;
@@ -67,6 +69,10 @@ public class MainActivity extends AppCompatActivity
     private String movieTitle = "Jack Reacher";
 
     private static final int MOVIE_POSTER_LOADER_ID = 0;
+
+    private SQLiteDatabase db;
+
+    private MovieListingDbHelper mDbHelper;
 
     private int popType = 0;
 

@@ -3,13 +3,11 @@
     <array name="pref_popularity_option_labels">
         <item>@string/pref_popularity_label_most_popular</item>
         <item>@string/pref_popularity_label_highly_rated</item>
-        <item>@string/pref_popularity_label_my_favorites</item>
     </array>
 
     <array name="pref_popularity_option_values">
         <item>@string/pref_popularity_most_popular_value</item>
         <item>@string/pref_popularity_highly_rated_value</item>
-        <item>@string/pref_popularity_my_favorites_value</item>
     </array>
 
 </resources>

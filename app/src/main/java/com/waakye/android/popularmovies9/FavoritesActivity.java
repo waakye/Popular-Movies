@@ -11,8 +11,8 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 
+import com.waakye.android.popularmovies9.adapters.CustomCursorAdapter;
 import com.waakye.android.popularmovies9.data.MovieListingContract;
-import com.waakye.android.popularmovies9.data.MovieListingContract.MovieListingEntry;
 
 /**
  * Created by lesterlie on 1/9/18.
@@ -32,19 +32,6 @@ public class FavoritesActivity extends AppCompatActivity
     private RecyclerView mRecyclerView;
 
     public Cursor cursorData;
-
-    private Cursor mFavoriteMovie;
-
-    String[] projectionAllColumns = {
-            MovieListingEntry._ID,
-            MovieListingEntry.COLUMN_MOVIE_TITLE,
-            MovieListingEntry.COLUMN_MOVIE_SYNOPSIS,
-            MovieListingEntry.COLUMN_MOVIE_POSTER_PATH,
-            MovieListingEntry.COLUMN_MOVIE_VOTE_AVERAGE,
-            MovieListingEntry.COLUMN_MOVIE_RELEASE_DATE,
-            MovieListingEntry.COLUMN_MOVIE_ID
-    };
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState){

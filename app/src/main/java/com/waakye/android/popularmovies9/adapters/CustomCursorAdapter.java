@@ -1,4 +1,4 @@
-package com.waakye.android.popularmovies9;
+package com.waakye.android.popularmovies9.adapters;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import com.squareup.picasso.Picasso;
+import com.waakye.android.popularmovies9.R;
 import com.waakye.android.popularmovies9.data.MovieListingContract;
 import com.waakye.android.popularmovies9.data.MovieListingContract.MovieListingEntry;
 
@@ -26,9 +27,6 @@ public class CustomCursorAdapter extends RecyclerView.Adapter<CustomCursorAdapte
 
     // ImageView variable that refers to the ImageView on movies_image_view_item.xml
     public ImageView listItemMovieImageView;
-
-    // Movie Poster Prefix that completes the url
-    public static String MOVIE_POSTER_PREFIX = "https://image.tmdb.org/t/p/w500";
 
     // Class variables for the Cursor that holds movie data and the Context
     private Cursor mCursor;

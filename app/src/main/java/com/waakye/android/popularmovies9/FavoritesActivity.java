@@ -2,7 +2,6 @@ package com.waakye.android.popularmovies9;
 
 import android.content.Intent;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.AsyncTaskLoader;
@@ -11,13 +10,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.waakye.android.popularmovies9.data.MovieListingContract;
-import com.waakye.android.popularmovies9.data.MovieListingDbHelper;
-
-import java.util.ArrayList;
-import java.util.List;
+import com.waakye.android.popularmovies9.data.MovieListingContract.MovieListingEntry;
 
 /**
  * Created by lesterlie on 1/9/18.
@@ -36,9 +31,20 @@ public class FavoritesActivity extends AppCompatActivity
 
     private RecyclerView mRecyclerView;
 
-    private Cursor cursorData;
+    public Cursor cursorData;
 
     private Cursor mFavoriteMovie;
+
+    String[] projectionAllColumns = {
+            MovieListingEntry._ID,
+            MovieListingEntry.COLUMN_MOVIE_TITLE,
+            MovieListingEntry.COLUMN_MOVIE_SYNOPSIS,
+            MovieListingEntry.COLUMN_MOVIE_POSTER_PATH,
+            MovieListingEntry.COLUMN_MOVIE_VOTE_AVERAGE,
+            MovieListingEntry.COLUMN_MOVIE_RELEASE_DATE,
+            MovieListingEntry.COLUMN_MOVIE_ID
+    };
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState){
@@ -136,7 +142,10 @@ public class FavoritesActivity extends AppCompatActivity
      */
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+
         mAdapter.swapCursor(data);
+
+        cursorData = data;
     }
 
     /**
@@ -151,52 +160,32 @@ public class FavoritesActivity extends AppCompatActivity
         mAdapter.swapCursor(null);
     }
 
-    public List<MovieListing> listOfMovies(Cursor cursor){
-
-        List<MovieListing> myFavoriteMovies = new ArrayList<MovieListing>();
-        cursor.moveToFirst();
-        while(!cursor.isAfterLast()){
-            String title = cursor.getString(cursor.getColumnIndex("movieTitle"));
-            String synopsis = cursor.getString(cursor.getColumnIndex("movieSynopsis"));
-            String posterPath = cursor.getString(cursor.getColumnIndex("moviePosterPath"));
-            String voteAverage = cursor.getString(cursor.getColumnIndex("movieVoteAverage"));
-            String releaseDate = cursor.getString(cursor.getColumnIndex("movieReleaseDate"));
-            String movieId = cursor.getString(cursor.getColumnIndex("movieId"));
-
-            MovieListing movieListing = new MovieListing(title, synopsis, posterPath, voteAverage,
-                    releaseDate, movieId);
-
-            myFavoriteMovies.add(movieListing);
-        }
-
-        return myFavoriteMovies;
-    }
-
     @Override
     public void onListItemClick(int clickedItemIndex) {
+        Log.i(LOG_TAG, "onListItemClick() method called...");
+        Log.i(LOG_TAG, "clicked Item index: " + clickedItemIndex);
 
-        Toast.makeText(this, "item: " + clickedItemIndex, Toast.LENGTH_SHORT).show();
+        if (cursorData != null && cursorData.getCount() > 0){
+            cursorData.moveToPosition(clickedItemIndex);
 
-        // Create database helper
-        MovieListingDbHelper mDbHelper = new MovieListingDbHelper(this);
+            String title = cursorData.getString(cursorData.getColumnIndex("movieTitle"));
+            String synopsis = cursorData.getString(cursorData.getColumnIndex("movieSynopsis"));
+            String posterPath = cursorData.getString(cursorData.getColumnIndex("moviePosterPath"));
+            String voteAverage = cursorData.getString(cursorData.getColumnIndex("movieVoteAverage"));
+            String releaseDate = cursorData.getString(cursorData.getColumnIndex("movieReleaseDate"));
+            String movieId = cursorData.getString(cursorData.getColumnIndex("movieId"));
+            cursorData.close();
 
-        SQLiteDatabase db = mDbHelper.getReadableDatabase();
+            MovieListing favoriteMovie = new MovieListing(title, synopsis, posterPath, voteAverage,
+                    releaseDate, movieId);
 
-        mFavoriteMovie = MovieListingDbHelper.getFavoriteMovie(String.valueOf(clickedItemIndex), db);
+            Intent intent = new Intent(getBaseContext(), DetailActivity.class);
+            intent.putExtra("movie", favoriteMovie);
+            startActivity(intent);
 
-        String title = mFavoriteMovie.getString(mFavoriteMovie.getColumnIndex("movieTitle"));
-        String synopsis = mFavoriteMovie.getString(mFavoriteMovie.getColumnIndex("movieSynopsis"));
-        String posterPath = mFavoriteMovie.getString(mFavoriteMovie.getColumnIndex("moviePosterPath"));
-        String voteAverage = mFavoriteMovie.getString(mFavoriteMovie.getColumnIndex("movieVoteAverage"));
-        String releaseDate = mFavoriteMovie.getString(mFavoriteMovie.getColumnIndex("movieReleaseDate"));
-        String movieId = mFavoriteMovie.getString(mFavoriteMovie.getColumnIndex("movieId"));
+        } else {
+            cursorData.close();
 
-        MovieListing favoriteMovie = new MovieListing(title, synopsis, posterPath, voteAverage,
-                releaseDate, movieId);
-
-        Intent intent = new Intent(getBaseContext(), DetailActivity.class);
-        intent.putExtra("movie", favoriteMovie);
-        startActivity(intent);
-
+        }
     }
 }

@@ -3,28 +3,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <!-- Checkbox for Most Popular movies -->
-    <!--<CheckBoxPreference-->
-        <!--android:defaultValue="@bool/pref_show_most_popular_default"-->
-        <!--android:key="@string/pref_show_most_popular_key"-->
-        <!--android:summaryOff="@string/pref_show_false"-->
-        <!--android:summaryOn="@string/pref_show_true"-->
-        <!--android:title="@string/pref_show_most_popular_label"/>-->
-
-    <!--<CheckBoxPreference-->
-        <!--android:defaultValue="@bool/pref_show_highly_rated_default"-->
-        <!--android:key="@string/pref_show_highly_rated_key"-->
-        <!--android:summaryOff="@string/pref_show_false"-->
-        <!--android:summaryOn="@string/pref_show_true"-->
-        <!--android:title="@string/pref_show_highly_rated_label"/>-->
-
-    <!--<CheckBoxPreference-->
-        <!--android:defaultValue="@bool/pref_show_my_favorites_default"-->
-        <!--android:key="@string/pref_show_my_favorites_key"-->
-        <!--android:summaryOff="@string/pref_show_false"-->
-        <!--android:summaryOn="@string/pref_show_true"-->
-        <!--android:title="@string/pref_show_my_favorites_label"/>-->
-
     <ListPreference
         android:defaultValue="@string/pref_popularity_most_popular_value"
         android:entries="@array/pref_popularity_option_labels"

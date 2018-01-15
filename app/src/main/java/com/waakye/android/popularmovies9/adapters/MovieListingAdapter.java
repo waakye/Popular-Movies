@@ -23,7 +23,7 @@ public class MovieListingAdapter extends RecyclerView.Adapter<MovieListingAdapte
 
     public static final String LOG_TAG = MovieListingAdapter.class.getSimpleName();
 
-    // ImageView variable that refers to the ImageView on activity_main.xml
+    // ImageView variable that refers to the ImageView on movies_image_view_item.xml
     public ImageView listItemMovieImageView;
 
     // Movie Poster Prefix that completes the url

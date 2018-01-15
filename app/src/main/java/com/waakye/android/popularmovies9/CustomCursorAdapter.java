@@ -50,6 +50,14 @@ public class CustomCursorAdapter extends RecyclerView.Adapter<CustomCursorAdapte
     // Inner class for creating ViewHolders
     public class FavoriteViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
 
+        /**
+         * Constructor for our ViewHolder.  Within this constructor, we get a reference to the
+         * ImageView and set an onClickListener to listen for clicks.  Those will be handled by the
+         * onClick method below
+         * @param itemView  The View that you inflated in
+         *                  {@link CustomCursorAdapter#onCreateViewHolder(ViewGroup, int)}
+         */
+
         public FavoriteViewHolder(View itemView){
             super(itemView);
 
@@ -57,8 +65,13 @@ public class CustomCursorAdapter extends RecyclerView.Adapter<CustomCursorAdapte
 
             // Call setOnClickListener on View passed into the constructor (use 'this' as the OnClickListener)
             itemView.setOnClickListener(this);
+
         }
 
+        /**
+         * Called whenever a user clicks on an item in the list.
+         * @param view The View that was clicked
+         */
         @Override
         public void onClick(View view) {
             int clickedPosition = getAdapterPosition();
@@ -85,6 +98,7 @@ public class CustomCursorAdapter extends RecyclerView.Adapter<CustomCursorAdapte
      */
     @Override
     public FavoriteViewHolder onCreateViewHolder(ViewGroup viewGroup,  int viewType){
+        Log.i(LOG_TAG, "onCreateViewHolder() method called...");
 
         Context context = viewGroup.getContext();
         LayoutInflater inflater = LayoutInflater.from(context);

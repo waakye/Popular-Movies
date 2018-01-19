@@ -63,81 +63,6 @@ public final class NetworkUtils {
     final static String REVIEWS = "reviews";
     final static String VIDEOS = "videos";
 
-//    /**
-//     * Builds the URL used to query The MovieDb using a String as a parameter
-//     * @param typeOfPopularity  The type of popularity that will be used for search - can either be
-//     *                          popularity.desc or vote_averae.desc
-//     * @return  The URL to use the query the movie DB server.
-//     */
-//    public static URL buildByPopularityTypeUrl(String typeOfPopularity){
-//        Uri builtUri = Uri.parse(MOVIE_DB_DISCOVER_BASE_URL).buildUpon()
-//                .appendQueryParameter(API_KEY_PARAM, API_KEY)
-//                .appendQueryParameter(LANGUAGE_PARAM, LANGUAGE_ENGLISH)
-//                .appendQueryParameter(PARAM_SORT, typeOfPopularity)
-//                .appendQueryParameter(CERTIFICATION_COUNTRY_PARAM, COUNTRY_US)
-//                .appendQueryParameter(ADULT_PARAM, FALSE)
-//                .appendQueryParameter(VIDEO_PARAM, FALSE)
-//                .appendQueryParameter(PAGE_PARAM, PAGE_1)
-//                .appendQueryParameter(VOTE_COUNT_PARAM, MINIMUM_VOTE_COUNT_1000)
-//                .build();
-//
-//        URL url = null;
-//        try {
-//            url = new URL(builtUri.toString());
-//        } catch (MalformedURLException e) {
-//            e.printStackTrace();
-//        }
-//        Log.v(LOG_TAG, "Built URI " + url);
-//
-//        return url;
-//    }
-//
-//    public static URL createMostPopularUrl(){
-//        Uri builtUri = Uri.parse(MOVIE_DB_POPULAR_MOVIE_BASE_URL).buildUpon()
-//                .appendQueryParameter(API_KEY_PARAM, API_KEY)
-//                .appendQueryParameter(LANGUAGE_PARAM, LANGUAGE_ENGLISH)
-//                .appendQueryParameter(CERTIFICATION_COUNTRY_PARAM, COUNTRY_US)
-//                .appendQueryParameter(ADULT_PARAM, FALSE)
-//                .appendQueryParameter(VIDEO_PARAM, FALSE)
-//                .appendQueryParameter(VOTE_COUNT_PARAM, MINIMUM_VOTE_COUNT_1000)
-//                .appendQueryParameter(PAGE_PARAM, PAGE_1)
-//                .build();
-//
-//        URL url = null;
-//        try {
-//            url = new URL(builtUri.toString());
-//        } catch (MalformedURLException e){
-//            e.printStackTrace();
-//        }
-//        Log.v(LOG_TAG, "Built URI " + url);
-//
-//        return url;
-//
-//    }
-//
-//    public static URL createHighlyRatedUrl(){
-//        Uri builtUri = Uri.parse(MOVIE_DB_TOP_RATED_MOVIE_BASE_URL).buildUpon()
-//                .appendQueryParameter(API_KEY_PARAM, API_KEY)
-//                .appendQueryParameter(LANGUAGE_PARAM, LANGUAGE_ENGLISH)
-//                .appendQueryParameter(CERTIFICATION_COUNTRY_PARAM, COUNTRY_US)
-//                .appendQueryParameter(ADULT_PARAM, FALSE)
-//                .appendQueryParameter(VIDEO_PARAM, FALSE)
-//                .appendQueryParameter(VOTE_COUNT_PARAM, MINIMUM_VOTE_COUNT_1000)
-//                .appendQueryParameter(PAGE_PARAM, PAGE_1)
-//                .build();
-//
-//        URL url = null;
-//        try {
-//            url = new URL(builtUri.toString());
-//        } catch (MalformedURLException e){
-//            e.printStackTrace();
-//        }
-//        Log.v(LOG_TAG, "Built URI " + url);
-//
-//        return url;
-//
-//    }
-
     // https://api.themoviedb.org/3/movie/popular?api_key=<<api_key>>&language=en-US&page=1
 
     public static URL createPopularityTypeUrl(int moviePopularityType){
@@ -244,24 +169,6 @@ public final class NetworkUtils {
 
         return url;
     }
-
-//    public static URL createYouTubeTrailerUrl(String youTubeCode){
-//        Uri builtUri = null;
-//
-//        builtUri = Uri.parse(YOUTUBE_BASE_URL).buildUpon()
-//                .appendPath(youTubeCode)
-//                .build();
-//
-//        URL url = null;
-//        try {
-//            url = new URL(builtUri.toString());
-//        } catch (MalformedURLException e) {
-//            e.printStackTrace();
-//        }
-//        Log.v(LOG_TAG, "Built URI " + url);
-//
-//        return url;
-//    }
 
     /**
      * This method returns the entire result from the HTTP response

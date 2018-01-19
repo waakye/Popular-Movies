@@ -6,9 +6,11 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.app.NavUtils;
+import android.support.v4.content.AsyncTaskLoader;
+import android.support.v4.content.Loader;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -39,9 +41,11 @@ import java.util.List;
  * Created by lesterlie on 12/26/17.
  */
 
-public class DetailActivity extends AppCompatActivity {
+public class DetailActivity extends AppCompatActivity implements LoaderCallbacks<String[]> {
 
     public static String LOG_TAG = DetailActivity.class.getSimpleName();
+
+    private static final int USER_REVIEW_LOADER_ID = 11;
 
 
     // TextView to display the error message
@@ -264,8 +268,35 @@ public class DetailActivity extends AppCompatActivity {
     private void makeUserReviewsQuery(String movieId){
 
         Log.i(LOG_TAG, "makeUserReviewsQuery() method called...");
-        new UserReviewsQueryTask().execute(mIndividualMovieId);
+//        new UserReviewsQueryTask().execute(mIndividualMovieId);
 
+        /**
+         * This ID will uniquely identify the Loader.  We can use it to get a handle on our Loader
+         * at a later point in time through the support LoaderManager
+         */
+        int loaderId = USER_REVIEW_LOADER_ID;
+
+        /**
+         * From DetailActivity, we have implemented the LoaderCallbacks interface with the type of
+         * String[].  The variable callback is passed to the call to initLoader below.  This means
+         * that whenever the loaderManager has something to notify us of, it will do so through
+         * this callback.
+         */
+        LoaderCallbacks<String[]> callback = DetailActivity.this;
+
+        /**
+         * The second parameter of initLoader method below is a Bundle.  Optionally, you can pass
+         * a Bundle to the initLoader that you can then access from within the onCreateLoader
+         * callback.
+         */
+        Bundle bundleForLoader = null;
+
+        /**
+         * Ensures that a loader is initialized and active.  If the loader doesn't already exist,
+         * one is created and (if the activity/fragment is currently started) starts the loader.
+         * Otherwise, the last created loader is re-used.
+         */
+        getSupportLoaderManager().initLoader(loaderId, bundleForLoader, callback);
     }
 
     /**
@@ -296,60 +327,91 @@ public class DetailActivity extends AppCompatActivity {
         mDetailActivityErrorMessageDisplay.setVisibility(View.VISIBLE);
     }
 
-    public class UserReviewsQueryTask extends AsyncTask<String, Void, String[]> {
 
-        // Override onPreExecute to set the loading indicator to visible
-        @Override
-        protected void onPreExecute(){
-            super.onPreExecute();
-            mDetailActivityLoadingIndicator.setVisibility(View.VISIBLE);
-        }
+    /**
+     * Instantiate and return a new loader for the given ID.
+     *
+     * @param id    The ID whose loader is to be created
+     * @param loaderArgs  Any arguments supplied by the caller
+     *
+     * @return  Return a new Loader instance that is ready to start loading
+     */
+    @Override
+    public Loader<String[]> onCreateLoader(int id, Bundle loaderArgs) {
 
-        @Override
-        protected String[] doInBackground(String... params) {
-            Log.i(LOG_TAG, "UserReviewsQueryTask doInBackground() method called...");
+        return new AsyncTaskLoader<String[]>(this) {
 
-            // If there's no search terms, then there's nothing to look up
-            if(params.length == 0){
-                return null;
-            }
+            /* This String[] will hold and help cache our User Review data */
+            String[] userReviewsData = null;
 
-            URL userReviewsSearchUrl = NetworkUtils.createUserReviewsUrl(mIndividualMovieId);
-
-            try {
-                String jsonReviewsResponse = NetworkUtils.getResponseFromHttpUrl(userReviewsSearchUrl);
-
-                String[] reviewsJsonMovieData = MovieDbJsonUtils
-                        .getUserReviewStringsFromJson(DetailActivity.this,jsonReviewsResponse);
-                return reviewsJsonMovieData;
-
-            } catch (IOException e) {
-                e.printStackTrace();
-                return null;
-            } catch (JSONException e){
-                e.printStackTrace();
-                return null;
-            }
-        }
-
-        @Override
-        protected void onPostExecute(String[] userReviewsSearchResults){
-            Log.i(LOG_TAG, "UserReviewsQueryTask onPostExecute() method called...");
-            // As soon as the loading is complete, hide the loading indicator
-            mDetailActivityLoadingIndicator.setVisibility(View.INVISIBLE);
-            if(userReviewsSearchResults != null && !userReviewsSearchResults.equals("")){
-                // Call showJsonDataView if we have valid, non-null results
-                showJsonDataView();
-                for(String userReviewString : userReviewsSearchResults) {
-                    mUserReviewsTextView.append((userReviewString) + "\n\n");
+            @Override
+            protected void onStartLoading(){
+                Log.i(LOG_TAG, "onStarLoading() method called...");
+                if(userReviewsData != null){
+                    deliverResult(userReviewsData);
+                } else {
+                    mDetailActivityLoadingIndicator.setVisibility(View.VISIBLE);
+                    forceLoad();
                 }
-            } else {
-                // Call showErrorMessage if the result is null in onPostExecute
-                showErrorMessage();
             }
+
+            @Override
+            public String[] loadInBackground() {
+                Log.i(LOG_TAG, "loadInBackground() method called...");
+
+                // Use NetworkUtils method to create a URL for user reviews URL
+                URL userReviewsSearchUrl = NetworkUtils.createUserReviewsUrl(mIndividualMovieId);
+
+                try {
+                    Log.i(LOG_TAG, "try-catch block query for json user reviews response");
+                    String jsonReviewsResponse = NetworkUtils.getResponseFromHttpUrl(userReviewsSearchUrl);
+
+                    String[] reviewsJsonMovieData = MovieDbJsonUtils
+                            .getUserReviewStringsFromJson(DetailActivity.this,jsonReviewsResponse);
+                    return reviewsJsonMovieData;
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    return null;
+                } catch (JSONException e){
+                    e.printStackTrace();
+                    return null;
+                }
+            }
+
+            /**
+             * Sends the result of the load to the registered listener
+             *
+             * @param data  The result of the load
+             */
+            public void deliverResult(String[] data){
+                userReviewsData = data;
+                super.deliverResult(data);
+            }
+        };
+    }
+
+    @Override
+    public void onLoadFinished(Loader<String[]> loader, String[] data) {
+        if(data != null && !data.equals("")){
+            showJsonDataView();
+            for(String userReviewString : data) {
+                mUserReviewsTextView.append((userReviewString) + "\n\n");
+            }
+        } else {
+            // Call showErrorMessage if the result is null in onPostExecute
+            showErrorMessage();
         }
     }
 
+    @Override
+    public void onLoaderReset(Loader<String[]> loader) {
+        /*
+         * We aren't using this method in our example application, but we are required to Override
+         * it to implement the LoaderCallbacks<String> interface
+         */
+    }
+    
     @Override
     public boolean onOptionsItemSelected(MenuItem item){
         int id = item.getItemId();

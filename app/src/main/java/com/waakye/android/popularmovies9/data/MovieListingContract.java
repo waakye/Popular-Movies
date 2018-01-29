@@ -1,6 +1,7 @@
 package com.waakye.android.popularmovies9.data;
 
 import android.content.ContentResolver;
+import android.content.ContentUris;
 import android.net.Uri;
 import android.provider.BaseColumns;
 
@@ -36,28 +37,28 @@ public final class MovieListingContract {
 
 
     /* Inner class that defines the table contents */
-    public static class MovieListingEntry implements BaseColumns {
+    public static final class MovieListingEntry implements BaseColumns {
 
         /**
          * This is the {@link Uri} used to get a full list of favorites
          */
         // MovieListingEntry content URI = base content URI + path
         public static final Uri CONTENT_URI =
-                Uri.withAppendedPath(BASE_CONTENT_URI, PATH_FAVORITES);
+                BASE_CONTENT_URI.buildUpon().appendPath(PATH_FAVORITES).build();
 
         /**
          * THE MIME TYPE OF THE {@link #CONTENT_URI} for a list of favorites
          */
-        public static final String CONTENT_LIST_TYPE =
+        public static final String CONTENT_TYPE =
                 ContentResolver.CURSOR_DIR_BASE_TYPE + "/"
-                        + CONTENT_AUTHORITY + "/" + PATH_FAVORITES;
+                        + CONTENT_URI + "/" + PATH_FAVORITES;
 
         /**
          * The MIME type for the {@link #CONTENT_URI} for a single favorite movie
          */
         public static final String CONTENT_ITEM_TYPE =
                 ContentResolver.CURSOR_ITEM_BASE_TYPE + "/"
-                        + CONTENT_AUTHORITY + "/" + PATH_FAVORITES;
+                        + CONTENT_URI + "/" + PATH_FAVORITES;
 
         // Favorites table and column names
         public static final String TABLE_NAME = "user_favorite_movies";
@@ -75,6 +76,11 @@ public final class MovieListingContract {
         public static final String COLUMN_MOVIE_ID = "movieId";
 
         public static final String COLUMN_MOVIE_FAVORITE = "favorite";
+
+        // Define a function to build a Uri to find a specific movie by its identifier
+        public static Uri buildFavoritesUti(long id) {
+            return ContentUris.withAppendedId(CONTENT_URI, id);
+        }
 
     }
 }

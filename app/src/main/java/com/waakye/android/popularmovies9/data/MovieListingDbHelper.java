@@ -26,27 +26,31 @@ public class MovieListingDbHelper extends SQLiteOpenHelper {
     }
 
     @Override
-    public void onCreate(SQLiteDatabase sqLiteDatabase){
+    public void onCreate(SQLiteDatabase db){
 
-        final String SQL_CREATE_MOVIE_FAVORITES_TABLE = "CREATE TABLE " +
-                MovieListingEntry.TABLE_NAME + " (" +
-                MovieListingEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                MovieListingEntry.COLUMN_MOVIE_TITLE + " TEXT NOT NULL, " +
-                MovieListingEntry.COLUMN_MOVIE_SYNOPSIS + " TEXT, " +
-                MovieListingEntry.COLUMN_MOVIE_POSTER_PATH + " TEXT, " +
-                MovieListingEntry.COLUMN_MOVIE_RELEASE_DATE + " TEXT, " +
-                MovieListingEntry.COLUMN_MOVIE_VOTE_AVERAGE + " TEXT, " +
-                MovieListingEntry.COLUMN_MOVIE_ID + " TEXT, " +
-                MovieListingEntry.COLUMN_MOVIE_FAVORITE + " INTEGER " +
-                "); ";
-
-        sqLiteDatabase.execSQL(SQL_CREATE_MOVIE_FAVORITES_TABLE);
+        addFavoritesTable(db);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, int i, int i1) {
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + MovieListingEntry.TABLE_NAME);
         onCreate(sqLiteDatabase);
+    }
+
+    private void addFavoritesTable(SQLiteDatabase db){
+        db.execSQL(
+                "CREATE TABLE " +
+                        MovieListingEntry.TABLE_NAME + " (" +
+                        MovieListingEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                        MovieListingEntry.COLUMN_MOVIE_TITLE + " TEXT NOT NULL, " +
+                        MovieListingEntry.COLUMN_MOVIE_SYNOPSIS + " TEXT, " +
+                        MovieListingEntry.COLUMN_MOVIE_POSTER_PATH + " TEXT, " +
+                        MovieListingEntry.COLUMN_MOVIE_RELEASE_DATE + " TEXT, " +
+                        MovieListingEntry.COLUMN_MOVIE_VOTE_AVERAGE + " TEXT, " +
+                        MovieListingEntry.COLUMN_MOVIE_ID + " TEXT, " +
+                        MovieListingEntry.COLUMN_MOVIE_FAVORITE + " INTEGER " +
+                        "); "
+        );
     }
 
     public static Cursor getFavoriteMovie(String clickedPosition, SQLiteDatabase db){

@@ -3,8 +3,6 @@ package com.waakye.android.popularmovies9;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
@@ -25,7 +23,6 @@ import android.widget.Toast;
 import com.squareup.picasso.Picasso;
 import com.waakye.android.popularmovies9.adapters.MovieListingAdapter;
 import com.waakye.android.popularmovies9.data.MovieListingContract.MovieListingEntry;
-import com.waakye.android.popularmovies9.data.MovieListingDbHelper;
 import com.waakye.android.popularmovies9.utilities.MovieDbJsonUtils;
 import com.waakye.android.popularmovies9.utilities.NetworkUtils;
 
@@ -33,9 +30,7 @@ import org.json.JSONException;
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 /**
  * Created by lesterlie on 12/26/17.
@@ -46,7 +41,6 @@ public class DetailActivity extends AppCompatActivity implements LoaderCallbacks
     public static String LOG_TAG = DetailActivity.class.getSimpleName();
 
     private static final int USER_REVIEW_LOADER_ID = 11;
-
 
     // TextView to display the error message
     private TextView mDetailActivityErrorMessageDisplay;
@@ -125,6 +119,15 @@ public class DetailActivity extends AppCompatActivity implements LoaderCallbacks
         mUserReviewsTextView = (TextView) findViewById(R.id.text_view_user_reviews);
 
         makeUserReviewsQuery(mIndividualMovieId);
+        Button firstTrailerButton = (Button)findViewById(R.id.first_trailer_button);
+        firstTrailerButton.setOnClickListener(new View.OnClickListener(){
+
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
+
         Button trailerButton = (Button)findViewById(R.id.trailer_button);
         trailerButton.setOnClickListener(new View.OnClickListener(){
             public void onClick(View v){
@@ -163,13 +166,13 @@ public class DetailActivity extends AppCompatActivity implements LoaderCallbacks
         Log.i(LOG_TAG, "onClickAddFavorite() method called...");
 
         // Use getAllMovieIds method to retrieve the storedMovieIds
-        String[] storedMovieIds = getAllMovieIds();
+//        String[] storedMovieIds = getAllMovieIds();
 
-        if (compareMovieIdsInFavorites(storedMovieIds, mMovieId) != true) {
-            // Create database helper
-            MovieListingDbHelper mDbHelper = new MovieListingDbHelper(this);
-
-            SQLiteDatabase db = mDbHelper.getWritableDatabase();
+//        if (compareMovieIdsInFavorites(storedMovieIds, mMovieId) != true) {
+//            // Create database helper
+//            MovieListingDbHelper mDbHelper = new MovieListingDbHelper(this);
+//
+//            SQLiteDatabase db = mDbHelper.getWritableDatabase();
 
             // Insert favorite movie via a ContentResolver
 
@@ -184,20 +187,20 @@ public class DetailActivity extends AppCompatActivity implements LoaderCallbacks
             cv.put(MovieListingEntry.COLUMN_MOVIE_ID, mMovieId);
 
             // Insert a new row for favorite in the database, returning the ID of that new row
-            long newRowId = db.insert(MovieListingEntry.TABLE_NAME, null, cv);
-
-            // Show a toast message depending on whether or not the insertion was successful
-            if (newRowId == -1) {
-                // If the row ID is -1, then there was an error with insertion
-                Toast.makeText(this, "Error with saving movie", Toast.LENGTH_SHORT).show();
-            } else {
-                // Otherwise, the insertion was successful and we can display a toast with the row ID
-                Toast.makeText(this, "Movie saved with row ID: " + newRowId, Toast.LENGTH_SHORT).show();
-            }
-        } else {
-            Toast.makeText(this, "Movie is already stored in Favorites", Toast.LENGTH_SHORT).show();
-        }
-
+//            long newRowId = db.insert(MovieListingEntry.TABLE_NAME, null, cv);
+//
+//            // Show a toast message depending on whether or not the insertion was successful
+//            if (newRowId == -1) {
+//                // If the row ID is -1, then there was an error with insertion
+//                Toast.makeText(this, "Error with saving movie", Toast.LENGTH_SHORT).show();
+//            } else {
+//                // Otherwise, the insertion was successful and we can display a toast with the row ID
+//                Toast.makeText(this, "Movie saved with row ID: " + newRowId, Toast.LENGTH_SHORT).show();
+//            }
+//        } else {
+//            Toast.makeText(this, "Movie is already stored in Favorites", Toast.LENGTH_SHORT).show();
+//        }
+            Uri newUri = getContentResolver().insert(MovieListingEntry.CONTENT_URI, cv);
 
         // Finish activity (this returns back to MainActivity)
         finish();
@@ -207,46 +210,46 @@ public class DetailActivity extends AppCompatActivity implements LoaderCallbacks
     /**
      * Helper method to get the movieIds contained in the database
      */
-    private String[] getAllMovieIds() {
-
-        // Create database helper
-        MovieListingDbHelper mDbHelper = new MovieListingDbHelper(this);
-
-        SQLiteDatabase db = mDbHelper.getReadableDatabase();
-
-        // Define a projection that specifies which columns from the database you will actually use
-        // after the query
-        String[] projectionAllColumns = {
-                MovieListingEntry._ID,
-                MovieListingEntry.COLUMN_MOVIE_TITLE,
-                MovieListingEntry.COLUMN_MOVIE_SYNOPSIS,
-                MovieListingEntry.COLUMN_MOVIE_POSTER_PATH,
-                MovieListingEntry.COLUMN_MOVIE_VOTE_AVERAGE,
-                MovieListingEntry.COLUMN_MOVIE_RELEASE_DATE,
-                MovieListingEntry.COLUMN_MOVIE_ID,
-        };
-
-        Cursor cursor = db.query(
-                MovieListingEntry.TABLE_NAME,
-                projectionAllColumns,
-                MovieListingEntry.COLUMN_MOVIE_ID,
-                null,
-                null,
-                null,
-                null
-        );
-
-        // Based on StackOverflow: https://stackoverflow.com/questions/18863816/putting-cursor-data-into-an-array
-        cursor.moveToFirst();
-        List<String> storedMovieIds = new ArrayList<String>();
-        while(!cursor.isAfterLast()){
-            storedMovieIds.add(cursor.getString(cursor.getColumnIndex("movieId")));
-            cursor.moveToNext();
-        }
-        cursor.close();
-        return storedMovieIds.toArray(new String[storedMovieIds.size()]);
-
-    }
+//    private String[] getAllMovieIds() {
+//
+//        // Create database helper
+//        MovieListingDbHelper mDbHelper = new MovieListingDbHelper(this);
+//
+//        SQLiteDatabase db = mDbHelper.getReadableDatabase();
+//
+//        // Define a projection that specifies which columns from the database you will actually use
+//        // after the query
+//        String[] projectionAllColumns = {
+//                MovieListingEntry._ID,
+//                MovieListingEntry.COLUMN_MOVIE_TITLE,
+//                MovieListingEntry.COLUMN_MOVIE_SYNOPSIS,
+//                MovieListingEntry.COLUMN_MOVIE_POSTER_PATH,
+//                MovieListingEntry.COLUMN_MOVIE_VOTE_AVERAGE,
+//                MovieListingEntry.COLUMN_MOVIE_RELEASE_DATE,
+//                MovieListingEntry.COLUMN_MOVIE_ID,
+//        };
+//
+//        Cursor cursor = db.query(
+//                MovieListingEntry.TABLE_NAME,
+//                projectionAllColumns,
+//                MovieListingEntry.COLUMN_MOVIE_ID,
+//                null,
+//                null,
+//                null,
+//                null
+//        );
+//
+//        // Based on StackOverflow: https://stackoverflow.com/questions/18863816/putting-cursor-data-into-an-array
+//        cursor.moveToFirst();
+//        List<String> storedMovieIds = new ArrayList<String>();
+//        while(!cursor.isAfterLast()){
+//            storedMovieIds.add(cursor.getString(cursor.getColumnIndex("movieId")));
+//            cursor.moveToNext();
+//        }
+//        cursor.close();
+//        return storedMovieIds.toArray(new String[storedMovieIds.size()]);
+//
+//    }
 
     // Used: https://www.programcreek.com/2014/04/check-if-array-contains-a-value-java/
     public static boolean compareMovieIdsInFavorites(String[] array, String targetValue){
@@ -411,7 +414,7 @@ public class DetailActivity extends AppCompatActivity implements LoaderCallbacks
          * it to implement the LoaderCallbacks<String> interface
          */
     }
-    
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item){
         int id = item.getItemId();

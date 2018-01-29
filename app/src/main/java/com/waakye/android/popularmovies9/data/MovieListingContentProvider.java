@@ -44,46 +44,6 @@ public class MovieListingContentProvider extends ContentProvider {
         return matcher;
     }
 
-    /**
-     * UriMatcher object to match a content URI to a corresponding code.
-     * The input passed into the constructor represents the code to return for the root URI.
-     * It's common to use NO_MATCH as the input for this case.
-     */
-//    private static final UriMatcher sUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
-//
-//    // Static initializer.  This is run the first time anything is called from this class.
-//    static {
-//        // The calls to addURI() go here, for all of the content URI patterns that the provider
-//        // should recognize.  All paths added to the UriMatcher have a corresponding code to
-//        // return when a match is found.
-//
-//        // The content URI of the form "content://com.waakye.android.popularmovies9/favorites"
-//        // will map to the integer code {@link #FAVORITES}. This URI is used to provide access to
-//        // MULTIPLE rows of the favorites table.
-//        sUriMatcher.addURI(MovieListingContract.CONTENT_AUTHORITY,
-//                MovieListingContract.PATH_FAVORITES, FAVORITES);
-//
-//        // The content URI of the form "content://com.waakye.android.popularmovies9/favorites/#"
-//        // will map to the integer code {@link #FAVORITE_WITH_ID}.  This is used to provide access to
-//        // ONE single row of the favorites table.
-//        //
-//        // In this case, the "#" wildcard is used where "#" can be substituted for an integer.
-//        // For example, "content://com.waakye.android.popularmovies9/favorites/3" matches, but
-//        // "content://com.waakye.android.popularmovies9/favorites" does not match.
-//        sUriMatcher.addURI(MovieListingContract.CONTENT_AUTHORITY,
-//                MovieListingContract.PATH_FAVORITES + "/#", FAVORITE_WITH_ID);
-//    }
-//
-//    // Member variable for a MovieListingDbHelper that's initialized in the onCreate() method
-//    private MovieListingDbHelper mMovieListingDbHelper;
-//
-//    @Override
-//    public boolean onCreate() {
-//        Context context = getContext();
-//        mMovieListingDbHelper = new MovieListingDbHelper(context);
-//        return true;
-//    }
-
     @Override
     public String getType(Uri uri) {
         switch (sUriMatcher.match(uri)){
@@ -160,7 +120,7 @@ public class MovieListingContentProvider extends ContentProvider {
                 // Inserting values into favorites table
                 _id = db.insert(TABLE_NAME, null, values);
                 if ( _id > 0 ){
-                    returnUri = MovieListingEntry.buildFavoritesUti(_id);
+                    returnUri = MovieListingEntry.buildFavoritesUli(_id);
                 } else {
                     throw new UnsupportedOperationException("Unable to insert rows into " + uri);
                 }
@@ -194,8 +154,9 @@ public class MovieListingContentProvider extends ContentProvider {
 
         // Use selections to delete a favorite movie by its row ID
         switch(sUriMatcher.match(uri)){
-            case FAVORITES:
-                rows = db.delete(MovieListingEntry.TABLE_NAME, selection, selectionArgs);
+            case FAVORITE_WITH_ID:
+                rows = db.delete(TABLE_NAME, MovieListingEntry.COLUMN_MOVIE_ID + "=?",
+                        selectionArgs);
                 break;
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
@@ -207,34 +168,6 @@ public class MovieListingContentProvider extends ContentProvider {
 
         return rows;
     }
-//    public int delete(Uri uri, String selection, String[] selectionArgs){
-//
-//        // Get a writable database
-//        SQLiteDatabase db = mOpenHelper.getWritableDatabase();
-//
-//        int rowsDeleted;
-//
-//        final int match = sUriMatcher.match(uri);
-//        switch (match) {
-//            case FAVORITES:
-//                rowsDeleted = db.delete(MovieListingEntry.TABLE_NAME, selection, selectionArgs);
-//                break;
-//            case FAVORITE_WITH_ID:
-//                selection = MovieListingEntry._ID + "=?";
-//                selectionArgs = new String[] {String.valueOf(ContentUris.parseId(uri))};
-//                rowsDeleted = db.delete(MovieListingEntry.TABLE_NAME, selection, selectionArgs);
-//                break;
-//            default:
-//                throw new IllegalArgumentException("Deletion is not supported for " + uri);
-//        }
-//
-//        if(rowsDeleted != 0){
-//            getContext().getContentResolver().notifyChange(uri, null);
-//        }
-//
-//        return rowsDeleted;
-//    }
-
 
     @Override
     public int update(@NonNull Uri uri, ContentValues values, String selection,

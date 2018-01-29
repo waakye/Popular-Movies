@@ -78,7 +78,7 @@ public final class MovieListingContract {
         public static final String COLUMN_MOVIE_FAVORITE = "favorite";
 
         // Define a function to build a Uri to find a specific movie by its identifier
-        public static Uri buildFavoritesUti(long id) {
+        public static Uri buildFavoritesUli(long id) {
             return ContentUris.withAppendedId(CONTENT_URI, id);
         }
 

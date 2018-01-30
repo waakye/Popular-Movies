@@ -27,6 +27,7 @@
     <string name="movie_synopsis">Synopsis </string>
     <string name="movie_id">Movie Id: </string>
     <string name="user_reviews">User Reviews</string>
+    <string name="first_trailer">First Trailer</string>
     <string name="trailers">Trailers</string>
     <string name="trailer_button">Show Trailers</string>
     <string name="favorites_button">Add</string>

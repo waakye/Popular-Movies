@@ -1,8 +1,8 @@
 package com.waakye.android.popularmovies9.data;
 
 import android.content.ContentProvider;
-import android.content.ContentUris;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -25,23 +25,34 @@ public class MovieListingContentProvider extends ContentProvider {
     public static final int FAVORITES = 100;
     public static final int FAVORITE_WITH_ID = 101;
 
+    // Declare a static variable for the Uri matcher that is constructed
     private static final UriMatcher sUriMatcher = buildUriMatcher();
+
+    // Member variable for a MovieListingDbHelper that's initialized in the onCreate() method
     private MovieListingDbHelper mOpenHelper;
 
     @Override
     public boolean onCreate(){
-        mOpenHelper = new MovieListingDbHelper(getContext());
+        Context context = getContext();
+        mOpenHelper = new MovieListingDbHelper(context);
         return true;
     }
 
     public static UriMatcher buildUriMatcher(){
+
         String content = MovieListingContract.CONTENT_AUTHORITY;
 
-        UriMatcher matcher = new UriMatcher(UriMatcher.NO_MATCH);
-        matcher.addURI(content, MovieListingContract.PATH_FAVORITES, FAVORITES);
-        matcher.addURI(content, MovieListingContract.PATH_FAVORITES + "/#", FAVORITE_WITH_ID);
+        // Clears the UriMatcher of data
+        UriMatcher uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
 
-        return matcher;
+        // Add matches with addURI(String authority, String path, int code)
+        // Directory of Favorite Movies
+        uriMatcher.addURI(content, MovieListingContract.PATH_FAVORITES, FAVORITES);
+
+        // Single Favorited movie
+        uriMatcher.addURI(content, MovieListingContract.PATH_FAVORITES + "/#", FAVORITE_WITH_ID);
+
+        return uriMatcher;
     }
 
     @Override
@@ -62,13 +73,13 @@ public class MovieListingContentProvider extends ContentProvider {
                         String sortOrder) {
 
         // Get access to underlying database (read-only for query)
-        final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
-
-        // This cursor will hold the result of the query
-        Cursor retCursor;
+        final SQLiteDatabase db = mOpenHelper.getReadableDatabase();
 
         // Figure out if the URI matcher can match the URI to a specific code
         int match = sUriMatcher.match(uri);
+
+        // This cursor will hold the result of the query
+        Cursor retCursor;
 
         // Query for the favorites directory and write a default case
         switch(match){
@@ -83,11 +94,11 @@ public class MovieListingContentProvider extends ContentProvider {
                         sortOrder);
                 break;
             case FAVORITE_WITH_ID:
-                long _id = ContentUris.parseId(uri);
+                selection = MovieListingEntry.COLUMN_MOVIE_ID + "=?";
                 retCursor = db.query(TABLE_NAME,
                         projection,
-                        MovieListingEntry._ID + " =?",
-                        new String[]{String.valueOf(_id)},
+                        selection,
+                        null,
                         null,
                         null,
                         sortOrder
@@ -120,8 +131,10 @@ public class MovieListingContentProvider extends ContentProvider {
                 // Inserting values into favorites table
                 _id = db.insert(TABLE_NAME, null, values);
                 if ( _id > 0 ){
+                    // success
                     returnUri = MovieListingEntry.buildFavoritesUli(_id);
                 } else {
+                    // insertion failed
                     throw new UnsupportedOperationException("Unable to insert rows into " + uri);
                 }
                 break;

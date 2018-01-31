@@ -41,6 +41,7 @@ public class DetailActivity extends AppCompatActivity implements LoaderCallbacks
     public static String LOG_TAG = DetailActivity.class.getSimpleName();
 
     private static final int USER_REVIEW_LOADER_ID = 11;
+    private static final int TRAILER_LOADER_ID = 12;
 
     // TextView to display the error message
     private TextView mDetailActivityErrorMessageDisplay;
@@ -117,8 +118,12 @@ public class DetailActivity extends AppCompatActivity implements LoaderCallbacks
         mDetailActivityLoadingIndicator = (ProgressBar) findViewById(R.id.detail_activity_progress_bar_loading_indicator);
 
         mUserReviewsTextView = (TextView) findViewById(R.id.text_view_user_reviews);
+        mTrailersTextView = (TextView)findViewById(R.id.trailer_search_results);
 
         makeUserReviewsQuery(mIndividualMovieId);
+
+        makeTrailerQuery(mIndividualMovieId);
+
         Button firstTrailerButton = (Button)findViewById(R.id.first_trailer_button);
         firstTrailerButton.setOnClickListener(new View.OnClickListener(){
 
@@ -186,20 +191,6 @@ public class DetailActivity extends AppCompatActivity implements LoaderCallbacks
             cv.put(MovieListingEntry.COLUMN_MOVIE_RELEASE_DATE, mReleaseDate);
             cv.put(MovieListingEntry.COLUMN_MOVIE_ID, mMovieId);
 
-            // Insert a new row for favorite in the database, returning the ID of that new row
-//            long newRowId = db.insert(MovieListingEntry.TABLE_NAME, null, cv);
-//
-//            // Show a toast message depending on whether or not the insertion was successful
-//            if (newRowId == -1) {
-//                // If the row ID is -1, then there was an error with insertion
-//                Toast.makeText(this, "Error with saving movie", Toast.LENGTH_SHORT).show();
-//            } else {
-//                // Otherwise, the insertion was successful and we can display a toast with the row ID
-//                Toast.makeText(this, "Movie saved with row ID: " + newRowId, Toast.LENGTH_SHORT).show();
-//            }
-//        } else {
-//            Toast.makeText(this, "Movie is already stored in Favorites", Toast.LENGTH_SHORT).show();
-//        }
             Uri newUri = getContentResolver().insert(MovieListingEntry.CONTENT_URI, cv);
 
         // Finish activity (this returns back to MainActivity)
@@ -302,6 +293,40 @@ public class DetailActivity extends AppCompatActivity implements LoaderCallbacks
         getSupportLoaderManager().initLoader(loaderId, bundleForLoader, callback);
     }
 
+    private void makeTrailerQuery(String movieId){
+
+        Log.i(LOG_TAG, "makeTrailerQuery() method called...");
+
+        /**
+         * This ID will uniquely identify the Loader.  We can use it to get a handle on our Loader
+         * at a later point in time through the support LoaderManager
+         */
+        int loaderId = TRAILER_LOADER_ID;
+
+        /**
+         * From DetailActivity, we have implemented the LoaderCallbacks interface with the type of
+         * String[].  The variable callback is passed to the call to initLoader below.  This means
+         * that whenever the loaderManager has something to notify us of, it will do so through
+         * this callback.
+         */
+        LoaderCallbacks<String[]> callback = DetailActivity.this;
+
+        /**
+         * The second parameter of initLoader method below is a Bundle.  Optionally, you can pass
+         * a Bundle to the initLoader that you can then access from within the onCreateLoader
+         * callback.
+         */
+        Bundle bundleForLoader = null;
+
+        /**
+         * Ensures that a loader is initialized and active.  If the loader doesn't already exist,
+         * one is created and (if the activity/fragment is currently started) starts the loader.
+         * Otherwise, the last created loader is re-used.
+         */
+        getSupportLoaderManager().initLoader(loaderId, bundleForLoader, callback);
+
+    }
+
     /**
      * This method will make the View for the JSON data visible and
      * hide the error message.
@@ -330,7 +355,6 @@ public class DetailActivity extends AppCompatActivity implements LoaderCallbacks
         mDetailActivityErrorMessageDisplay.setVisibility(View.VISIBLE);
     }
 
-
     /**
      * Instantiate and return a new loader for the given ID.
      *
@@ -340,18 +364,21 @@ public class DetailActivity extends AppCompatActivity implements LoaderCallbacks
      * @return  Return a new Loader instance that is ready to start loading
      */
     @Override
-    public Loader<String[]> onCreateLoader(int id, Bundle loaderArgs) {
+    public Loader<String[]> onCreateLoader(final int id, Bundle loaderArgs) {
+
 
         return new AsyncTaskLoader<String[]>(this) {
 
             /* This String[] will hold and help cache our User Review data */
-            String[] userReviewsData = null;
+//            String[] userReviewsData = null;
+
+            String[] jsonRetrievedData = null;
 
             @Override
             protected void onStartLoading(){
                 Log.i(LOG_TAG, "onStarLoading() method called...");
-                if(userReviewsData != null){
-                    deliverResult(userReviewsData);
+                if(jsonRetrievedData != null){
+                    deliverResult(jsonRetrievedData);
                 } else {
                     mDetailActivityLoadingIndicator.setVisibility(View.VISIBLE);
                     forceLoad();
@@ -362,22 +389,48 @@ public class DetailActivity extends AppCompatActivity implements LoaderCallbacks
             public String[] loadInBackground() {
                 Log.i(LOG_TAG, "loadInBackground() method called...");
 
-                // Use NetworkUtils method to create a URL for user reviews URL
-                URL userReviewsSearchUrl = NetworkUtils.createUserReviewsUrl(mIndividualMovieId);
+                switch(id){
+                    case USER_REVIEW_LOADER_ID:
+                        // Use NetworkUtils method to create a URL for user reviews URL
+                        URL userReviewsSearchUrl = NetworkUtils.createUserReviewsUrl(mIndividualMovieId);
 
-                try {
-                    Log.i(LOG_TAG, "try-catch block query for json user reviews response");
-                    String jsonReviewsResponse = NetworkUtils.getResponseFromHttpUrl(userReviewsSearchUrl);
+                        try {
+                            Log.i(LOG_TAG, "try-catch block query for json user reviews response");
+                            String jsonReviewsResponse = NetworkUtils.getResponseFromHttpUrl(userReviewsSearchUrl);
 
-                    String[] reviewsJsonMovieData = MovieDbJsonUtils
-                            .getUserReviewStringsFromJson(DetailActivity.this,jsonReviewsResponse);
-                    return reviewsJsonMovieData;
+                            jsonRetrievedData = MovieDbJsonUtils
+                                    .getUserReviewStringsFromJson(DetailActivity.this,jsonReviewsResponse);
+                            return jsonRetrievedData;
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                            return null;
+                        } catch (JSONException e){
+                            e.printStackTrace();
+                            return null;
+                        }
 
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    return null;
-                } catch (JSONException e){
-                    e.printStackTrace();
+                    case TRAILER_LOADER_ID:
+                        // Use NetworkUtils method to create a URL for trailers URL
+                        URL trailerSearchUrl = NetworkUtils.createMovieTrailerUrl(mIndividualMovieId);
+
+                        try{
+                            Log.i(LOG_TAG, "try-catch block query for json trailers response");
+                            String jsonTrailerResponse = NetworkUtils.getResponseFromHttpUrl(trailerSearchUrl);
+
+                            jsonRetrievedData = MovieDbJsonUtils
+                                    .getTrailerStringsFromJson(DetailActivity.this, jsonTrailerResponse);
+                            return jsonRetrievedData;
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                            return null;
+                        } catch (JSONException e){
+                            e.printStackTrace();
+                            return null;
+                        }
+                }
+                if(jsonRetrievedData != null){
+                    return jsonRetrievedData;
+                } else {
                     return null;
                 }
             }
@@ -388,7 +441,7 @@ public class DetailActivity extends AppCompatActivity implements LoaderCallbacks
              * @param data  The result of the load
              */
             public void deliverResult(String[] data){
-                userReviewsData = data;
+                jsonRetrievedData = data;
                 super.deliverResult(data);
             }
         };
@@ -396,14 +449,29 @@ public class DetailActivity extends AppCompatActivity implements LoaderCallbacks
 
     @Override
     public void onLoadFinished(Loader<String[]> loader, String[] data) {
-        if(data != null && !data.equals("")){
-            showJsonDataView();
-            for(String userReviewString : data) {
-                mUserReviewsTextView.append((userReviewString) + "\n\n");
-            }
-        } else {
-            // Call showErrorMessage if the result is null in onPostExecute
-            showErrorMessage();
+        switch(loader.getId()){
+            case USER_REVIEW_LOADER_ID:
+                if(data != null && !data.equals("")){
+                    showJsonDataView();
+                    for(String userReviewString : data) {
+                        mUserReviewsTextView.append((userReviewString) + "\n\n");
+                    }
+                } else {
+                    // Call showErrorMessage if the result is null in onPostExecute
+                    showErrorMessage();
+                }
+                break;
+            case TRAILER_LOADER_ID:
+                if(data != null && !data.equals("")){
+                    showJsonDataView();
+                    for(String trailerString : data) {
+                        mTrailersTextView.append((trailerString) + "\n\n");
+                    }
+                } else {
+                    // Call showErrorMessage if the result is null in onPostExecute
+                    showErrorMessage();
+                }
+                break;
         }
     }
 

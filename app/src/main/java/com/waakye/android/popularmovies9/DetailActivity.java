@@ -32,6 +32,9 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.Arrays;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 /**
  * Created by lesterlie on 12/26/17.
  */
@@ -53,11 +56,12 @@ public class DetailActivity extends AppCompatActivity implements LoaderCallbacks
 
     private static String mIndividualMovieId;
 
-    TextView mTextViewMovieTitle;
-    TextView mTextViewMovieSynopsis;
-    TextView mTextViewMovieReleaseDate;
-    TextView mTextViewMovieVoteAverage;
-    ImageView mMoviePoster;
+//    TextView mTextViewMovieTitle;
+    @BindView(R.id.text_view_movie_title) TextView mTextViewMovieTitle;
+    @BindView(R.id.text_view_movie_synopsis) TextView mTextViewMovieSynopsis;
+    @BindView(R.id.text_view_movie_release_date) TextView mTextViewMovieReleaseDate;
+    @BindView(R.id.text_view_movie_vote_average) TextView mTextViewMovieVoteAverage;
+    @BindView(R.id.image_view_detail_activity_movie_poster) ImageView mMoviePoster;
 
     // Need context for Picasso
     private Context context;
@@ -78,6 +82,7 @@ public class DetailActivity extends AppCompatActivity implements LoaderCallbacks
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail);
+        ButterKnife.bind(this); // bind butterknife after
         ActionBar actionBar = this.getSupportActionBar();
 
         if(actionBar != null){
@@ -87,14 +92,14 @@ public class DetailActivity extends AppCompatActivity implements LoaderCallbacks
         MovieListing movieListing = getIntent().getParcelableExtra("movie");
 
         // Getting reference to TextView text_view_movie_title in activity_detail
-        mTextViewMovieTitle = (TextView)findViewById(R.id.text_view_movie_title);
+//        mTextViewMovieTitle = (TextView)findViewById(R.id.text_view_movie_title);
 
         // Getting reference to TextView text_view_movie_synopsis in activity_detail
-        mTextViewMovieSynopsis = (TextView)findViewById(R.id.text_view_movie_synopsis);
-        mTextViewMovieVoteAverage = (TextView)findViewById(R.id.text_view_movie_vote_average);
-        mTextViewMovieReleaseDate = (TextView)findViewById(R.id.text_view_movie_release_date);
+//        mTextViewMovieSynopsis = (TextView)findViewById(R.id.text_view_movie_synopsis);
+//        mTextViewMovieVoteAverage = (TextView)findViewById(R.id.text_view_movie_vote_average);
+//        mTextViewMovieReleaseDate = (TextView)findViewById(R.id.text_view_movie_release_date);
 
-        mMoviePoster = (ImageView) findViewById(R.id.image_view_detail_activity_movie_poster);
+//        mMoviePoster = (ImageView) findViewById(R.id.image_view_detail_activity_movie_poster);
 
         mTitle = movieListing.getMovieTitle();
         mSynopsis = movieListing.getMovieSynopsis();
@@ -169,6 +174,8 @@ public class DetailActivity extends AppCompatActivity implements LoaderCallbacks
         });
     }
 
+
+
     /**
      * onClickAddFavorite is called when "ADD" button is clicked.
      * It retrieves user input and inserts that new favorite data into the underlying database
@@ -177,22 +184,18 @@ public class DetailActivity extends AppCompatActivity implements LoaderCallbacks
     public void onClickAddFavorite(View view){
         Log.i(LOG_TAG, "onClickAddFavorite() method called...");
 
-            // Insert favorite movie via a ContentResolver
-            // Create a new empty ContentValues object
-            ContentValues cv = new ContentValues();
+        // Insert favorite movie via a ContentResolver
+        // Create a new empty ContentValues object
+        ContentValues cv = new ContentValues();
 
-            cv.put(MovieListingEntry.COLUMN_MOVIE_TITLE, mTitle);
-            cv.put(MovieListingEntry.COLUMN_MOVIE_SYNOPSIS, mSynopsis);
-            cv.put(MovieListingEntry.COLUMN_MOVIE_POSTER_PATH, mPosterPath);
-            cv.put(MovieListingEntry.COLUMN_MOVIE_VOTE_AVERAGE, mVoteAverage);
-            cv.put(MovieListingEntry.COLUMN_MOVIE_RELEASE_DATE, mReleaseDate);
-            cv.put(MovieListingEntry.COLUMN_MOVIE_ID, mMovieId);
+        cv.put(MovieListingEntry.COLUMN_MOVIE_TITLE, mTitle);
+        cv.put(MovieListingEntry.COLUMN_MOVIE_SYNOPSIS, mSynopsis);
+        cv.put(MovieListingEntry.COLUMN_MOVIE_POSTER_PATH, mPosterPath);
+        cv.put(MovieListingEntry.COLUMN_MOVIE_VOTE_AVERAGE, mVoteAverage);
+        cv.put(MovieListingEntry.COLUMN_MOVIE_RELEASE_DATE, mReleaseDate);
+        cv.put(MovieListingEntry.COLUMN_MOVIE_ID, mMovieId);
 
-            Uri newUri = getContentResolver().insert(MovieListingEntry.CONTENT_URI, cv);
-
-        // Finish activity (this returns back to MainActivity)
-        finish();
-
+        Uri newUri = getContentResolver().insert(MovieListingEntry.CONTENT_URI, cv);
     }
 
     // Used: https://www.programcreek.com/2014/04/check-if-array-contains-a-value-java/

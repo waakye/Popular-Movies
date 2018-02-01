@@ -48,7 +48,8 @@ public class MovieListingDbHelper extends SQLiteOpenHelper {
                         MovieListingEntry.COLUMN_MOVIE_RELEASE_DATE + " TEXT, " +
                         MovieListingEntry.COLUMN_MOVIE_VOTE_AVERAGE + " TEXT, " +
                         MovieListingEntry.COLUMN_MOVIE_ID + " TEXT, " +
-                        MovieListingEntry.COLUMN_MOVIE_FAVORITE + " INTEGER " +
+                        MovieListingEntry.COLUMN_MOVIE_FAVORITE + " INTEGER, " +
+                        "UNIQUE(" + MovieListingEntry.COLUMN_MOVIE_ID + ") ON CONFLICT REPLACE" +
                         "); "
         );
     }

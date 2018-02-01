@@ -35,25 +35,22 @@
             android:orientation="horizontal">
 
             <Button
-                android:id="@+id/first_trailer_button"
-                android:text="@string/first_trailer"
-                android:layout_weight="1"
+                android:id="@+id/watch_trailer_button"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:visibility="invisible"
+                android:text="@string/watch_trailer"
+                android:layout_marginTop="@dimen/activity_margin"/>
 
             <Button
                 android:id="@+id/trailer_button"
                 android:text="@string/trailer_button"
                 android:layout_weight="1"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/activity_margin"/>
 
         </LinearLayout>
-
-        <TextView
-            android:id="@+id/trailer_search_results"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
 
         <LinearLayout
             android:layout_width="match_parent"

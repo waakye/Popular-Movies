@@ -51,8 +51,6 @@ public class DetailActivity extends AppCompatActivity implements LoaderCallbacks
 
     private TextView mUserReviewsTextView;
 
-    private TextView mTrailersTextView;
-
     private static String mIndividualMovieId;
 
     TextView mTextViewMovieTitle;
@@ -61,7 +59,10 @@ public class DetailActivity extends AppCompatActivity implements LoaderCallbacks
     TextView mTextViewMovieVoteAverage;
     ImageView mMoviePoster;
 
+    // Need context for Picasso
     private Context context;
+
+    private Button mWatchTrailerButton;
 
     private String mTitle;
     private String mSynopsis;
@@ -69,6 +70,8 @@ public class DetailActivity extends AppCompatActivity implements LoaderCallbacks
     private String mVoteAverage;
     private String mReleaseDate;
     private String mMovieId;
+
+    private String firstTrailer;
 
 
     @Override
@@ -113,23 +116,27 @@ public class DetailActivity extends AppCompatActivity implements LoaderCallbacks
 
         Picasso.with(context).load(moviePosterUrl).into(mMoviePoster);
 
+        mWatchTrailerButton = (Button)findViewById(R.id.watch_trailer_button);
+
         mDetailActivityErrorMessageDisplay = (TextView)findViewById(R.id.detail_activity_text_view_error_message_display);
 
         mDetailActivityLoadingIndicator = (ProgressBar) findViewById(R.id.detail_activity_progress_bar_loading_indicator);
 
         mUserReviewsTextView = (TextView) findViewById(R.id.text_view_user_reviews);
-        mTrailersTextView = (TextView)findViewById(R.id.trailer_search_results);
 
         makeUserReviewsQuery(mIndividualMovieId);
 
-        makeTrailerQuery(mIndividualMovieId);
+        makeSingleTrailerQuery(mIndividualMovieId);
 
-        Button firstTrailerButton = (Button)findViewById(R.id.first_trailer_button);
-        firstTrailerButton.setOnClickListener(new View.OnClickListener(){
+        Button watch_trailer_button = (Button)findViewById(R.id.watch_trailer_button);
+        watch_trailer_button.setOnClickListener(new View.OnClickListener(){
 
             @Override
             public void onClick(View view) {
-
+                Log.i(LOG_TAG, "watch trailer button onClick() method called...");
+                Intent i = new Intent(Intent.ACTION_VIEW);
+                i.setData(Uri.parse(firstTrailer));
+                startActivity(i);
             }
         });
 
@@ -170,17 +177,7 @@ public class DetailActivity extends AppCompatActivity implements LoaderCallbacks
     public void onClickAddFavorite(View view){
         Log.i(LOG_TAG, "onClickAddFavorite() method called...");
 
-        // Use getAllMovieIds method to retrieve the storedMovieIds
-//        String[] storedMovieIds = getAllMovieIds();
-
-//        if (compareMovieIdsInFavorites(storedMovieIds, mMovieId) != true) {
-//            // Create database helper
-//            MovieListingDbHelper mDbHelper = new MovieListingDbHelper(this);
-//
-//            SQLiteDatabase db = mDbHelper.getWritableDatabase();
-
             // Insert favorite movie via a ContentResolver
-
             // Create a new empty ContentValues object
             ContentValues cv = new ContentValues();
 
@@ -197,50 +194,6 @@ public class DetailActivity extends AppCompatActivity implements LoaderCallbacks
         finish();
 
     }
-
-    /**
-     * Helper method to get the movieIds contained in the database
-     */
-//    private String[] getAllMovieIds() {
-//
-//        // Create database helper
-//        MovieListingDbHelper mDbHelper = new MovieListingDbHelper(this);
-//
-//        SQLiteDatabase db = mDbHelper.getReadableDatabase();
-//
-//        // Define a projection that specifies which columns from the database you will actually use
-//        // after the query
-//        String[] projectionAllColumns = {
-//                MovieListingEntry._ID,
-//                MovieListingEntry.COLUMN_MOVIE_TITLE,
-//                MovieListingEntry.COLUMN_MOVIE_SYNOPSIS,
-//                MovieListingEntry.COLUMN_MOVIE_POSTER_PATH,
-//                MovieListingEntry.COLUMN_MOVIE_VOTE_AVERAGE,
-//                MovieListingEntry.COLUMN_MOVIE_RELEASE_DATE,
-//                MovieListingEntry.COLUMN_MOVIE_ID,
-//        };
-//
-//        Cursor cursor = db.query(
-//                MovieListingEntry.TABLE_NAME,
-//                projectionAllColumns,
-//                MovieListingEntry.COLUMN_MOVIE_ID,
-//                null,
-//                null,
-//                null,
-//                null
-//        );
-//
-//        // Based on StackOverflow: https://stackoverflow.com/questions/18863816/putting-cursor-data-into-an-array
-//        cursor.moveToFirst();
-//        List<String> storedMovieIds = new ArrayList<String>();
-//        while(!cursor.isAfterLast()){
-//            storedMovieIds.add(cursor.getString(cursor.getColumnIndex("movieId")));
-//            cursor.moveToNext();
-//        }
-//        cursor.close();
-//        return storedMovieIds.toArray(new String[storedMovieIds.size()]);
-//
-//    }
 
     // Used: https://www.programcreek.com/2014/04/check-if-array-contains-a-value-java/
     public static boolean compareMovieIdsInFavorites(String[] array, String targetValue){
@@ -262,7 +215,6 @@ public class DetailActivity extends AppCompatActivity implements LoaderCallbacks
     private void makeUserReviewsQuery(String movieId){
 
         Log.i(LOG_TAG, "makeUserReviewsQuery() method called...");
-//        new UserReviewsQueryTask().execute(mIndividualMovieId);
 
         /**
          * This ID will uniquely identify the Loader.  We can use it to get a handle on our Loader
@@ -293,9 +245,9 @@ public class DetailActivity extends AppCompatActivity implements LoaderCallbacks
         getSupportLoaderManager().initLoader(loaderId, bundleForLoader, callback);
     }
 
-    private void makeTrailerQuery(String movieId){
+    private void makeSingleTrailerQuery(String movieId){
 
-        Log.i(LOG_TAG, "makeTrailerQuery() method called...");
+        Log.i(LOG_TAG, "makeSingleTrailerQuery() method called...");
 
         /**
          * This ID will uniquely identify the Loader.  We can use it to get a handle on our Loader
@@ -327,6 +279,7 @@ public class DetailActivity extends AppCompatActivity implements LoaderCallbacks
 
     }
 
+
     /**
      * This method will make the View for the JSON data visible and
      * hide the error message.
@@ -340,6 +293,12 @@ public class DetailActivity extends AppCompatActivity implements LoaderCallbacks
         // Then, make sure the JSON data is visible
         mUserReviewsTextView.setVisibility(View.VISIBLE);
     }
+
+    private void showWatchTrailerButton(){
+        // First make sure the button is invisible
+        mWatchTrailerButton.setVisibility(View.VISIBLE);
+    }
+
 
     /**
      * This method will make the error message visible and hide the JSON
@@ -370,9 +329,12 @@ public class DetailActivity extends AppCompatActivity implements LoaderCallbacks
         return new AsyncTaskLoader<String[]>(this) {
 
             /* This String[] will hold and help cache our User Review data */
-//            String[] userReviewsData = null;
 
             String[] jsonRetrievedData = null;
+
+            String[] trailerData = null;
+
+            String singleTrailer = null;
 
             @Override
             protected void onStartLoading(){
@@ -417,8 +379,13 @@ public class DetailActivity extends AppCompatActivity implements LoaderCallbacks
                             Log.i(LOG_TAG, "try-catch block query for json trailers response");
                             String jsonTrailerResponse = NetworkUtils.getResponseFromHttpUrl(trailerSearchUrl);
 
-                            jsonRetrievedData = MovieDbJsonUtils
+                            trailerData = MovieDbJsonUtils
                                     .getTrailerStringsFromJson(DetailActivity.this, jsonTrailerResponse);
+
+                            singleTrailer = trailerData[0];
+
+                            jsonRetrievedData = new String[]{singleTrailer};
+
                             return jsonRetrievedData;
                         } catch (IOException e) {
                             e.printStackTrace();
@@ -463,10 +430,8 @@ public class DetailActivity extends AppCompatActivity implements LoaderCallbacks
                 break;
             case TRAILER_LOADER_ID:
                 if(data != null && !data.equals("")){
-                    showJsonDataView();
-                    for(String trailerString : data) {
-                        mTrailersTextView.append((trailerString) + "\n\n");
-                    }
+                    firstTrailer = data[0];
+                    showWatchTrailerButton();
                 } else {
                     // Call showErrorMessage if the result is null in onPostExecute
                     showErrorMessage();

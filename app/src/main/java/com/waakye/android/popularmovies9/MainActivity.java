@@ -2,7 +2,6 @@ package com.waakye.android.popularmovies9;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
@@ -19,7 +18,6 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.waakye.android.popularmovies9.adapters.MovieListingAdapter;
-import com.waakye.android.popularmovies9.data.MovieListingDbHelper;
 import com.waakye.android.popularmovies9.data.MoviePreferences;
 import com.waakye.android.popularmovies9.utilities.MovieDbJsonUtils;
 import com.waakye.android.popularmovies9.utilities.NetworkUtils;
@@ -31,6 +29,9 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 public class MainActivity extends AppCompatActivity
         implements MovieListingAdapter.ListItemClickListener,
         LoaderCallbacks<List<MovieListing>>,
@@ -39,18 +40,15 @@ public class MainActivity extends AppCompatActivity
     private static final String LOG_TAG = MainActivity.class.getSimpleName();
 
     // Popularity types
-    public final static int MOST_POPULAR_MOVIES_POPULARITY_TYPE = 1;
-    public final static int HIGHLY_RATED_MOVIES_POPULARITY_TYPE = 2;
-    public final static int MY_FAVORITE_MOVIES_POPULARITY_TYPE = 3;
-    public final static int SEARCH_FAVORITE_MOVIES = 4;
+    public final static int SEARCH_FAVORITE_MOVIES = 1;
 
     private static boolean PREFERENCES_HAVE_BEEN_UPDATED = false;
 
     // TextView to display the error message
-    private TextView mErrorMessageDisplay;
+    @BindView(R.id.text_view_error_message_display)TextView mErrorMessageDisplay;
 
     // Loading Indicator
-    private ProgressBar mLoadingIndicator;
+    @BindView(R.id.progress_bar_loading_indicator)ProgressBar mLoadingIndicator;
 
     private RecyclerView mMoviesList;
 
@@ -63,15 +61,7 @@ public class MainActivity extends AppCompatActivity
     // Option selected in onOptionsItemSelected method
     private int itemThatWasClicked;
 
-    private TextView mSearchResultsTextView;
-
-    private String movieTitle = "Jack Reacher";
-
     private static final int MOVIE_POSTER_LOADER_ID = 0;
-
-    private SQLiteDatabase db;
-
-    private MovieListingDbHelper mDbHelper;
 
     private int popType = 0;
 
@@ -80,6 +70,7 @@ public class MainActivity extends AppCompatActivity
         Log.i(LOG_TAG, "onCreate() method called...");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        ButterKnife.bind(this); // bind butterknife after
 
         // Set RecyclerView variable to the View with id recycler_view_movies
         mMoviesList = (RecyclerView)findViewById(R.id.recycler_view_movies);
@@ -102,10 +93,6 @@ public class MainActivity extends AppCompatActivity
          * ListItemClickListener of the MovieListingAdapter constructor
          */
         mAdapter = new MovieListingAdapter(this, listJsonMovieData, this);
-
-        mErrorMessageDisplay = (TextView)findViewById(R.id.text_view_error_message_display);
-
-        mLoadingIndicator = (ProgressBar) findViewById(R.id.progress_bar_loading_indicator);
 
         int loaderId = MOVIE_POSTER_LOADER_ID;
 

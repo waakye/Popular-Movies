@@ -17,6 +17,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -57,6 +58,8 @@ public class DetailActivity extends AppCompatActivity implements LoaderCallbacks
 
     private static String mIndividualMovieId;
 
+    @BindView(R.id.detail_activity_scroll_view)ScrollView mScrollView;
+
     // TextView related to each movieListing
     @BindView(R.id.text_view_movie_title) TextView mTextViewMovieTitle;
     @BindView(R.id.text_view_movie_synopsis) TextView mTextViewMovieSynopsis;
@@ -81,7 +84,6 @@ public class DetailActivity extends AppCompatActivity implements LoaderCallbacks
     private String mMovieId;
 
     private String firstTrailer;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState){
@@ -155,6 +157,29 @@ public class DetailActivity extends AppCompatActivity implements LoaderCallbacks
                 onClickRemoveFavorite(view);
             }
         });
+    }
+
+    // From https://eliasbland.wordpress.com/2011/07/28/how-to-save-the-position-of-a-scrollview-when-the-orientation-changes-in-android/
+    @Override
+    protected void onSaveInstanceState(Bundle outState){
+        super.onSaveInstanceState(outState);
+
+        outState.putIntArray("ARTICLE_SCROLL_POSITION",
+                new int[] {mScrollView.getScrollX(), mScrollView.getScrollY()});
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState){
+        super.onRestoreInstanceState(savedInstanceState);
+        final int[] position = savedInstanceState.getIntArray("ARTICLE_SCROLL_POSITION");
+        if(position != null){
+            mScrollView.post(new Runnable() {
+                @Override
+                public void run() {
+                    mScrollView.scrollTo(position[0], position[1]);
+                }
+            });
+        }
     }
 
     /**

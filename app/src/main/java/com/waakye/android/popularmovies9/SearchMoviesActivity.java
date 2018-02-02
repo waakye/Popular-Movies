@@ -29,6 +29,9 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 /**
  * Created by lesterlie on 12/29/17.
  */
@@ -40,10 +43,14 @@ public class SearchMoviesActivity extends AppCompatActivity
     private static final String LOG_TAG = SearchMoviesActivity.class.getSimpleName();
 
     // TextView to display the error message
-    private TextView mErrorMessageDisplay;
+//    private TextView mErrorMessageDisplay;
+    @BindView(R.id.text_view_error_message_display)TextView mErrorMessageDisplay;
 
     // Loading Indicator
-    private ProgressBar mLoadingIndicator;
+//    private ProgressBar mLoadingIndicator;
+    @BindView(R.id.progress_bar_loading_indicator)ProgressBar mLoadingIndicator;
+
+    @BindView(R.id.search_button)Button searchButton;
 
     private MovieListingAdapter mAdapter;
 
@@ -63,6 +70,7 @@ public class SearchMoviesActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search);
+        ButterKnife.bind(this); // bind butterknife after
         ActionBar actionBar = this.getSupportActionBar();
 
         if(actionBar != null){
@@ -93,11 +101,11 @@ public class SearchMoviesActivity extends AppCompatActivity
          */
         mAdapter = new MovieListingAdapter(this, listJsonMovieData, this);
 
-        mErrorMessageDisplay = (TextView) findViewById(R.id.text_view_error_message_display);
+//        mErrorMessageDisplay = (TextView) findViewById(R.id.text_view_error_message_display);
+//
+//        mLoadingIndicator = (ProgressBar) findViewById(R.id.progress_bar_loading_indicator);
 
-        mLoadingIndicator = (ProgressBar) findViewById(R.id.progress_bar_loading_indicator);
-
-        Button searchButton = (Button) findViewById(R.id.search_button);
+//        Button searchButton = (Button) findViewById(R.id.search_button);
         searchButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 // Get input from the EditText

@@ -8,7 +8,7 @@
     <ImageView
         android:id="@+id/image_view_item_movie"
         android:layout_width="match_parent"
-        android:layout_height="180dp"
+        android:layout_height="@dimen/image_view_margin_height"
         android:layout_gravity="center"
         android:scaleType="centerCrop"/>
 

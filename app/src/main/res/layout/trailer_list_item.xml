@@ -11,6 +11,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:fontFamily="monospace"
-        android:textSize="22sp"/>
+        android:textSize="@dimen/trailer_text_size"/>
 
 </FrameLayout>

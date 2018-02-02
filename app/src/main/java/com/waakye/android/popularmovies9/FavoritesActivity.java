@@ -3,6 +3,7 @@ package com.waakye.android.popularmovies9;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
@@ -23,6 +24,8 @@ public class FavoritesActivity extends AppCompatActivity
         CustomCursorAdapter.ListItemClickListener{
 
     public static String LOG_TAG = FavoritesActivity.class.getSimpleName();
+
+    public static final String BUNDLE_RECYCLER_LAYOUT = "FavoritesActivity.recycler.layout";
 
     private static int FAVORITE_LOADER_ID = 33;
 
@@ -56,6 +59,33 @@ public class FavoritesActivity extends AppCompatActivity
         getSupportLoaderManager().initLoader(FAVORITE_LOADER_ID, null, this);
 
     }
+
+    // This callback is called only when there is a saved instance previously saved using
+    // onSaveInstanceState().  We restore some state in onCreate() while we can optionally
+    // restore other state here, possibly usable after onStart() has completed.
+    // The savedInstanceState Bundle is the same as the one used in onCreate().
+    @Override
+    public void onRestoreInstanceState(Bundle savedInstanceState){
+
+        super.onRestoreInstanceState(savedInstanceState);
+
+        if(savedInstanceState != null){
+
+            Parcelable savedRecyclerLayoutState = savedInstanceState.getParcelable(BUNDLE_RECYCLER_LAYOUT);
+            mRecyclerView.getLayoutManager().onRestoreInstanceState(savedRecyclerLayoutState);
+        }
+
+    }
+
+    // invoked when the activity may be temporarily destroyed, save the instance state here
+    @Override
+    public void onSaveInstanceState(Bundle outState){
+        super.onSaveInstanceState(outState);
+        outState.putParcelable(BUNDLE_RECYCLER_LAYOUT,
+                mRecyclerView.getLayoutManager().onSaveInstanceState());
+    }
+
+
 
     /**
      * This method is called after this activity has been paused or restarted.

@@ -3,6 +3,7 @@ package com.waakye.android.popularmovies9;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.AsyncTaskLoader;
@@ -41,6 +42,8 @@ public class MainActivity extends AppCompatActivity
 
     // Popularity types
     public final static int SEARCH_FAVORITE_MOVIES = 1;
+
+    public static final String BUNDLE_RECYCLER_LAYOUT = "MainActivity.recycler.layout";
 
     private static boolean PREFERENCES_HAVE_BEEN_UPDATED = false;
 
@@ -107,6 +110,28 @@ public class MainActivity extends AppCompatActivity
         PreferenceManager.getDefaultSharedPreferences(this)
                 .registerOnSharedPreferenceChangeListener(this);
     }
+
+    @Override
+    public void onRestoreInstanceState(Bundle savedInstanceState){
+
+        super.onRestoreInstanceState(savedInstanceState);
+
+        if(savedInstanceState != null){
+
+            Parcelable savedRecyclerLayoutState = savedInstanceState.getParcelable(BUNDLE_RECYCLER_LAYOUT);
+            mMoviesList.getLayoutManager().onRestoreInstanceState(savedRecyclerLayoutState);
+        }
+
+    }
+
+    // invoked when the activity may be temporarily destroyed, save the instance state here
+    @Override
+    public void onSaveInstanceState(Bundle outState){
+        super.onSaveInstanceState(outState);
+        outState.putParcelable(BUNDLE_RECYCLER_LAYOUT,
+                mMoviesList.getLayoutManager().onSaveInstanceState());
+    }
+
 
     @Override
     protected void onDestroy(){

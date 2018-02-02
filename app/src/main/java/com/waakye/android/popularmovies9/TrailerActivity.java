@@ -41,7 +41,7 @@ public class TrailerActivity extends AppCompatActivity
 
     private static final String YOUTUBE_BASE_URL = "https://www.youtube.com/watch?v=";
 
-    private static final String SAVED_LAYOUT_MANAGER = "TrailerActivity.recycler.layout";
+    private static final String BUNDLE_RECYCLER_LAYOUT = "TrailerActivity.recycler.layout";
 
     private String movieId;
 
@@ -92,21 +92,26 @@ public class TrailerActivity extends AppCompatActivity
     }
 
     @Override
-    public void onSavedInstanceState(Bundle outState){
-        outState.putParcelable(SAVED_LAYOUT_MANAGER, mTrailersList.getLayoutManager().onSaveInstanceState());
-        super.onSaveInstanceState(outState);
-    }
+    public void onRestoreInstanceState(Bundle savedInstanceState){
 
-
-    @Override
-    protected void onRestoreInstanceState(Bundle savedInstanceState){
         super.onRestoreInstanceState(savedInstanceState);
 
         if(savedInstanceState != null){
-            Parcelable savedRecyclerLayoutState = savedInstanceState.getParcelable(SAVED_LAYOUT_MANAGER);
+
+            Parcelable savedRecyclerLayoutState = savedInstanceState.getParcelable(BUNDLE_RECYCLER_LAYOUT);
             mTrailersList.getLayoutManager().onRestoreInstanceState(savedRecyclerLayoutState);
         }
+
     }
+
+    // invoked when the activity may be temporarily destroyed, save the instance state here
+    @Override
+    public void onSaveInstanceState(Bundle outState){
+        super.onSaveInstanceState(outState);
+        outState.putParcelable(BUNDLE_RECYCLER_LAYOUT,
+                mTrailersList.getLayoutManager().onSaveInstanceState());
+    }
+
 
     private void makeTrailerQuery(String movieId){
 

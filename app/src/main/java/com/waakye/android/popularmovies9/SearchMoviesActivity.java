@@ -2,6 +2,7 @@ package com.waakye.android.popularmovies9;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.app.NavUtils;
 import android.support.v4.content.AsyncTaskLoader;
@@ -41,6 +42,8 @@ public class SearchMoviesActivity extends AppCompatActivity
         android.support.v4.app.LoaderManager.LoaderCallbacks<List<MovieListing>> {
 
     private static final String LOG_TAG = SearchMoviesActivity.class.getSimpleName();
+
+    public static final String BUNDLE_RECYCLER_LAYOUT = "SearchMoviesActivity.recycler.layout";
 
     // TextView to display the error message
     @BindView(R.id.text_view_error_message_display)TextView mErrorMessageDisplay;
@@ -114,6 +117,28 @@ public class SearchMoviesActivity extends AppCompatActivity
             }
         });
     }
+
+    @Override
+    public void onRestoreInstanceState(Bundle savedInstanceState){
+
+        super.onRestoreInstanceState(savedInstanceState);
+
+        if(savedInstanceState != null){
+
+            Parcelable savedRecyclerLayoutState = savedInstanceState.getParcelable(BUNDLE_RECYCLER_LAYOUT);
+            mSearchedMoviesList.getLayoutManager().onRestoreInstanceState(savedRecyclerLayoutState);
+        }
+
+    }
+
+    // invoked when the activity may be temporarily destroyed, save the instance state here
+    @Override
+    public void onSaveInstanceState(Bundle outState){
+        super.onSaveInstanceState(outState);
+        outState.putParcelable(BUNDLE_RECYCLER_LAYOUT,
+                mSearchedMoviesList.getLayoutManager().onSaveInstanceState());
+    }
+
 
     private void makeUrlMovieTitleQueryString(String movieTitle) {
         Log.i(LOG_TAG, "makeUrlMovieTitleQueryString() method called...");

@@ -43,11 +43,9 @@ public class SearchMoviesActivity extends AppCompatActivity
     private static final String LOG_TAG = SearchMoviesActivity.class.getSimpleName();
 
     // TextView to display the error message
-//    private TextView mErrorMessageDisplay;
     @BindView(R.id.text_view_error_message_display)TextView mErrorMessageDisplay;
 
     // Loading Indicator
-//    private ProgressBar mLoadingIndicator;
     @BindView(R.id.progress_bar_loading_indicator)ProgressBar mLoadingIndicator;
 
     @BindView(R.id.search_button)Button searchButton;
@@ -101,11 +99,6 @@ public class SearchMoviesActivity extends AppCompatActivity
          */
         mAdapter = new MovieListingAdapter(this, listJsonMovieData, this);
 
-//        mErrorMessageDisplay = (TextView) findViewById(R.id.text_view_error_message_display);
-//
-//        mLoadingIndicator = (ProgressBar) findViewById(R.id.progress_bar_loading_indicator);
-
-//        Button searchButton = (Button) findViewById(R.id.search_button);
         searchButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 // Get input from the EditText
@@ -117,7 +110,6 @@ public class SearchMoviesActivity extends AppCompatActivity
 
                 LoaderManager lm = getSupportLoaderManager();
                 lm.initLoader(SEARCHED_MOVIE_POSTER_LOADER_ID, null, SearchMoviesActivity.this);
-
 
             }
         });
@@ -264,7 +256,7 @@ public class SearchMoviesActivity extends AppCompatActivity
 
     @Override
     public void onLoaderReset(Loader<List<MovieListing>> loader) {
-
+        // Left empty
     }
 
     @Override

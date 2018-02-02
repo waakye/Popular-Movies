@@ -34,18 +34,11 @@ public final class NetworkUtils {
     // https://api.themoviedb.org/3/search/movie?api_key=<>&language=en-US&page=1&include_adult=false
     public static final String MOVIE_DB_TITLE_SEARCH_BASE_URL = "https://api.themoviedb.org/3/search/movie";
 
-    private static final String YOUTUBE_BASE_URL = "https://www.youtube.com/watch?v=";
-
     final static String API_KEY_PARAM = "api_key";
     public final static String API_KEY = BuildConfig.THE_MOVIE_DB_API_TOKEN;
 
     final static String LANGUAGE_PARAM = "language";
     final static String LANGUAGE_ENGLISH = "en-US";
-
-    final static String PARAM_SORT = "sort_by";
-    final static String POPULARITY_DESC = "popularity.desc";
-    final static String HIGHLY_RATED_DESC = "vote_average.desc";
-
 
     final static String CERTIFICATION_COUNTRY_PARAM = "certification_country";
     final static String COUNTRY_US = "US";

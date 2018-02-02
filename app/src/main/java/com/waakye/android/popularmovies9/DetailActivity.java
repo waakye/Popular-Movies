@@ -47,16 +47,17 @@ public class DetailActivity extends AppCompatActivity implements LoaderCallbacks
     private static final int TRAILER_LOADER_ID = 12;
 
     // TextView to display the error message
-    private TextView mDetailActivityErrorMessageDisplay;
+    @BindView(R.id.detail_activity_text_view_error_message_display)TextView mDetailActivityErrorMessageDisplay;
 
     // Loading Indicator
-    private ProgressBar mDetailActivityLoadingIndicator;
+    @BindView(R.id.detail_activity_progress_bar_loading_indicator)ProgressBar mDetailActivityLoadingIndicator;
 
-    private TextView mUserReviewsTextView;
+    // TextView to display user reviews
+    @BindView(R.id.text_view_user_reviews)TextView mUserReviewsTextView;
 
     private static String mIndividualMovieId;
 
-//    TextView mTextViewMovieTitle;
+    // TextView related to each movieListing
     @BindView(R.id.text_view_movie_title) TextView mTextViewMovieTitle;
     @BindView(R.id.text_view_movie_synopsis) TextView mTextViewMovieSynopsis;
     @BindView(R.id.text_view_movie_release_date) TextView mTextViewMovieReleaseDate;
@@ -66,7 +67,11 @@ public class DetailActivity extends AppCompatActivity implements LoaderCallbacks
     // Need context for Picasso
     private Context context;
 
-    private Button mWatchTrailerButton;
+    // Buttons
+    @BindView(R.id.trailer_button)Button trailerButton;
+    @BindView(R.id.watch_trailer_button)Button mWatchTrailerButton;
+    @BindView(R.id.favorites_button)Button addToFavoritesButton;
+    @BindView(R.id.remove_from_favorites_button)Button removeFavoriteButton;
 
     private String mTitle;
     private String mSynopsis;
@@ -91,16 +96,6 @@ public class DetailActivity extends AppCompatActivity implements LoaderCallbacks
 
         MovieListing movieListing = getIntent().getParcelableExtra("movie");
 
-        // Getting reference to TextView text_view_movie_title in activity_detail
-//        mTextViewMovieTitle = (TextView)findViewById(R.id.text_view_movie_title);
-
-        // Getting reference to TextView text_view_movie_synopsis in activity_detail
-//        mTextViewMovieSynopsis = (TextView)findViewById(R.id.text_view_movie_synopsis);
-//        mTextViewMovieVoteAverage = (TextView)findViewById(R.id.text_view_movie_vote_average);
-//        mTextViewMovieReleaseDate = (TextView)findViewById(R.id.text_view_movie_release_date);
-
-//        mMoviePoster = (ImageView) findViewById(R.id.image_view_detail_activity_movie_poster);
-
         mTitle = movieListing.getMovieTitle();
         mSynopsis = movieListing.getMovieSynopsis();
         mPosterPath = movieListing.getMoviePosterPath();
@@ -121,20 +116,11 @@ public class DetailActivity extends AppCompatActivity implements LoaderCallbacks
 
         Picasso.with(context).load(moviePosterUrl).into(mMoviePoster);
 
-        mWatchTrailerButton = (Button)findViewById(R.id.watch_trailer_button);
-
-        mDetailActivityErrorMessageDisplay = (TextView)findViewById(R.id.detail_activity_text_view_error_message_display);
-
-        mDetailActivityLoadingIndicator = (ProgressBar) findViewById(R.id.detail_activity_progress_bar_loading_indicator);
-
-        mUserReviewsTextView = (TextView) findViewById(R.id.text_view_user_reviews);
-
         makeUserReviewsQuery(mIndividualMovieId);
 
         makeSingleTrailerQuery(mIndividualMovieId);
 
-        Button watch_trailer_button = (Button)findViewById(R.id.watch_trailer_button);
-        watch_trailer_button.setOnClickListener(new View.OnClickListener(){
+        mWatchTrailerButton.setOnClickListener(new View.OnClickListener(){
 
             @Override
             public void onClick(View view) {
@@ -145,7 +131,6 @@ public class DetailActivity extends AppCompatActivity implements LoaderCallbacks
             }
         });
 
-        Button trailerButton = (Button)findViewById(R.id.trailer_button);
         trailerButton.setOnClickListener(new View.OnClickListener(){
             public void onClick(View v){
                 Intent intent = new Intent(DetailActivity.this, TrailerActivity.class);
@@ -154,8 +139,7 @@ public class DetailActivity extends AppCompatActivity implements LoaderCallbacks
             }
         });
 
-        Button addToFavoriteButton = (Button)findViewById(R.id.favorites_button);
-        addToFavoriteButton.setOnClickListener(new View.OnClickListener(){
+        addToFavoritesButton.setOnClickListener(new View.OnClickListener(){
 
             @Override
             public void onClick(View view) {
@@ -164,7 +148,6 @@ public class DetailActivity extends AppCompatActivity implements LoaderCallbacks
             }
         });
 
-        Button removeFavoriteButton = (Button)findViewById(R.id.remove_from_favorites_button);
         removeFavoriteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -173,8 +156,6 @@ public class DetailActivity extends AppCompatActivity implements LoaderCallbacks
             }
         });
     }
-
-
 
     /**
      * onClickAddFavorite is called when "ADD" button is clicked.
@@ -202,7 +183,6 @@ public class DetailActivity extends AppCompatActivity implements LoaderCallbacks
     public static boolean compareMovieIdsInFavorites(String[] array, String targetValue){
         return Arrays.asList(array).contains(targetValue);
     }
-
 
     public void onClickRemoveFavorite(View view){
 
@@ -301,7 +281,6 @@ public class DetailActivity extends AppCompatActivity implements LoaderCallbacks
         // First make sure the button is invisible
         mWatchTrailerButton.setVisibility(View.VISIBLE);
     }
-
 
     /**
      * This method will make the error message visible and hide the JSON

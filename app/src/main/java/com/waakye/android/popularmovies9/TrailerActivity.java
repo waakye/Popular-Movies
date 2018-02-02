@@ -3,9 +3,11 @@ package com.waakye.android.popularmovies9;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -24,6 +26,9 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.List;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 /**
  * Created by lesterlie on 12/27/17.
  */
@@ -36,15 +41,15 @@ public class TrailerActivity extends AppCompatActivity
 
     private static final String YOUTUBE_BASE_URL = "https://www.youtube.com/watch?v=";
 
-    private TextView mTrailerResultsTextView;
+    private static final String SAVED_LAYOUT_MANAGER = "TrailerActivity.recycler.layout";
 
     private String movieId;
 
     // TextView to display the error message
-    private TextView mTrailerActivityErrorMessageDisplay;
+    @BindView(R.id.trailer_activity_text_view_error_message_display)TextView mTrailerActivityErrorMessageDisplay;
 
     // Loading Indicator
-    private ProgressBar mTrailerActivityLoadingIndicator;
+    @BindView(R.id.trailer_activity_progress_bar_loading_indicator)ProgressBar mTrailerActivityLoadingIndicator;
 
     private TrailerListingAdapter mAdapter;
 
@@ -58,6 +63,12 @@ public class TrailerActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_trailer);
+        ButterKnife.bind(this); // bind butterknife after
+        ActionBar actionBar = this.getSupportActionBar();
+
+        if(actionBar != null){
+            actionBar.setDisplayHomeAsUpEnabled(true);
+        }
 
         Intent intent = getIntent();
 
@@ -65,8 +76,6 @@ public class TrailerActivity extends AppCompatActivity
         Log.i(LOG_TAG, "the movie id is " + movieId);
 
         mTrailersList = (RecyclerView)findViewById(R.id.recycler_view_trailers);
-
-        mTrailerActivityErrorMessageDisplay = (TextView)findViewById(R.id.trailer_activity_text_view_error_message_display);
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         mTrailersList.setLayoutManager(layoutManager);
@@ -77,11 +86,26 @@ public class TrailerActivity extends AppCompatActivity
 
         mAdapter = new TrailerListingAdapter(this, jsonTrailerDataList, this);
 
-        mTrailerActivityLoadingIndicator = (ProgressBar) findViewById(R.id.trailer_activity_progress_bar_loading_indicator);
-
         LoaderManager lm = getSupportLoaderManager();
         lm.initLoader(TRAILER_LOADER_ID, null, this);
 
+    }
+
+    @Override
+    public void onSavedInstanceState(Bundle outState){
+        outState.putParcelable(SAVED_LAYOUT_MANAGER, mTrailersList.getLayoutManager().onSaveInstanceState());
+        super.onSaveInstanceState(outState);
+    }
+
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState){
+        super.onRestoreInstanceState(savedInstanceState);
+
+        if(savedInstanceState != null){
+            Parcelable savedRecyclerLayoutState = savedInstanceState.getParcelable(SAVED_LAYOUT_MANAGER);
+            mTrailersList.getLayoutManager().onRestoreInstanceState(savedRecyclerLayoutState);
+        }
     }
 
     private void makeTrailerQuery(String movieId){

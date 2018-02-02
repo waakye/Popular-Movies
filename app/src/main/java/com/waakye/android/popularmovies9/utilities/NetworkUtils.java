@@ -3,6 +3,8 @@ package com.waakye.android.popularmovies9.utilities;
 import android.net.Uri;
 import android.util.Log;
 
+import com.waakye.android.popularmovies9.BuildConfig;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -17,8 +19,6 @@ import java.util.Scanner;
 public final class NetworkUtils {
 
     private static final String LOG_TAG = NetworkUtils.class.getSimpleName();
-
-    private static final String MOVIE_DB_DISCOVER_BASE_URL = "https://api.themoviedb.org/3/discover/movie?";
 
     // Base URLs for highly-rated or popular movies list
     private static final String MOVIE_DB_POPULAR_MOVIE_BASE_URL = "https://api.themoviedb.org/3/movie/popular";
@@ -37,7 +37,7 @@ public final class NetworkUtils {
     private static final String YOUTUBE_BASE_URL = "https://www.youtube.com/watch?v=";
 
     final static String API_KEY_PARAM = "api_key";
-    public final static String API_KEY = "b2433ced24ee89f33371c184240eca2a";
+    public final static String API_KEY = BuildConfig.THE_MOVIE_DB_API_TOKEN;
 
     final static String LANGUAGE_PARAM = "language";
     final static String LANGUAGE_ENGLISH = "en-US";
